@@ -153,23 +153,6 @@
 			</section>
 		</div>
 
-		<!-- Partners Carousel -->
-		<section id="partners-carousel" class="wrapper style2 fade-up">
-			<div class="inner">
-				<h2>Our Partner Businesses</h2>
-				<div class="carousel-container">
-					<div class="carousel-track">
-						<!-- Original slides -->
-						<div class="carousel-slide"><img src="images/CovaLogo.png" alt="Partner Business 1"></div>
-						<div class="carousel-slide"><img src="images/GlobalPayLogo.png" alt="Partner Business 2"></div>
-						<div class="carousel-slide"><img src="images/GrLogo.png" alt="Partner Business 3"></div>
-						<div class="carousel-slide"><img src="images/MerrcoLogo.png" alt="Partner Business 4"></div>
-						<div class="carousel-slide"><img src="images/MonerisLogo.png" alt="Partner Business 5"></div>
-					</div>
-				</div>
-			</div>
-		</section>
-
 		<footer id="footer" class="wrapper alt">
 			<div class="inner">
 				<ul class="menu">
@@ -186,31 +169,5 @@
 		<script src="assets/js/breakpoints.min.js"></script>
 		<script src="assets/js/util.js"></script>
 		<script src="assets/js/main.js"></script>
-		<script>
-		// Partners Carousel
-		document.addEventListener('DOMContentLoaded', function() {
-			const track = document.querySelector('.carousel-track');
-			const slides = Array.from(track.children);
-			const slideCount = slides.length / 2;  // We've duplicated the slides, so divide by 2
-			let currentIndex = 0;
-
-			function moveCarousel() {
-				currentIndex++;
-				track.style.transition = 'transform 0.5s ease-in-out';
-				track.style.transform = `translateX(-${currentIndex * 20}%)`;
-
-				if (currentIndex >= slideCount) {
-					setTimeout(() => {
-						track.style.transition = 'none';
-						currentIndex = 0;
-						track.style.transform = 'translateX(0)';
-					}, 500);  // Wait for the transition to finish
-				}
-			}
-
-			// Move carousel every 3 seconds
-			setInterval(moveCarousel, 3000);
-		});
-		</script>
 	</body>
 </html>
