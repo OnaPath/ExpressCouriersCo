@@ -52,11 +52,13 @@
 	</head>
 	<body class="is-preload">
 		<header id="header">
-			<a href="index.html" class="title">Express Couriers & Co</a>
+			<a href="index.html" class="title">Become a Courier</a>
 			<nav>
 				<ul>
 					<li><a href="index.html">Home</a></li>
+					<li><a href="BecomeaPartner.html">Become a Partner</a></li>
 					<li><a href="BecomeaCourier.html" class="active">Become a Courier</a></li>
+					<li><a href="ConnectingLocalBusinesses.html">For Businesses</a></li>
 				</ul>
 			</nav>
 		</header>
@@ -66,7 +68,7 @@
 				<div class="inner">
 					<h1>Become a Courier with Express Couriers & Co</h1>
 					<img src="images/BecomeaCourierBanner.png" alt="Courier delivering package" class="image fit">
-					<p>Join Alberta's best common courier network and start earning on your own schedule. Express Couriers & Co provides a flexible opportunity for individuals looking to earn money while serving local small businesses in Alberta.</p>
+					<p>Join Alberta's best common carrier network and start earning on your own schedule. Express Couriers & Co provides a flexible opportunity for individuals looking to earn money while serving local small businesses in Alberta.</p>
 					<h2>Why Choose Express Couriers & Co?</h2>
 					<ul>
 						<li>Flexible hours - work when it suits you</li>
@@ -80,7 +82,7 @@
 					<form id="courier-application-form" method="post" action="#">
 						<div class="fields">
 							<div class="field half">
-								<label for="name">Name</label>
+								<label for="name">Full Name</label>
 								<input type="text" name="name" id="name" required />
 							</div>
 							<div class="field half">
@@ -91,58 +93,68 @@
 								<label for="phone">Phone</label>
 								<input type="tel" name="phone" id="phone" required />
 							</div>
+						</div>
+
+						<div class="fields">
 							<div class="field half">
 								<label for="city">City</label>
 								<input type="text" name="city" id="city" required />
 							</div>
 							<div class="field half">
-								<label for="Area">Neighbourhood or Area of City</label>
-								<input type="text" name="Area" id="Area" required />
+								<label for="Area">Preferred Service Area</label>
+								<input type="text" name="Area" id="Area" required placeholder="e.g., Downtown, North, East, South, West" />
+							</div>
+						</div>
+
+						<div class="fields">
+							<div class="field">
+								<label>Age Verification</label>
+								<div class="field quarter">
+									<input type="radio" id="over18" name="age" value="over18" required>
+									<label for="over18">18 or over</label>
+								</div>
 							</div>
 							<div class="field">
-								<label>Age</label>
-								<input type="radio" id="over18" name="age" value="over18" required>
-								<label for="over18">18 or over</label>
-								<input type="radio" id="under18" name="age" value="under18">
-								<label for="under18">Under 18</label>
+								<label>Transportation</label>
+								<div class="field quarter">
+									<input type="radio" id="haveBoth" name="licenseAndVehicle" value="haveBoth" required>
+									<label for="haveBoth">I have both a valid driver's license and reliable vehicle</label>
+								</div>
 							</div>
-							<div class="field">
-								<label>License and Vehicle</label>
-								<input type="radio" id="haveBoth" name="licenseAndVehicle" value="haveBoth" required>
-								<label for="haveBoth">I have both a license and a reliable vehicle</label>
-								<input type="radio" id="dontHaveBoth" name="licenseAndVehicle" value="dontHaveBoth">
-								<label for="dontHaveBoth">I don't have both</label>
-							</div>
-							<div class="field">
-								<label for="proserve">Do you have a ProServe certification?</label>
+						</div>
+
+						<div class="fields">
+							<div class="field half">
+								<label for="proserve">ProServe Certification</label>
 								<select name="proserve" id="proserve" required>
-									<option value="">- Select Option -</option>
-									<option value="yes">Yes</option>
-									<option value="willing">Willing to get</option>
-									<option value="no">No</option>
+									<option value="">Select Status</option>
+									<option value="yes">Currently Certified</option>
+									<option value="willing">Willing to Get Certified</option>
+									<option value="no">Not Interested</option>
 								</select>
 							</div>
-							<div class="field">
-								<label for="sellsafe">Do you have a SellSafe certification?</label>
+							<div class="field half">
+								<label for="sellsafe">SellSafe Certification</label>
 								<select name="SellSafe" id="sellsafe" required>
-									<option value="">- Select Option -</option>
-									<option value="yes">Yes</option>
-									<option value="willing">Willing to get</option>
-									<option value="no">No</option>
+									<option value="">Select Status</option>
+									<option value="yes">Currently Certified</option>
+									<option value="willing">Willing to Get Certified</option>
+									<option value="no">Not Interested</option>
 								</select>
 							</div>
-							<div class="field">
-								<label for="availability">Can you provide any details on your approximate schedule and availability? Details help!</label>
-								<textarea name="availability" id="availability" rows="3"></textarea>
-							</div>
-							<div class="field">
-								<label for="experience">Do you have any delivery experience? Are you currently delivering for anyone else?</label>
-								<textarea name="experience" id="experience" rows="3"></textarea>
-							</div>
-							<div class="field">
-								<label for="why">Why do you want to join Express Couriers?</label>
-								<textarea name="why" id="why" rows="3"></textarea>
-							</div>
+						</div>
+
+						<div class="field">
+							<label for="availability">Can you provide any details on your approximate schedule and availability? Details help!</label>
+							<textarea name="availability" id="availability" rows="3"></textarea>
+						</div>
+						<div class="field">
+							<label for="experience">Do you have any delivery experience? Are you currently delivering for anyone else?</label>
+							<textarea name="experience" id="experience" rows="3"></textarea>
+						</div>
+						<div class="field">
+							<label for="why">Why do you want to join Express Couriers?</label>
+							<textarea name="why" id="why" rows="3"></textarea>
 						</div>
 						<ul class="actions">
 							<li><input type="submit" value="Submit Application" class="primary" /></li>
