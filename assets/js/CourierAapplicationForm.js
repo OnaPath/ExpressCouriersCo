@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('courier-application-form');
     const submitButton = form.querySelector('input[type="submit"]');
+    const popup = document.getElementById('success-popup');
 
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -12,36 +13,19 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = true;
         submitButton.value = 'Submitting...';
 
-        // Collect form data
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
-
-        // Send data to API
-        fetch('https://api.expresscouriers.co/apply', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                showFeedback('Application submitted successfully! We'll be in touch soon.', 'success');
-                form.reset();
-            } else {
-                showFeedback('There was an error submitting your application. Please try again.', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showFeedback('An unexpected error occurred. Please try again later.', 'error');
-        })
-        .finally(() => {
+        // Simulate API call with setTimeout
+        setTimeout(() => {
+            showPopup();
+            form.reset();
+            
             // Re-enable submit button
             submitButton.disabled = false;
             submitButton.value = 'Submit Application';
-        });
+        }, 1000);
+    }
+
+    function showPopup() {
+        popup.style.display = 'block';
     }
 
     function showFeedback(message, type) {
@@ -63,3 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 });
+
+function closePopup() {
+    document.getElementById('success-popup').style.display = 'none';
+}
