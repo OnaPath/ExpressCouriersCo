@@ -4048,10 +4048,36 @@ input, select, textarea {
 
 .fee-display {
     background: rgba(255, 255, 255, 0.05);
-    padding: 0.75em;
-    border-radius: 0.25em;
-    margin-bottom: 1em;
-    font-size: 1.1em;
+    padding: 1em;
+    border-radius: 0.5em;
+    margin: 1em 0;
+}
+
+.fee-display > div {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.5em 0;
+}
+
+.fee-display .total {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    margin-top: 0.5em;
+    padding-top: 0.5em;
+    font-weight: bold;
+}
+
+.fee-display .amount {
+    font-family: monospace;
+}
+
+/* Remove ALL currency-related styling */
+.fee-display .amount::before,
+.fee-display .amount::after,
+.fee-display .total .amount::before,
+.fee-display .total .amount::after,
+#total-amount::before,
+#total-amount::after {
+    content: none !important;
 }
 
 .tip-options {
@@ -4232,4 +4258,52 @@ input, select, textarea {
 
 .hidden {
     display: none !important;
+}
+
+.fee-display .total-amount {
+    font-family: monospace;
+    position: relative;
+}
+
+/* Ensure no currency symbols are added */
+.fee-display .total-amount::before,
+.fee-display .total-amount::after {
+    content: none !important;
+}
+
+.total-display {
+    font-family: monospace;
+}
+
+.total-display .currency {
+    display: inline-block;
+    margin-right: 2px;
+}
+
+/* Remove any auto-generated currency symbols */
+.total-display::before,
+.total-display::after,
+#total-amount::before,
+#total-amount::after {
+    content: none !important;
+}
+
+/* Add these CSS rules */
+.fee-display .total .amount {
+    font-family: monospace;
+    position: static;  /* Override the relative positioning */
+}
+
+.fee-display .total .amount::before {
+    content: none !important;  /* Ensure no extra content is added */
+}
+
+.fee-display .total .amount::after {
+    content: none !important;  /* Ensure no extra content is added */
+}
+
+/* Remove any potential currency formatting */
+#total-amount::before,
+#total-amount::after {
+    content: none !important;
 }
