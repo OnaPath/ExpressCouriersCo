@@ -240,4 +240,100 @@
 		setInterval(moveCarousel, 3000);
 	});
 
+	document.addEventListener('DOMContentLoaded', function() {
+		const tipButtons = document.querySelectorAll('.tip-button');
+		const customTipInput = document.getElementById('custom-tip');
+		const tipInput = document.getElementById('tip');
+		const totalDisplay = document.getElementById('total-amount');
+		const deliveryFee = 15.00;
+
+		function updateTotal(tipAmount) {
+			const total = deliveryFee + parseFloat(tipAmount || 0);
+			totalDisplay.textContent = `$${total.toFixed(2)}`;
+			tipInput.value = tipAmount;
+		}
+
+		// Handle percentage tip buttons
+		tipButtons.forEach(button => {
+			button.addEventListener('click', function() {
+				// Clear custom tip input
+				customTipInput.value = '';
+				
+				// If this button is already selected, deselect it
+				if (this.classList.contains('selected')) {
+					this.classList.remove('selected');
+					updateTotal(0);
+					return;
+				}
+				
+				// Remove selected class from all buttons
+				tipButtons.forEach(btn => btn.classList.remove('selected'));
+				
+				// Add selected class to clicked button
+				this.classList.add('selected');
+				
+				// Calculate tip based on percentage
+				const percentage = parseFloat(this.getAttribute('data-percentage'));
+				const tipAmount = (deliveryFee * (percentage / 100));
+				
+				updateTotal(tipAmount);
+			});
+		});
+
+		// Handle custom tip input
+		customTipInput.addEventListener('input', function() {
+			// Remove selected class from percentage buttons
+			tipButtons.forEach(btn => btn.classList.remove('selected'));
+			
+			// Update total with custom amount
+			const customAmount = parseFloat(this.value) || 0;
+			updateTotal(customAmount);
+		});
+
+		// Initialize with no tip
+		updateTotal(0);
+
+		// Card number formatting
+		const cardInput = document.getElementById('card-number');
+		cardInput.addEventListener('input', function(e) {
+			// Remove any non-digits
+			let value = this.value.replace(/\D/g, '');
+			// Truncate to 16 digits
+			value = value.substring(0, 16);
+			this.value = value;
+		});
+
+		// Expiry date formatting
+		const expiryInput = document.getElementById('expiry');
+		let prevValue = '';
+		
+		expiryInput.addEventListener('input', function(e) {
+			let value = this.value.replace(/\D/g, '');
+			
+			// Allow backspacing
+			if (this.value.length < prevValue.length) {
+				prevValue = this.value;
+				return;
+			}
+			
+			// Format as MM/YY
+			if (value.length >= 2) {
+				value = value.substring(0, 2) + '/' + value.substring(2, 4);
+			}
+			
+			this.value = value;
+			prevValue = this.value;
+		});
+
+		// CVV formatting
+		const cvvInput = document.getElementById('cvv');
+		cvvInput.addEventListener('input', function(e) {
+			// Remove any non-digits
+			let value = this.value.replace(/\D/g, '');
+			// Truncate to 4 digits
+			value = value.substring(0, 4);
+			this.value = value;
+		});
+	});
+
 })(jQuery);

@@ -4005,3 +4005,187 @@ input, select, textarea {
 .popup p {
     margin-bottom: 1.5em;
 }
+
+.fee-display {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.75em;
+    border-radius: 0.25em;
+    margin-bottom: 1em;
+    font-size: 1.1em;
+}
+
+.tip-options {
+    display: flex;
+    gap: 1em;
+    margin-bottom: 1em;
+}
+
+.tip-button {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 0.75em;
+    border-radius: 0.25em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: inherit;
+}
+
+.tip-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.tip-button.selected {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.custom-tip {
+    margin-top: 1em;
+    position: relative;
+}
+
+.custom-tip input[type="number"] {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.25em;
+}
+
+.custom-tip::before {
+    content: 'Or enter custom amount:';
+    display: block;
+    margin-bottom: 0.5em;
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+
+.payment-section {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5em;
+    border-radius: 0.25em;
+    margin-bottom: 1em;
+}
+
+.payment-section input {
+    margin-bottom: 1em;
+}
+
+.payment-section .row {
+    display: flex;
+    gap: 1em;
+    margin-bottom: 1em;
+}
+
+.card-icons {
+    display: flex;
+    gap: 1em;
+    justify-content: flex-end;
+    margin-top: 0.5em;
+}
+
+.card-icons img {
+    height: 60px;  /* Changed from 30px to 60px */
+    opacity: 0.7;
+}
+
+.weight-note {
+    display: block;
+    margin-top: 0.5em;
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+
+.coming-soon {
+    font-size: 0.9em;
+    opacity: 0.7;
+    font-style: italic;
+    margin-left: 0.5em;
+}
+
+.city-links {
+    text-align: center;
+    margin: 2em 0;
+}
+
+.city-links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: inline-block;
+}
+
+.city-links li {
+    margin: 0.5em 0;
+}
+
+.city-links a {
+    color: inherit;
+    text-decoration: none;
+    padding: 0.5em 1em;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.25em;
+    transition: background-color 0.2s ease;
+}
+
+.city-links a:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Service Terms Styling */
+.terms-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2em;
+}
+
+.terms-header {
+    margin-bottom: 3em;
+    padding: 2em;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.5em;
+}
+
+.last-updated {
+    color: #888;
+    font-size: 0.9em;
+    margin-bottom: 2em;
+}
+
+.terms-intro, .consent-notice {
+    font-size: 0.95em;
+    line-height: 1.6;
+    margin-bottom: 1.5em;
+}
+
+.terms-section {
+    margin: 3em 0;
+}
+
+.terms-section h2 {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    padding-bottom: 0.5em;
+    margin-bottom: 1em;
+}
+
+.definition-item {
+    margin: 2em 0;
+    padding-left: 1em;
+    border-left: 3px solid rgba(255, 255, 255, 0.15);
+}
+
+.definition-item h3 {
+    color: #fff;
+    margin-bottom: 0.5em;
+}
+
+.definition-item p {
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+.section-intro {
+    font-size: 1.1em;
+    margin-bottom: 2em;
+    color: rgba(255, 255, 255, 0.8);
+}
