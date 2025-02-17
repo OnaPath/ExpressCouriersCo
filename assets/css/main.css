@@ -4307,3 +4307,36 @@ input, select, textarea {
 #total-amount::after {
     content: none !important;
 }
+
+.success-message {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2em;
+    border-radius: 0.5em;
+    margin: 2em 0;
+    text-align: center;
+}
+
+.success-message p {
+    margin: 1em 0;
+}
+
+.success-message .actions {
+    margin-top: 2em;
+}
+
+.center-button {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.center-button input[type="submit"] {
+    min-width: 200px;
+}
+
+.payment-note {
+    text-align: center;
+    font-size: 0.9em;
+    opacity: 0.8;
+    margin-bottom: 1em;
+}
