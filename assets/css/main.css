@@ -3968,28 +3968,68 @@ input, select, textarea {
 
 /* Popup Styles */
 .popup {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
     z-index: 1000;
 }
 
 .popup-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #312450;
-    padding: 2em;
-    border-radius: 10px;
-    text-align: center;
+    background: #2b2b2b;
+    padding: 1.5em;
+    border-radius: 0.5em;
     max-width: 500px;
     width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
 }
+
+.popup-content h3 {
+    margin-bottom: 1em;
+}
+
+.popup-content ol {
+    margin: 1em 0 1em 1.5em;
+    list-style: decimal;
+}
+
+.popup-content .actions {
+    margin-top: 1.5em;
+    display: flex !important; /* Force flex display */
+    flex-direction: column !important; /* Force column direction */
+    gap: 0.75em;
+    width: 100%;
+}
+
+.popup-content .actions button {
+    display: block !important;
+    width: 100% !important;
+    padding: 0.75em 1em;
+    margin: 0 0 0.5em 0 !important;
+    text-align: center;
+    white-space: normal !important; /* Allow text to wrap */
+    font-size: 0.9em;
+    min-height: 2.75em;
+}
+
+/* Remove horizontal layout media query for now */
+/* @media screen and (min-width: 768px) {
+    .popup-content .actions {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+
+    .popup-content .actions button {
+        width: auto;
+        min-width: 140px;
+    }
+} */
 
 .checkmark {
     display: block;
@@ -4188,4 +4228,8 @@ input, select, textarea {
     font-size: 1.1em;
     margin-bottom: 2em;
     color: rgba(255, 255, 255, 0.8);
+}
+
+.hidden {
+    display: none !important;
 }

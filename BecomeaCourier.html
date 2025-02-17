@@ -78,7 +78,7 @@
 					</ul>
 					
 					<h2 id="apply-now">Apply Now - Join Our Team of Friendly, Reliable Couriers</h2>
-					<form id="courier-application-form" method="post" action="#">
+					<form id="courier-application-form" onsubmit="sendEmail(event)">
 						<div class="fields">
 							<div class="field half">
 								<label for="name">Full Name</label>
@@ -155,6 +155,7 @@
 							<label for="why">Why do you want to join Express Couriers?</label>
 							<textarea name="why" id="why" rows="3"></textarea>
 						</div>
+						<input type="hidden" name="_next" value="https://yourdomain.com/courier-success.html">
 						<ul class="actions">
 							<li><input type="submit" value="Submit Application" class="primary" /></li>
 							<li><input type="reset" value="Reset" /></li>
@@ -189,6 +190,109 @@
 				<button onclick="closePopup()" class="button">Close</button>
 			</div>
 		</div>
+		<div id="email-instructions" class="popup" style="display: none;">
+			<div class="popup-content">
+				<h3>Submit Your Application</h3>
+				<p>When you click continue, your default email app will open with your application pre-filled.</p>
+				<p>If no email app opens, you can:</p>
+				<ol>
+					<li>Set up your default email app in your device settings, or</li>
+					<li>Copy the application details and email them to <a href="mailto:admin@expresscouriers.co">admin@expresscouriers.co</a></li>
+				</ol>
+				<div class="actions">
+					<button onclick="proceedWithEmail()" class="button primary">Continue</button>
+					<button onclick="showCopyOption()" class="button">Copy Application Text</button>
+					<button onclick="closeEmailInstructions()" class="button">Cancel</button>
+				</div>
+			</div>
+		</div>
 		<script src="assets/js/CourierAapplicationForm.js"></script>
+		<script>
+		let emailBody = '';
+		let mailtoUrl = '';
+
+		function sendEmail(e) {
+			e.preventDefault();
+			
+			// Get all form values
+			const name = document.getElementById('name').value;
+			const email = document.getElementById('email').value;
+			const phone = document.getElementById('phone').value;
+			const city = document.getElementById('city').value;
+			const area = document.getElementById('Area').value;
+			const age = document.querySelector('input[name="age"]:checked')?.value || 'Not specified';
+			const transport = document.querySelector('input[name="licenseAndVehicle"]:checked')?.value || 'Not specified';
+			const proserve = document.getElementById('proserve').value;
+			const sellsafe = document.getElementById('sellsafe').value;
+			const availability = document.getElementById('availability').value;
+			const experience = document.getElementById('experience').value;
+			const why = document.getElementById('why').value;
+
+			// Store email body globally
+			emailBody = `
+New Courier Application
+
+Name: ${name}
+Email: ${email}
+Phone: ${phone}
+City: ${city}
+Preferred Area: ${area}
+Age Verification: ${age}
+Transportation: ${transport}
+ProServe Status: ${proserve}
+SellSafe Status: ${sellsafe}
+
+Availability:
+${availability}
+
+Experience:
+${experience}
+
+Why Express Couriers:
+${why}
+			`.trim();
+
+			// Store mailto URL globally
+			mailtoUrl = `mailto:admin@expresscouriers.co?subject=Courier Application - ${name}&body=${encodeURIComponent(emailBody)}`;
+			
+			// Show instructions modal
+			document.getElementById('email-instructions').style.display = 'flex';
+		}
+
+		function proceedWithEmail() {
+			// Close instructions
+			document.getElementById('email-instructions').style.display = 'none';
+			// Open email client
+			window.location.href = mailtoUrl;
+			// Redirect to success page after a short delay
+			setTimeout(() => {
+				window.location.href = 'courier-success.html';
+			}, 1000);
+		}
+
+		function showCopyOption() {
+			// Copy application text to clipboard
+			navigator.clipboard.writeText(emailBody).then(() => {
+				alert('Application text copied to clipboard! You can now paste this into an email to admin@expresscouriers.co');
+			}).catch(() => {
+				alert('Unable to copy automatically. Please manually copy the text shown.');
+				// Show text in a textarea for manual copying
+				const textarea = document.createElement('textarea');
+				textarea.value = emailBody;
+				document.body.appendChild(textarea);
+				textarea.select();
+				try {
+					document.execCommand('copy');
+				} catch (err) {
+					console.error('Failed to copy text:', err);
+				}
+				document.body.removeChild(textarea);
+			});
+		}
+
+		function closeEmailInstructions() {
+			document.getElementById('email-instructions').style.display = 'none';
+		}
+		</script>
 	</body>
 </html>
