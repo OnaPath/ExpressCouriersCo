@@ -1,0 +1,28 @@
+ name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Change to 'master' if that's your default branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Create production config
+        run: |
+          echo "const CONFIG = {" > assets/js/config.js
+          echo "    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'," >> assets/js/config.js
+          echo "    API_BASE_URL: 'https://api.expresscouriers.co'," >> assets/js/config.js
+          echo "    DEBUG: false," >> assets/js/config.js
+          echo "    ENVIRONMENT: 'production'" >> assets/js/config.js
+          echo "};" >> assets/js/config.js
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: .
