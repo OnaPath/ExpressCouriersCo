@@ -99,14 +99,20 @@
 		</script>
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-		<!-- Favicon -->
-		<link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/40x40-logo.png">
-		<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/40x40-logo.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon/40x40-logo.png">
-		<link rel="manifest" href="/images/favicon/site.webmanifest">
-		<link rel="shortcut icon" href="/images/favicon/favicon.ico">
-		<meta name="msapplication-TileColor" content="#da532c">
-		<meta name="theme-color" content="#ffffff">
+		<script>
+			// Load Google Places API after config is loaded
+			function initGooglePlaces() {
+				console.log('Loading Google Places API with key:', CONFIG.GOOGLE_PLACES_API_KEY);
+				const script = document.createElement('script');
+				script.src = `https://maps.googleapis.com/maps/api/js?key=${CONFIG.GOOGLE_PLACES_API_KEY}&libraries=places&callback=initAutocomplete&loading=async`;
+				script.async = true;
+				script.defer = true;
+				script.onerror = () => console.error('Failed to load Google Places API');
+				script.onload = () => console.log('Google Places API loaded successfully');
+				document.head.appendChild(script);
+			}
+		</script>
+		<!-- Load CONFIG first -->
 		<script>
 			// Determine environment
 			const environment = window.location.hostname.includes('localhost') ? 'development' 
@@ -116,10 +122,51 @@
 			// Load appropriate config
 			const configScript = document.createElement('script');
 			configScript.src = `assets/js/config.${environment}.js`;
+			configScript.onload = initGooglePlaces;
 			document.head.appendChild(configScript);
 		</script>
+		<style>
+			.address-wrapper {
+				position: relative;
+				margin-bottom: 2.5em !important; /* Add space below address fields */
+			}
+			.pac-container {
+				z-index: 999999 !important;
+				position: absolute !important;
+				pointer-events: auto !important;
+				box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+				background: #fff;
+				border: 1px solid #ccc;
+				margin-top: 2px !important;
+				display: block !important;
+				visibility: visible !important;
+			}
+			/* Ensure consistent spacing after address sections */
+			.row.gtr-uniform > .col-12:last-child {
+				margin-bottom: 2em;
+			}
+			/* Style the Google attribution to be more subtle */
+			.pac-container:after {
+				/* Light theme styling */
+				background-color: #fff !important;
+				height: 20px !important;
+				padding: 3px 6px !important;
+				color: #666 !important;
+				font-size: 0.7em !important;
+				line-height: 14px !important;
+			}
+			/* Style the dropdown items */
+			.pac-item {
+				padding: 6px 8px;
+				cursor: pointer;
+			}
+			.pac-item:hover {
+				background-color: #f8f9fa;
+			}
+		</style>
 		<script defer src="assets/js/dispatchService.js"></script>
 		<script defer src="assets/js/deliveryForm.js"></script>
+		<script defer src="assets/js/addressValidation.js"></script>
 	</head>
 	<body class="is-preload">
 
@@ -167,7 +214,17 @@
 									<input type="tel" name="sender-phone" placeholder="Sender's Phone" required />
 								</div>
 								<div class="col-12">
-									<input type="text" name="pickup-address" placeholder="Pickup Address" required />
+									<div class="address-wrapper">
+										<!-- Dummy fields to trick browser autofill -->
+										<input type="text" style="display:none">
+										<input type="password" style="display:none">
+										<input type="text" 
+											  name="pickup-address" 
+											  placeholder="Pickup Address" 
+											  autocomplete="off"
+											  data-google-places="true"
+											  required />
+									</div>
 								</div>
 							</div>
 
@@ -180,7 +237,17 @@
 									<input type="tel" name="receiver-phone" placeholder="Receiver's Phone" required />
 								</div>
 								<div class="col-12">
-									<input type="text" name="dropoff-address" placeholder="Delivery Address" required />
+									<div class="address-wrapper">
+										<!-- Dummy fields to trick browser autofill -->
+										<input type="text" style="display:none">
+										<input type="password" style="display:none">
+										<input type="text" 
+											  name="dropoff-address" 
+											  placeholder="Delivery Address" 
+											  autocomplete="off"
+											  data-google-places="true"
+											  required />
+									</div>
 								</div>
 							</div>
 
@@ -236,7 +303,7 @@
 							<input type="hidden" name="order_total" id="order_total" value="">
 							<input type="hidden" name="delivery_fee" value="20.00">
 							<input type="hidden" name="gst" value="1.00">
-							<input type="hidden" name="city" value="Calgary">
+							<input type="hidden" name="city" value="calgary">
 							<div class="col-12 payment-note">
 								You will be redirected to Moneris for secure online payment
 							</div>

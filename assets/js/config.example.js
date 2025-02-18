@@ -13,5 +13,6 @@ const CONFIG = {
     production: {
         API_KEY: 'your_production_key_here',
         API_URL: 'http://3.96.196.208:5000/express-couriers'
-    }
+    },
+    GOOGLE_PLACES_API_KEY: 'YOUR_GOOGLE_PLACES_API_KEY'
 }; 
