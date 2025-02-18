@@ -4375,17 +4375,17 @@ input, select, textarea {
     color: #b74e91;
 }
 
-+ .locations-section {
-+     margin-top: 2em;
-+ }
-+ 
-+ .locations-section h2 {
-+     margin-bottom: 0.5em;
-+ }
-+ 
-+ .locations-section .city-links {
-+     margin-top: 1em;
-+ }
+.locations-section {
+    margin-top: 2em;
+}
+
+.locations-section h2 {
+    margin-bottom: 0.5em;
+}
+
+.locations-section .city-links {
+    margin-top: 1em;
+}
 
 .text-center {
     text-align: center;
