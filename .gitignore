@@ -1,7 +1,6 @@
 # Environment config files
 assets/js/config.development.js
 assets/js/config.staging.js
-assets/js/config.production.js
 assets/js/config.js
 
 # Keep example config
@@ -30,4 +29,7 @@ config.js
 secrets.json
 
 # Common files to ignore
-node_modules/ 
+node_modules/
+
+# Ignore production config
+assets/js/config.production.js 
