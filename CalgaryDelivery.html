@@ -100,6 +100,19 @@
 		<link rel="shortcut icon" href="/images/favicon/favicon.ico">
 		<meta name="msapplication-TileColor" content="#da532c">
 		<meta name="theme-color" content="#ffffff">
+		<script>
+			// Determine environment
+			const environment = window.location.hostname.includes('localhost') ? 'development' 
+							 : window.location.hostname.includes('staging') ? 'staging'
+							 : 'production';
+			
+			// Load appropriate config
+			const configScript = document.createElement('script');
+			configScript.src = `assets/js/config.${environment}.js`;
+			document.head.appendChild(configScript);
+		</script>
+		<script defer src="assets/js/dispatchService.js"></script>
+		<script defer src="assets/js/deliveryForm.js"></script>
 	</head>
 	<body class="is-preload">
 
@@ -124,8 +137,8 @@
 							<h1 class="major">Calgary Hotshot Delivery Services</h1>
 							
 							<h2>Fast, Reliable Delivery in Calgary</h2>
-							<form id="delivery-request-form" method="post" action="/process-order.php">
-								<p>Need something delivered across Calgary? Our professional couriers provide rapid hotshot delivery services throughout Calgary and surrounding areas. From documents to packages, we ensure your items reach their destination quickly and safely.</p>
+							<form id="delivery-form" class="delivery-form">
+								<p>Need something delivered across Calgary? Our professional couriers provide rapid hotshot delivery services throughout Calgary and surrounding areas.</p>
 
 							<h2>Why Choose Our Calgary Delivery Service</h2>
 							<ul>
@@ -140,26 +153,26 @@
 							<h2>Sender Details</h2>
 							<div class="row gtr-uniform">
 								<div class="col-6 col-12-xsmall">
-									<input type="text" name="sender-name" id="sender-name" value="" placeholder="Your Name or business name" required />
+									<input type="text" name="sender-name" placeholder="Sender's Name" required />
 								</div>
 								<div class="col-6 col-12-xsmall">
-									<input type="tel" name="sender-phone" id="sender-phone" value="" placeholder="Phone Number" required />
+									<input type="tel" name="sender-phone" placeholder="Sender's Phone" required />
 								</div>
 								<div class="col-12">
-									<input type="text" name="pickup-address" id="pickup-address" value="" placeholder="Pickup Address" required />
+									<input type="text" name="pickup-address" placeholder="Pickup Address" required />
 								</div>
 							</div>
 
 							<h2>Receiver Details</h2>
 							<div class="row gtr-uniform">
 								<div class="col-6 col-12-xsmall">
-									<input type="text" name="receiver-name" id="receiver-name" value="" placeholder="Receiver Name" required />
+									<input type="text" name="receiver-name" placeholder="Receiver's Name" required />
 								</div>
 								<div class="col-6 col-12-xsmall">
-									<input type="tel" name="receiver-phone" id="receiver-phone" value="" placeholder="Receiver Phone Number" required />
+									<input type="tel" name="receiver-phone" placeholder="Receiver's Phone" required />
 								</div>
 								<div class="col-12">
-									<input type="text" name="dropoff-address" id="dropoff-address" value="" placeholder="Dropoff Address" required />
+									<input type="text" name="dropoff-address" placeholder="Delivery Address" required />
 								</div>
 							</div>
 
@@ -224,17 +237,20 @@
 							</div>
 
 							<h2>Service Areas</h2>
-							<p>We provide fast delivery service throughout Calgary and surrounding communities, including:</p>
+							<p>We provide fast delivery service throughout Calgary and nearby areas, including:</p>
 							<ul>
 								<li>Downtown Calgary</li>
 								<li>Northwest Calgary</li>
 								<li>Northeast Calgary</li>
 								<li>Southwest Calgary</li>
 								<li>Southeast Calgary</li>
-								<li>Airdrie</li>
-								<li>Chestermere</li>
-								<li>Cochrane</li>
-								<li>Okotoks</li>
+								<li>Beltline</li>
+								<li>Inglewood</li>
+								<li>Mission</li>
+								<li>Bridgeland</li>
+								<li>University District</li>
+								<li>Foothills Industrial</li>
+								<li>Calgary International Airport</li>
 							</ul>
 							</form>
 						</div>
@@ -309,6 +325,13 @@
 				updateAmounts(0);
 			});
 			</script>
+
+		<!-- Initialize form handler -->
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				const deliveryForm = new DeliveryFormHandler('delivery-form');
+			});
+		</script>
 
 	</body>
 </html>
