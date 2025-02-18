@@ -59,7 +59,7 @@
 				"longitude": "-114.0134"
 			},
 			"url": "https://www.expresscouriers.co/AirdrieDelivery.html",
-			"priceRange": "$15",
+			"priceRange": "$20",
 			"openingHours": "Mo-Su 09:00-21:30"
 		}
 		</script>
@@ -106,6 +106,17 @@
 							<form id="delivery-form" class="delivery-form">
 							<p>Need something delivered across Airdrie? Our professional couriers provide rapid hotshot delivery services throughout Airdrie and surrounding areas.</p>
 
+							<h2>Why Choose Our Airdrie Delivery Service</h2>
+							<ul>
+								<li>Immediate pickup available</li>
+								<li>Real-time delivery tracking</li>
+								<li>Professional, experienced couriers</li>
+								<li>Competitive flat-rate pricing</li>
+								<li>Serving all Airdrie neighborhoods</li>
+								<li>Available 7 days a week</li>
+								<li>Orders made before 9:30pm will be delivered same day, orders after may be processed for next day delivery</li>
+							</ul>
+							
 							<h2>Sender Details</h2>
 							<div class="row gtr-uniform">
 								<div class="col-6 col-12-xsmall">
@@ -147,11 +158,11 @@
 								<div class="fee-display">
 									<div class="subtotal">
 										<span>Delivery Fee:</span>
-										<span class="price">$15.00</span>
+										<span class="price">$20.00</span>
 									</div>
 									<div class="gst">
 										<span>GST (5%):</span>
-										<span class="price">$0.75</span>
+										<span class="price">$1.00</span>
 									</div>
 									<div class="tip">
 										<span>Tip:</span>
@@ -159,7 +170,7 @@
 									</div>
 									<div class="total">
 										<span>Total:</span>
-										<span class="price">$<span id="total-display">15.75</span></span>
+										<span class="price">$<span id="total-display">21.00</span></span>
 									</div>
 								</div>
 							</div>
@@ -167,9 +178,9 @@
 							<div class="col-12">
 								<h3>Tip Your Courier</h3>
 								<div class="tip-options">
-									<button type="button" class="tip-button" data-percentage="15">15% ($2.25)</button>
-									<button type="button" class="tip-button" data-percentage="20">20% ($3.00)</button>
-									<button type="button" class="tip-button" data-percentage="25">25% ($3.75)</button>
+									<button type="button" class="tip-button" data-percentage="15">15% ($3.00)</button>
+									<button type="button" class="tip-button" data-percentage="20">20% ($4.00)</button>
+									<button type="button" class="tip-button" data-percentage="25">25% ($5.00)</button>
 								</div>
 								<div class="custom-tip">
 									<input type="number" name="custom-tip" id="custom-tip" placeholder="Enter Custom Amount" min="0" step="0.50" />
@@ -188,8 +199,8 @@
 							</div>
 
 							<input type="hidden" name="order_total" id="order_total" value="">
-							<input type="hidden" name="delivery_fee" value="15.00">
-							<input type="hidden" name="gst" value="0.75">
+							<input type="hidden" name="delivery_fee" value="20.00">
+							<input type="hidden" name="gst" value="1.00">
 							<input type="hidden" name="city" value="Airdrie">
 							<div class="col-12 payment-note">
 								You will be redirected to Moneris for secure online payment
@@ -197,8 +208,6 @@
 							<div class="col-12 center-button">
 								<input type="submit" value="Proceed to Payment" class="primary" />
 							</div>
-						</div>
-					</form>
 
 							<h2>Service Areas</h2>
 							<p>We provide fast delivery service throughout Airdrie and nearby areas, including:</p>
@@ -221,15 +230,16 @@
 							<p>Our Airdrie delivery service covers:</p>
 							<ul>
 								<li>Local Airdrie deliveries</li>
-								<li>Deliveries to Calgary</li>
 								<li>Deliveries to Crossfield</li>
 								<li>Deliveries to Balzac</li>
 								<li>Service to East Balzac Industrial Area</li>
 								<li>CrossIron Mills area deliveries</li>
 							</ul>
 						</div>
-					</section>
-			</div>
+					</form>
+				</div>
+			</section>
+		</div>
 
 		<!-- Footer -->
 			<footer id="footer" class="wrapper alt">
@@ -253,9 +263,9 @@
 
 		<script>
 		// Constants
-		const DELIVERY_FEE = 15.00;
-		const GST = 0.75;
-		const BASE_TOTAL = DELIVERY_FEE + GST;  // $15.75
+		const DELIVERY_FEE = 20.00;
+		const GST = 1.00;
+		const BASE_TOTAL = DELIVERY_FEE + GST;  // $21.00
 
 		// Update displays
 		function updateAmounts(tipAmount) {

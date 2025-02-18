@@ -59,7 +59,7 @@
 				"longitude": "-114.0719"
 			},
 			"url": "https://www.expresscouriers.co/CalgaryDelivery.html",
-			"priceRange": "$15",
+			"priceRange": "$20",
 			"openingHours": "Mo-Su 09:00-21:30",
 			"areaServed": [
 				"Downtown Calgary",
@@ -84,7 +84,7 @@
 				},
 				"priceSpecification": {
 					"@type": "PriceSpecification",
-					"price": "15.00",
+					"price": "20.00",
 					"priceCurrency": "CAD"
 				}
 			}
@@ -148,6 +148,7 @@
 								<li>Competitive flat-rate pricing</li>
 								<li>Serving all Calgary neighborhoods</li>
 								<li>Available 7 days a week</li>
+								<li>Orders made before 9:30pm will be delivered same day, orders after may be processed for next day delivery</li>
 							</ul>
 
 							<h2>Sender Details</h2>
@@ -191,11 +192,11 @@
 								<div class="fee-display">
 									<div class="subtotal">
 										<span>Delivery Fee:</span>
-										<span class="price">$15.00</span>
+										<span class="price">$20.00</span>
 									</div>
 									<div class="gst">
 										<span>GST (5%):</span>
-										<span class="price">$0.75</span>
+										<span class="price">$1.00</span>
 									</div>
 									<div class="tip">
 										<span>Tip:</span>
@@ -203,13 +204,13 @@
 									</div>
 									<div class="total">
 										<span>Total:</span>
-										<span class="price">$<span id="total-display">15.75</span></span>
+										<span class="price">$<span id="total-display">21.00</span></span>
 									</div>
 								</div>
 								<div class="tip-options">
-									<button type="button" class="tip-button" data-percentage="15">15% ($2.25)</button>
-									<button type="button" class="tip-button" data-percentage="20">20% ($3.00)</button>
-									<button type="button" class="tip-button" data-percentage="25">25% ($3.75)</button>
+									<button type="button" class="tip-button" data-percentage="15">15% ($3.00)</button>
+									<button type="button" class="tip-button" data-percentage="20">20% ($4.00)</button>
+									<button type="button" class="tip-button" data-percentage="25">25% ($5.00)</button>
 								</div>
 								<div class="custom-tip">
 									<input type="number" name="custom-tip" id="custom-tip" placeholder="Enter Custom Amount" min="0" step="0.50" />
@@ -226,8 +227,8 @@
 								<label for="value-confirm">I confirm that the value of my parcel does not exceed $500 CAD</label>
 							</div>
 							<input type="hidden" name="order_total" id="order_total" value="">
-							<input type="hidden" name="delivery_fee" value="15.00">
-							<input type="hidden" name="gst" value="0.75">
+							<input type="hidden" name="delivery_fee" value="20.00">
+							<input type="hidden" name="gst" value="1.00">
 							<input type="hidden" name="city" value="Calgary">
 							<div class="col-12 payment-note">
 								You will be redirected to Moneris for secure online payment
@@ -278,9 +279,9 @@
 			<script src="assets/js/main.js"></script>
 			<script>
 			// Constants
-			const DELIVERY_FEE = 15.00;
-			const GST = 0.75;
-			const BASE_TOTAL = DELIVERY_FEE + GST;  // $15.75
+			const DELIVERY_FEE = 20.00;
+			const GST = 1.00;
+			const BASE_TOTAL = DELIVERY_FEE + GST;  // $21.00
 
 			// Update displays
 			function updateAmounts(tipAmount) {
