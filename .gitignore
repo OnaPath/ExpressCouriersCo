@@ -1,0 +1,33 @@
+# Environment config files
+assets/js/config.development.js
+assets/js/config.staging.js
+assets/js/config.production.js
+assets/js/config.js
+
+# Keep example config
+!assets/js/config.example.js
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Other sensitive files
+config.js
+secrets.json
+
+# Common files to ignore
+node_modules/ 
