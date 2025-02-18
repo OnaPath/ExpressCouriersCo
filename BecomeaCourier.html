@@ -57,19 +57,19 @@
 				<ul>
 					<li><a href="BecomeaPartner.html">Become a Partner</a></li>
 					<li><a href="BecomeaCourier.html" class="active">Become a Courier</a></li>
-					<li><a href="ConnectingLocalBusinesses.html">For Businesses</a></li>
+					<li><a href="PublicDelivery.html">Public Delivery</a></li>
 				</ul>
 			</nav>
 		</header>
 
 		<div id="wrapper">
 			<section id="main" class="wrapper">
-				<div class="inner">
-					<h1>Become a Courier with Express Couriers & Co</h1>
+				<div class="inner centered-content">
+					<h1 class="major text-center">Become a Courier with Express Couriers & Co</h1>
 					<img src="images/BecomeaCourierBanner.png" alt="Courier delivering package" class="image fit">
-					<p>Join Alberta's best common carrier network and start earning on your own schedule. Express Couriers & Co provides a flexible opportunity for individuals looking to earn money while serving local small businesses and individuals in Alberta with hotshot on-demand parcel delivery.</p>
-					<h2>Why Choose Express Couriers & Co?</h2>
-					<ul>
+					<p class="text-center">Join Alberta's best common carrier network and start earning on your own schedule. Express Couriers & Co provides a flexible opportunity for individuals looking to earn money while serving local small businesses and individuals in Alberta with hotshot on-demand parcel delivery.</p>
+					<h2 class="text-center">Why Choose Express Couriers & Co?</h2>
+					<ul class="centered-list">
 						<li>Flexible hours - work when it suits you</li>
 						<li>Competitive pay rates</li>
 						<li>Be your own boss</li>
@@ -77,7 +77,7 @@
 						<li>Opportunity to serve your local communities</li>
 					</ul>
 					
-					<h2 id="apply-now">Apply Now - Join Our Team of Friendly, Reliable Couriers</h2>
+					<h2 id="apply-now" class="text-center">Apply Now - Join Our Team of Friendly, Reliable Couriers</h2>
 					<form id="courier-application-form" onsubmit="sendEmail(event)">
 						<div class="fields">
 							<div class="field half">
@@ -182,14 +182,6 @@
 		<script src="assets/js/main.js"></script>
 
 		<!-- Add this before </body> -->
-		<div id="success-popup" class="popup">
-			<div class="popup-content">
-				<span class="checkmark">✓</span>
-				<h3>Application Received</h3>
-				<p>For further inquiries reach out to <a href="mailto:admin@expresscouriers.co">admin@expresscouriers.co</a></p>
-				<button onclick="closePopup()" class="button">Close</button>
-			</div>
-		</div>
 		<div id="email-instructions" class="popup" style="display: none;">
 			<div class="popup-content">
 				<h3>Submit Your Application</h3>
@@ -264,10 +256,6 @@ ${why}
 			document.getElementById('email-instructions').style.display = 'none';
 			// Open email client
 			window.location.href = mailtoUrl;
-			// Redirect to success page after a short delay
-			setTimeout(() => {
-				window.location.href = 'courier-success.html';
-			}, 1000);
 		}
 
 		function showCopyOption() {
@@ -292,6 +280,11 @@ ${why}
 
 		function closeEmailInstructions() {
 			document.getElementById('email-instructions').style.display = 'none';
+			// Reset the submit button state
+			const form = document.getElementById('courier-application-form');
+			const submitButton = form.querySelector('input[type="submit"]');
+			submitButton.disabled = false;
+			submitButton.value = 'Submit Application';
 		}
 		</script>
 	</body>
