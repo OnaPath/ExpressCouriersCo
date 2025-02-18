@@ -90,93 +90,102 @@
 							<h1 class="major">Airdrie Hotshot Delivery Services</h1>
 							
 							<h2>Fast, Reliable Delivery in Airdrie</h2>
-							<p>Need something delivered in Airdrie? Our professional couriers provide rapid hotshot delivery services throughout Airdrie and to surrounding areas. From documents to packages, we ensure your items reach their destination quickly and safely. We offer delivery service to all Airdrie neighborhoods including Kings Heights, Cooper's Crossing, and Bayside.</p>
-
-							<h2>Why Choose Our Airdrie Delivery Service</h2>
-							<ul>
-								<li>Immediate pickup available in Airdrie</li>
-								<li>Real-time delivery tracking</li>
-								<li>Professional, local Airdrie couriers</li>
-								<li>Competitive flat-rate pricing</li>
-								<li>Serving all Airdrie communities</li>
-								<li>Available 7 days a week</li>
-							</ul>
-
-							<h2>Delivery Details</h2>
 							<form id="delivery-request-form" method="post" action="/process-order.php">
-								<div class="row gtr-uniform">
-									<div class="col-6 col-12-xsmall">
-										<input type="text" name="name" id="name" value="" placeholder="Your Name" required />
+							<p>Need something delivered across Airdrie? Our professional couriers provide rapid hotshot delivery services throughout Airdrie and surrounding areas.</p>
+
+							<h2>Sender Details</h2>
+							<div class="row gtr-uniform">
+								<div class="col-6 col-12-xsmall">
+									<input type="text" name="sender-name" id="sender-name" value="" placeholder="Your Name or business name" required />
+								</div>
+								<div class="col-6 col-12-xsmall">
+									<input type="tel" name="sender-phone" id="sender-phone" value="" placeholder="Phone Number" required />
+								</div>
+								<div class="col-12">
+									<input type="text" name="pickup-address" id="pickup-address" value="" placeholder="Pickup Address" required />
+								</div>
+							</div>
+
+							<h2>Receiver Details</h2>
+							<div class="row gtr-uniform">
+								<div class="col-6 col-12-xsmall">
+									<input type="text" name="receiver-name" id="receiver-name" value="" placeholder="Receiver Name" required />
+								</div>
+								<div class="col-6 col-12-xsmall">
+									<input type="tel" name="receiver-phone" id="receiver-phone" value="" placeholder="Receiver Phone Number" required />
+								</div>
+								<div class="col-12">
+									<input type="text" name="dropoff-address" id="dropoff-address" value="" placeholder="Dropoff Address" required />
+								</div>
+							</div>
+
+							<h3>Package Specifications</h3>
+							<div class="row gtr-uniform">
+								<div class="col-12">
+									<input type="text" name="weight" id="weight" value="" placeholder="Approximate Weight (kg) - Maximum 20kg" required />
+								</div>
+								<div class="col-12">
+									<textarea name="delivery-notes" id="delivery-notes" placeholder="Add any specific helpful delivery instructions here (e.g. buzzer code, landmarks, preferred entrance). Courier must hand off package to a person at the dropoff address. Package must fit in a standard personal sedan." rows="4"></textarea>
+								</div>
+							</div>
+
+							<div class="col-12">
+								<h3>Delivery Fee</h3>
+								<div class="fee-display">
+									<div class="subtotal">
+										<span>Delivery Fee:</span>
+										<span class="price">$15.00</span>
 									</div>
-									<div class="col-6 col-12-xsmall">
-										<input type="tel" name="phone" id="phone" value="" placeholder="Phone Number" required />
+									<div class="gst">
+										<span>GST (5%):</span>
+										<span class="price">$0.75</span>
 									</div>
-									<div class="col-12">
-										<input type="text" name="pickup-address" id="pickup-address" value="" placeholder="Pickup Address" required />
+									<div class="tip">
+										<span>Tip:</span>
+										<span class="price">$<span id="tip-display">0.00</span></span>
 									</div>
-									<div class="col-12">
-										<input type="text" name="dropoff-address" id="dropoff-address" value="" placeholder="Dropoff Address" required />
-									</div>
-									<h3>Package Specifications</h3>
-									<div class="col-12">
-										<input type="text" name="weight" id="weight" value="" placeholder="Approximate Weight (kg) - Maximum 20kg" required />
-									</div>
-									<div class="col-12">
-										<textarea name="delivery-notes" id="delivery-notes" placeholder="Add any specific helpful delivery instructions here (e.g. buzzer code, landmarks, preferred entrance). Courier must hand off package to a person at the dropoff address. Package must fit in a standard personal sedan." rows="4"></textarea>
-									</div>
-									<div class="col-12">
-										<h3>Delivery Fee</h3>
-										<div class="fee-display">
-											<div class="subtotal">
-												<span>Delivery Fee:</span>
-												<span class="price">$15.00</span>
-											</div>
-											<div class="gst">
-												<span>GST (5%):</span>
-												<span class="price">$0.75</span>
-											</div>
-											<div class="tip">
-												<span>Tip:</span>
-												<span class="price">$<span id="tip-display">0.00</span></span>
-											</div>
-											<div class="total">
-												<span>Total:</span>
-												<span class="price">$<span id="total-display">15.75</span></span>
-											</div>
-										</div>
-									</div>
-									<div class="col-12">
-										<h3>Tip Your Courier</h3>
-										<div class="tip-options">
-											<button type="button" class="tip-button" data-percentage="15">15% ($2.25)</button>
-											<button type="button" class="tip-button" data-percentage="20">20% ($3.00)</button>
-											<button type="button" class="tip-button" data-percentage="25">25% ($3.75)</button>
-										</div>
-										<div class="custom-tip">
-											<input type="number" name="custom-tip" id="custom-tip" placeholder="Enter Custom Amount" min="0" step="0.50" />
-											<input type="hidden" name="tip" id="tip" value="0">
-										</div>
-									</div>
-									<div class="col-12">
-										<input type="checkbox" id="terms" name="terms" required>
-										<label for="terms">I agree to the <a href="TermsandConditions.html">Terms of Service</a></label>
-									</div>
-									<div class="col-12">
-										<input type="checkbox" id="value-confirm" name="value-confirm" required>
-										<label for="value-confirm">I confirm that the value of my parcel does not exceed $500 CAD</label>
-									</div>
-									<input type="hidden" name="order_total" id="order_total" value="">
-									<input type="hidden" name="delivery_fee" value="15.00">
-									<input type="hidden" name="gst" value="0.75">
-									<input type="hidden" name="city" value="Airdrie">
-									<div class="col-12 payment-note">
-										You will be redirected to Moneris for secure online payment
-									</div>
-									<div class="col-12 center-button">
-										<input type="submit" value="Proceed to Payment" class="primary" />
+									<div class="total">
+										<span>Total:</span>
+										<span class="price">$<span id="total-display">15.75</span></span>
 									</div>
 								</div>
-							</form>
+							</div>
+
+							<div class="col-12">
+								<h3>Tip Your Courier</h3>
+								<div class="tip-options">
+									<button type="button" class="tip-button" data-percentage="15">15% ($2.25)</button>
+									<button type="button" class="tip-button" data-percentage="20">20% ($3.00)</button>
+									<button type="button" class="tip-button" data-percentage="25">25% ($3.75)</button>
+								</div>
+								<div class="custom-tip">
+									<input type="number" name="custom-tip" id="custom-tip" placeholder="Enter Custom Amount" min="0" step="0.50" />
+									<input type="hidden" name="tip" id="tip" value="0">
+								</div>
+							</div>
+
+							<div class="col-12">
+								<input type="checkbox" id="terms" name="terms" required>
+								<label for="terms">I agree to the <a href="TermsandConditions.html">Terms of Service</a></label>
+							</div>
+
+							<div class="col-12">
+								<input type="checkbox" id="value-confirm" name="value-confirm" required>
+								<label for="value-confirm">I confirm that the value of my parcel does not exceed $500 CAD</label>
+							</div>
+
+							<input type="hidden" name="order_total" id="order_total" value="">
+							<input type="hidden" name="delivery_fee" value="15.00">
+							<input type="hidden" name="gst" value="0.75">
+							<input type="hidden" name="city" value="Airdrie">
+							<div class="col-12 payment-note">
+								You will be redirected to Moneris for secure online payment
+							</div>
+							<div class="col-12 center-button">
+								<input type="submit" value="Proceed to Payment" class="primary" />
+							</div>
+						</div>
+					</form>
 
 							<h2>Service Areas</h2>
 							<p>We provide fast delivery service throughout Airdrie and nearby areas, including:</p>
