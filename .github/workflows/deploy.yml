@@ -27,19 +27,17 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
       
-      - name: Create config file
+      - name: Inject Config
         run: |
-          # Ensure directory exists
-          mkdir -p assets/js
+          # Create the config script
+          CONFIG_SCRIPT="<script>window.CONFIG = { GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}' };</script>"
           
-          # Create the config file
-          echo "window.CONFIG = {" > assets/js/config.production.google.js
-          echo "    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'" >> assets/js/config.production.google.js
-          echo "};" >> assets/js/config.production.google.js
+          # Insert it before the first script tag in each HTML file
+          for file in *.html; do
+            sed -i "0,/<script/s//<script>window.CONFIG = { GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}' };<\/script>\n<script/" "$file"
+          done
           
-          # Debug (without showing key)
-          echo "Created config file at: assets/js/config.production.google.js"
-          ls -l assets/js/config.production.google.js
+          echo "Injected CONFIG into HTML files"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

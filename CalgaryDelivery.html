@@ -104,24 +104,11 @@
 		<script>
 			// Initialize Google Places API
 			function initGooglePlaces() {
-				console.log('Initializing Google Places...');
-				const script = document.createElement('script');
-				script.src = '/assets/js/config.production.google.js';
-				script.onload = () => {
-					console.log('Config loaded, initializing Google Places...');
-					loadGooglePlacesAPI();
-				};
-				script.onerror = (error) => {
-					console.error('Failed to load config:', error);
-				};
-				document.head.appendChild(script);
-			}
-
-			function loadGooglePlacesAPI() {
 				if (!window.CONFIG || !window.CONFIG.GOOGLE_PLACES_API_KEY) {
 					console.error('CONFIG not available');
 					return;
 				}
+				console.log('Loading Google Places API...');
 				const script = document.createElement('script');
 				script.src = `https://maps.googleapis.com/maps/api/js?key=${window.CONFIG.GOOGLE_PLACES_API_KEY}&libraries=places&callback=initAutocomplete&loading=async`;
 				script.async = true;
