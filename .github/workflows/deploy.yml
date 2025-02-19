@@ -29,15 +29,27 @@ jobs:
       
       - name: Inject Config
         run: |
-          # Create config script with proper escaping
-          CONFIG_SCRIPT='<script>window.CONFIG = { GOOGLE_PLACES_API_KEY: "${{ secrets.GOOGLE_PLACES_API_KEY }}" };</script>'
+          # Create config script
+          CONFIG_SCRIPT="<script type=\"text/javascript\">
+          window.CONFIG = {
+              GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'
+          };
+          </script>"
           
-          # Insert before first script tag in each HTML file
+          # Insert at the start of head in each HTML file
           for file in *.html; do
-            awk -v config="$CONFIG_SCRIPT" '/<script/{print config; print; next}1' "$file" > temp && mv temp "$file"
+            sed -i "/<head>/a ${CONFIG_SCRIPT}" "$file"
           done
           
-          echo "Injected CONFIG into HTML files"
+          # Debug output (without showing key)
+          echo "Processed files:"
+          ls -l *.html
+          
+          echo "Sample of changes (first few lines after head):"
+          for file in *.html; do
+            echo "=== $file ==="
+            grep -A 5 "<head>" "$file" | sed 's/[A-Za-z0-9_-]\{20,\}/[REDACTED]/g'
+          done
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
