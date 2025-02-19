@@ -29,22 +29,13 @@ jobs:
       
       - name: Replace API Key
         run: |
-          # Create a temporary file with the replacement
-          cat > temp.html << 'EOL'
-          <script>
-          const CONFIG = {
-              GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'
-          };
-          </script>
-          EOL
+          # Create config content
+          CONFIG_CONTENT="<script>\nconst CONFIG = {\n    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'\n};\n</script>"
           
-          # Insert the config before the closing </head> tag
+          # Insert the config before </head> in each HTML file
           for file in *.html; do
-            sed -i "s|</head>|$(cat temp.html)\n</head>|" "$file"
+            sed -i "s|</head>|${CONFIG_CONTENT}</head>|" "$file"
           done
-          
-          # Clean up
-          rm temp.html
           
           echo "Added CONFIG to HTML files"
       
