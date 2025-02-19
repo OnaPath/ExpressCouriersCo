@@ -102,7 +102,12 @@
 
 		<!-- Add these scripts in the head section -->
 		<script>
-			// Load Google Places API after config is loaded
+			// Inline the config to avoid loading issues
+			const CONFIG = {
+				GOOGLE_PLACES_API_KEY: '{{ GOOGLE_PLACES_API_KEY }}'  // Will be replaced during deployment
+			};
+			
+			// Initialize Google Places API
 			function initGooglePlaces() {
 				if (!CONFIG || !CONFIG.GOOGLE_PLACES_API_KEY) {
 					console.error('CONFIG or API key not found');
@@ -113,10 +118,11 @@
 				script.src = `https://maps.googleapis.com/maps/api/js?key=${CONFIG.GOOGLE_PLACES_API_KEY}&libraries=places&callback=initAutocomplete&loading=async`;
 				script.async = true;
 				script.defer = true;
-				script.onerror = () => console.error('Failed to load Google Places API');
-				script.onload = () => console.log('Google Places API loaded successfully');
 				document.head.appendChild(script);
 			}
+			
+			// Initialize when document is ready
+			document.addEventListener('DOMContentLoaded', initGooglePlaces);
 		</script>
 		<script defer src="/assets/js/dispatchService.js"></script>
 		<script defer src="/assets/js/deliveryForm.js"></script>

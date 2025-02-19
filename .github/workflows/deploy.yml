@@ -27,25 +27,13 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
       
-      - name: Create config file
+      - name: Replace API Key
         run: |
-          # Verify secret exists (without exposing it)
-          if [ -z "${{ secrets.GOOGLE_PLACES_API_KEY }}" ]; then
-            echo "Error: GOOGLE_PLACES_API_KEY secret is not set"
-            exit 1
-          fi
+          # Replace placeholder in HTML files
+          find . -name "*.html" -type f -exec sed -i "s|{{ GOOGLE_PLACES_API_KEY }}|${{ secrets.GOOGLE_PLACES_API_KEY }}|g" {} +
           
-          # Create config file
-          mkdir -p assets/js
-          echo "const CONFIG = {" > assets/js/config.production.google.js
-          echo "    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'" >> assets/js/config.production.google.js
-          echo "};" >> assets/js/config.production.google.js
-          
-          # Debug (showing only structure, not content)
-          echo "Config file structure created:"
-          echo "- Directory: assets/js/"
-          echo "- File: config.production.google.js"
-          echo "- Contains: CONFIG object with GOOGLE_PLACES_API_KEY"
+          # Debug (without showing key)
+          echo "Replaced API key placeholder in HTML files"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
