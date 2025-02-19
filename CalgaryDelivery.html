@@ -102,6 +102,11 @@
 
 		<!-- Add these scripts in the head section -->
 		<script>
+			var CONFIG = {
+				GOOGLE_PLACES_API_KEY: '{{ GOOGLE_API_KEY }}'
+			};
+		</script>
+		<script>
 			// Initialize Google Places API
 			function initGooglePlaces() {
 				if (!window.CONFIG || !window.CONFIG.GOOGLE_PLACES_API_KEY) {
