@@ -37,6 +37,10 @@ jobs:
           # Verify
           ls -la assets/js/
           cat assets/js/config.production.google.js | sed 's/[A-Za-z0-9_-]\{20,\}/[REDACTED]/g'
+          
+          # Show full path
+          pwd
+          find . -name "config.production.google.js"
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
