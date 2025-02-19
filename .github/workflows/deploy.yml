@@ -29,11 +29,24 @@ jobs:
       
       - name: Replace API Key
         run: |
-          # Replace placeholder in HTML files
-          find . -name "*.html" -type f -exec sed -i "s|{{ GOOGLE_PLACES_API_KEY }}|${{ secrets.GOOGLE_PLACES_API_KEY }}|g" {} +
+          # Create a temporary file with the replacement
+          cat > temp.html << 'EOL'
+          <script>
+          const CONFIG = {
+              GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'
+          };
+          </script>
+          EOL
           
-          # Debug (without showing key)
-          echo "Replaced API key placeholder in HTML files"
+          # Insert the config before the closing </head> tag
+          for file in *.html; do
+            sed -i "s|</head>|$(cat temp.html)\n</head>|" "$file"
+          done
+          
+          # Clean up
+          rm temp.html
+          
+          echo "Added CONFIG to HTML files"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

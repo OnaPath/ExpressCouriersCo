@@ -102,11 +102,6 @@
 
 		<!-- Add these scripts in the head section -->
 		<script>
-			// Inline the config to avoid loading issues
-			const CONFIG = {
-				GOOGLE_PLACES_API_KEY: '{{ GOOGLE_PLACES_API_KEY }}'  // Will be replaced during deployment
-			};
-			
 			// Initialize Google Places API
 			function initGooglePlaces() {
 				if (!CONFIG || !CONFIG.GOOGLE_PLACES_API_KEY) {
