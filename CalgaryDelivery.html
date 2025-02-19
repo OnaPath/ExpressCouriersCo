@@ -104,13 +104,38 @@
 		<script>
 			// Initialize Google Places API
 			function initGooglePlaces() {
-				if (!CONFIG || !CONFIG.GOOGLE_PLACES_API_KEY) {
-					console.error('CONFIG or API key not found');
+				console.log('Initializing Google Places...');
+				if (!window.CONFIG || !window.CONFIG.GOOGLE_PLACES_API_KEY) {
+					console.log('CONFIG not found in window, attempting to load from file...');
+					// Second attempt: Load from file
+					const configScript = document.createElement('script');
+					const baseUrl = window.location.hostname.includes('localhost') 
+						? '' 
+						: window.location.origin;
+					
+					configScript.src = baseUrl + '/assets/js/config.production.google.js';
+					configScript.onload = () => {
+						console.log('Config loaded from file');
+						loadGooglePlacesAPI();
+					};
+					configScript.onerror = (error) => {
+						console.error('Failed to load configuration');
+					};
+					document.head.appendChild(configScript);
+				} else {
+					console.log('Using injected CONFIG');
+					loadGooglePlacesAPI();
+				}
+			}
+
+			function loadGooglePlacesAPI() {
+				if (!window.CONFIG || !window.CONFIG.GOOGLE_PLACES_API_KEY) {
+					console.error('CONFIG still not available');
 					return;
 				}
-				console.log('Loading Google Places API with config:', CONFIG);
+				console.log('Loading Google Places API...');
 				const script = document.createElement('script');
-				script.src = `https://maps.googleapis.com/maps/api/js?key=${CONFIG.GOOGLE_PLACES_API_KEY}&libraries=places&callback=initAutocomplete&loading=async`;
+				script.src = `https://maps.googleapis.com/maps/api/js?key=${window.CONFIG.GOOGLE_PLACES_API_KEY}&libraries=places&callback=initAutocomplete&loading=async`;
 				script.async = true;
 				script.defer = true;
 				document.head.appendChild(script);
