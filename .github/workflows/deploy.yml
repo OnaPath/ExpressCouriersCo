@@ -29,27 +29,27 @@ jobs:
       
       - name: Inject Config
         run: |
-          # Create config script
-          CONFIG_SCRIPT="<script type=\"text/javascript\">
-          window.CONFIG = {
-              GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'
-          };
-          </script>"
-          
-          # Insert at the start of head in each HTML file
+          # Process each HTML file
           for file in *.html; do
-            sed -i "/<head>/a ${CONFIG_SCRIPT}" "$file"
+            # Create a temporary file
+            awk '
+              /<head>/ {
+                print $0
+                print "    <script type=\"text/javascript\">"
+                print "    window.CONFIG = {"
+                print "        GOOGLE_PLACES_API_KEY: \"${{ secrets.GOOGLE_PLACES_API_KEY }}\""
+                print "    };"
+                print "    </script>"
+                next
+              }
+              { print }
+            ' "$file" > temp.html
+            
+            # Replace original file
+            mv temp.html "$file"
           done
           
-          # Debug output (without showing key)
-          echo "Processed files:"
-          ls -l *.html
-          
-          echo "Sample of changes (first few lines after head):"
-          for file in *.html; do
-            echo "=== $file ==="
-            grep -A 5 "<head>" "$file" | sed 's/[A-Za-z0-9_-]\{20,\}/[REDACTED]/g'
-          done
+          echo "Injected CONFIG into HTML files"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
