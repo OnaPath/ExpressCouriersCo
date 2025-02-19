@@ -35,7 +35,7 @@ jobs:
           
           # Create config file
           echo "const CONFIG = {" > assets/js/config.production.google.js
-          echo "    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'" >> assets/js/config.production.google.js
+          echo "    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}"/"[REDACTED]"/g' assets/js/config.production.google.js
           echo "};" >> assets/js/config.production.google.js
           
           # Verify file exists and has content
