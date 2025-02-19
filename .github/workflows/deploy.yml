@@ -26,9 +26,12 @@ jobs:
       
       - name: Create config file
         run: |
+          mkdir -p assets/js/
           echo "const CONFIG = {" > assets/js/config.production.google.js
           echo "    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'" >> assets/js/config.production.google.js
           echo "};" >> assets/js/config.production.google.js
+          ls -la assets/js/
+          cat assets/js/config.production.google.js
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
