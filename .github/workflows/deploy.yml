@@ -30,22 +30,19 @@ jobs:
       - name: Update HTML files
         run: |
           for file in *.html; do
-            # Create a temporary file with the changes
-            awk '
-              /<head>/ {
-                print $0
-                print "    <!-- Google Places API Configuration -->"
-                print "    <script type=\"text/javascript\">"
-                print "        var CONFIG = {"
-                print "            GOOGLE_PLACES_API_KEY: \"${{ secrets.GOOGLE_PLACES_API_KEY }}\""
-                print "        };"
-                print "        console.log(\"DEBUG: CONFIG initialized with key length:\", CONFIG.GOOGLE_PLACES_API_KEY.length);"
-                print "    </script>"
-                next
-              }
-              { print }
-            ' "$file" > temp.html
-            mv temp.html "$file"
+            # Debug: Show file content before
+            echo "Before modification: First 10 lines of $file"
+            head -n 10 "$file"
+            
+            # Create config script
+            CONFIG_SCRIPT='<script type="text/javascript">var CONFIG={GOOGLE_PLACES_API_KEY:"${{ secrets.GOOGLE_PLACES_API_KEY }}"};console.log("CONFIG loaded with key");</script>'
+            
+            # Insert after <head>
+            perl -pi -e "s|<head>|<head>\n    $CONFIG_SCRIPT|" "$file"
+            
+            # Debug: Show file content after
+            echo "After modification: First 15 lines of $file"
+            head -n 15 "$file"
           done
       
       - name: Upload artifact
