@@ -27,33 +27,40 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
       
-      - name: Create assets directory
-        run: mkdir -p assets/js
-      
-      - name: Create config file
-        run: |
-          echo "window.CONFIG = {" > assets/js/config.js
-          echo "    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'" >> assets/js/config.js
-          echo "};" >> assets/js/config.js
-          
-          echo "Created config.js"
-          ls -l assets/js/config.js
-      
       - name: Update HTML files
         run: |
           for file in *.html; do
+            # Create a temporary file with the changes
             awk '
+              BEGIN { found = 0 }
               /<head>/ {
                 print $0
-                print "    <script src=\"/assets/js/config.js\"></script>"
+                print "    <script>"
+                print "        window.CONFIG = {"
+                print "            GOOGLE_PLACES_API_KEY: \"${{ secrets.GOOGLE_PLACES_API_KEY }}\""
+                print "        };"
+                print "        console.log(\"CONFIG loaded:\", window.CONFIG);"
+                print "    </script>"
+                found = 1
                 next
               }
               { print }
+              END {
+                if (!found) {
+                  print "Error: No <head> tag found in " FILENAME > "/dev/stderr"
+                  exit 1
+                }
+              }
             ' "$file" > temp.html
-            mv temp.html "$file"
+            
+            if [ $? -eq 0 ]; then
+              mv temp.html "$file"
+              echo "Updated $file successfully"
+            else
+              echo "Failed to update $file"
+              exit 1
+            fi
           done
-          
-          echo "Updated HTML files with config script tag"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
