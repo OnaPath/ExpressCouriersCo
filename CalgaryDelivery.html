@@ -104,7 +104,11 @@
 		<script>
 			// Load Google Places API after config is loaded
 			function initGooglePlaces() {
-				console.log('Loading Google Places API with key:', CONFIG.GOOGLE_PLACES_API_KEY);
+				if (!CONFIG || !CONFIG.GOOGLE_PLACES_API_KEY) {
+					console.error('CONFIG or API key not found');
+					return;
+				}
+				console.log('Loading Google Places API...');
 				const script = document.createElement('script');
 				script.src = `https://maps.googleapis.com/maps/api/js?key=${CONFIG.GOOGLE_PLACES_API_KEY}&libraries=places&callback=initAutocomplete&loading=async`;
 				script.async = true;
@@ -122,14 +126,15 @@
 			const configScript = document.createElement('script');
 			configScript.src = window.location.hostname.includes('localhost') 
 				? '/assets/js/config.development.google.js'
-				: '/assets/js/config.production.google.js';  // Added leading slash
+				: '/assets/js/config.production.google.js';
 			configScript.onload = () => {
-				console.log('Config loaded successfully');
+				console.log('Config loaded successfully from:', configScript.src);
 				initGooglePlaces();
 			};
 			configScript.onerror = (error) => {
 				console.error('Failed to load configuration script:', error);
 				console.log('Attempted to load:', configScript.src);
+				console.log('Current hostname:', window.location.hostname);
 			};
 			document.head.appendChild(configScript);
 		</script>

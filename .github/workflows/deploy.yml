@@ -24,37 +24,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Create config file
-        run: |
-          # Create directory
-          mkdir -p assets/js/
-          
-          # Create config file
-          cat > assets/js/config.production.google.js << 'EOL'
-          const CONFIG = {
-              GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'
-          };
-          EOL
-          
-          # Debug: Show file location and permissions
-          echo "File location and permissions:"
-          ls -la assets/js/config.production.google.js
-          
-          # Debug: Show file content (redacted)
-          echo "File content:"
-          cat assets/js/config.production.google.js | sed 's/[A-Za-z0-9_-]\{20,\}/[REDACTED]/g'
-          
-          # Debug: Verify file is in artifact path
-          echo "Files in assets/js:"
-          ls -la assets/js/
-      
       - name: Setup Pages
         uses: actions/configure-pages@v4
+      
+      - name: Create config directory
+        run: mkdir -p _site/assets/js
+      
+      - name: Create config file
+        run: |
+          echo "const CONFIG = {" > _site/assets/js/config.production.google.js
+          echo "    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'" >> _site/assets/js/config.production.google.js
+          echo "};" >> _site/assets/js/config.production.google.js
+          
+          # Debug information
+          echo "Config file location:"
+          ls -la _site/assets/js/config.production.google.js
+          echo "Config file contents:"
+          cat _site/assets/js/config.production.google.js | sed 's/[A-Za-z0-9_-]\{20,\}/[REDACTED]/g'
+      
+      - name: Copy files
+        run: cp -r * _site/ || true
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: _site
       
       - name: Deploy to GitHub Pages
         id: deployment
