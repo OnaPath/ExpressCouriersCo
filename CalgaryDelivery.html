@@ -108,7 +108,7 @@
 					console.error('CONFIG or API key not found');
 					return;
 				}
-				console.log('Loading Google Places API...');
+				console.log('Loading Google Places API with config:', CONFIG);
 				const script = document.createElement('script');
 				script.src = `https://maps.googleapis.com/maps/api/js?key=${CONFIG.GOOGLE_PLACES_API_KEY}&libraries=places&callback=initAutocomplete&loading=async`;
 				script.async = true;
@@ -122,27 +122,6 @@
 		<script defer src="/assets/js/dispatchService.js"></script>
 		<script defer src="/assets/js/deliveryForm.js"></script>
 		<script defer src="/assets/js/addressValidation.js"></script>
-		<script>
-			// Update to use production config for non-localhost
-			const configScript = document.createElement('script');
-			const baseUrl = window.location.hostname.includes('localhost') 
-				? '' 
-				: window.location.origin;
-			
-			configScript.src = baseUrl + '/assets/js/config.production.google.js';
-			
-			configScript.onload = () => {
-				console.log('Config loaded successfully from:', configScript.src);
-				initGooglePlaces();
-			};
-			configScript.onerror = (error) => {
-				console.error('Failed to load configuration script:', error);
-				console.log('Attempted to load:', configScript.src);
-				console.log('Current hostname:', window.location.hostname);
-				console.log('Base URL:', baseUrl);
-			};
-			document.head.appendChild(configScript);
-		</script>
 		<style>
 			.address-wrapper {
 				position: relative;
