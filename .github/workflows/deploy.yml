@@ -27,17 +27,19 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
       
-      - name: Replace API Key
+      - name: Create config file
         run: |
-          # Create config content
-          CONFIG_CONTENT="<script>\nconst CONFIG = {\n    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'\n};\n</script>"
+          # Ensure directory exists
+          mkdir -p assets/js
           
-          # Insert the config before </head> in each HTML file
-          for file in *.html; do
-            sed -i "s|</head>|${CONFIG_CONTENT}</head>|" "$file"
-          done
+          # Create the config file
+          echo "window.CONFIG = {" > assets/js/config.production.google.js
+          echo "    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'" >> assets/js/config.production.google.js
+          echo "};" >> assets/js/config.production.google.js
           
-          echo "Added CONFIG to HTML files"
+          # Debug (without showing key)
+          echo "Created config file at: assets/js/config.production.google.js"
+          ls -l assets/js/config.production.google.js
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
