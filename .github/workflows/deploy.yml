@@ -34,12 +34,12 @@ jobs:
           echo "    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'" >> assets/js/config.production.google.js
           echo "};" >> assets/js/config.production.google.js
           
-          # Debug: Show directory structure
-          echo "Directory structure:"
-          tree .
+          # Debug: Show file permissions
+          echo "File permissions:"
+          ls -l assets/js/config.production.google.js
           
-          # Debug: Show file contents
-          echo "Config file contents:"
+          # Debug: Show file content
+          echo "File content:"
           cat assets/js/config.production.google.js | sed 's/[A-Za-z0-9_-]\{20,\}/[REDACTED]/g'
       
       - name: Setup Pages
