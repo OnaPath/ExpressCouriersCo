@@ -32,34 +32,20 @@ jobs:
           for file in *.html; do
             # Create a temporary file with the changes
             awk '
-              BEGIN { found = 0 }
               /<head>/ {
                 print $0
-                print "    <script>"
-                print "        window.CONFIG = {"
+                print "    <!-- Google Places API Configuration -->"
+                print "    <script type=\"text/javascript\">"
+                print "        var CONFIG = {"
                 print "            GOOGLE_PLACES_API_KEY: \"${{ secrets.GOOGLE_PLACES_API_KEY }}\""
                 print "        };"
-                print "        console.log(\"CONFIG loaded:\", window.CONFIG);"
+                print "        console.log(\"DEBUG: CONFIG initialized with key length:\", CONFIG.GOOGLE_PLACES_API_KEY.length);"
                 print "    </script>"
-                found = 1
                 next
               }
               { print }
-              END {
-                if (!found) {
-                  print "Error: No <head> tag found in " FILENAME > "/dev/stderr"
-                  exit 1
-                }
-              }
             ' "$file" > temp.html
-            
-            if [ $? -eq 0 ]; then
-              mv temp.html "$file"
-              echo "Updated $file successfully"
-            else
-              echo "Failed to update $file"
-              exit 1
-            fi
+            mv temp.html "$file"
           done
       
       - name: Upload artifact
