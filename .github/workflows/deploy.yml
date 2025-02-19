@@ -27,28 +27,30 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
       
-      - name: Create config directory
-        run: mkdir -p _site/assets/js
-      
       - name: Create config file
         run: |
-          echo "const CONFIG = {" > _site/assets/js/config.production.google.js
-          echo "    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'" >> _site/assets/js/config.production.google.js
-          echo "};" >> _site/assets/js/config.production.google.js
+          # Verify secret exists (without exposing it)
+          if [ -z "${{ secrets.GOOGLE_PLACES_API_KEY }}" ]; then
+            echo "Error: GOOGLE_PLACES_API_KEY secret is not set"
+            exit 1
+          fi
           
-          # Debug information
-          echo "Config file location:"
-          ls -la _site/assets/js/config.production.google.js
-          echo "Config file contents:"
-          cat _site/assets/js/config.production.google.js | sed 's/[A-Za-z0-9_-]\{20,\}/[REDACTED]/g'
-      
-      - name: Copy files
-        run: cp -r * _site/ || true
+          # Create config file
+          mkdir -p assets/js
+          echo "const CONFIG = {" > assets/js/config.production.google.js
+          echo "    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'" >> assets/js/config.production.google.js
+          echo "};" >> assets/js/config.production.google.js
+          
+          # Debug (showing only structure, not content)
+          echo "Config file structure created:"
+          echo "- Directory: assets/js/"
+          echo "- File: config.production.google.js"
+          echo "- Contains: CONFIG object with GOOGLE_PLACES_API_KEY"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: '.'
       
       - name: Deploy to GitHub Pages
         id: deployment
