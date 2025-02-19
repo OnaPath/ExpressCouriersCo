@@ -99,6 +99,8 @@
 		</script>
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+
+		<!-- Add these scripts in the head section -->
 		<script>
 			// Load Google Places API after config is loaded
 			function initGooglePlaces() {
@@ -112,17 +114,17 @@
 				document.head.appendChild(script);
 			}
 		</script>
-		<!-- Load CONFIG first -->
+		<script defer src="assets/js/dispatchService.js"></script>
+		<script defer src="assets/js/deliveryForm.js"></script>
+		<script defer src="assets/js/addressValidation.js"></script>
 		<script>
-			// Determine environment
-			const environment = window.location.hostname.includes('localhost') ? 'development' 
-							 : window.location.hostname.includes('staging') ? 'staging'
-							 : 'production';
-			
-			// Load appropriate config
+			// Update to use production config for non-localhost
 			const configScript = document.createElement('script');
-			configScript.src = `assets/js/config.${environment}.js`;
+			configScript.src = window.location.hostname.includes('localhost') 
+				? 'assets/js/config.development.google.js'
+				: 'assets/js/config.production.google.js';
 			configScript.onload = initGooglePlaces;
+			configScript.onerror = () => console.error('Failed to load configuration script');
 			document.head.appendChild(configScript);
 		</script>
 		<style>
@@ -164,9 +166,6 @@
 				background-color: #f8f9fa;
 			}
 		</style>
-		<script defer src="assets/js/dispatchService.js"></script>
-		<script defer src="assets/js/deliveryForm.js"></script>
-		<script defer src="assets/js/addressValidation.js"></script>
 	</head>
 	<body class="is-preload">
 

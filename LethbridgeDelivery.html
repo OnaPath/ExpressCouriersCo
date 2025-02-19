@@ -112,22 +112,19 @@
 				document.head.appendChild(script);
 			}
 		</script>
-		<!-- Load CONFIG first -->
-		<script>
-			// Determine environment
-			const environment = window.location.hostname.includes('localhost') ? 'development' 
-							 : window.location.hostname.includes('staging') ? 'staging'
-							 : 'production';
-			
-			// Load appropriate config
-			const configScript = document.createElement('script');
-			configScript.src = `assets/js/config.${environment}.js`;
-			configScript.onload = initGooglePlaces;
-			document.head.appendChild(configScript);
-		</script>
 		<script defer src="assets/js/dispatchService.js"></script>
 		<script defer src="assets/js/deliveryForm.js"></script>
 		<script defer src="assets/js/addressValidation.js"></script>
+		<script>
+			// Update to use production config for non-localhost
+			const configScript = document.createElement('script');
+			configScript.src = window.location.hostname.includes('localhost') 
+				? 'assets/js/config.development.google.js'
+				: 'assets/js/config.production.google.js';
+			configScript.onload = initGooglePlaces;
+			configScript.onerror = () => console.error('Failed to load configuration script');
+			document.head.appendChild(configScript);
+		</script>
 		<style>
 			.address-wrapper {
 				position: relative;
