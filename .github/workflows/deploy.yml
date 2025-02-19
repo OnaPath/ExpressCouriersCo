@@ -26,11 +26,28 @@ jobs:
       
       - name: Create config file
         run: |
+          # Create directory and verify
           mkdir -p assets/js/
+          if [ ! -d "assets/js/" ]; then
+            echo "Failed to create directory"
+            exit 1
+          fi
+          
+          # Create config file
           echo "const CONFIG = {" > assets/js/config.production.google.js
           echo "    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'" >> assets/js/config.production.google.js
           echo "};" >> assets/js/config.production.google.js
+          
+          # Verify file exists and has content
+          if [ ! -f "assets/js/config.production.google.js" ]; then
+            echo "Config file not created"
+            exit 1
+          fi
+          
+          # Show directory contents and file
+          echo "Directory contents:"
           ls -la assets/js/
+          echo "Config file contents (with masked key):"
           cat assets/js/config.production.google.js
       
       - name: Setup Pages
