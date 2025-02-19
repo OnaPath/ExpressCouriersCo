@@ -114,17 +114,23 @@
 				document.head.appendChild(script);
 			}
 		</script>
-		<script defer src="assets/js/dispatchService.js"></script>
-		<script defer src="assets/js/deliveryForm.js"></script>
-		<script defer src="assets/js/addressValidation.js"></script>
+		<script defer src="/assets/js/dispatchService.js"></script>
+		<script defer src="/assets/js/deliveryForm.js"></script>
+		<script defer src="/assets/js/addressValidation.js"></script>
 		<script>
 			// Update to use production config for non-localhost
 			const configScript = document.createElement('script');
 			configScript.src = window.location.hostname.includes('localhost') 
-				? 'assets/js/config.development.google.js'
-				: 'assets/js/config.production.google.js';
-			configScript.onload = initGooglePlaces;
-			configScript.onerror = () => console.error('Failed to load configuration script');
+				? '/assets/js/config.development.google.js'
+				: '/assets/js/config.production.google.js';  // Added leading slash
+			configScript.onload = () => {
+				console.log('Config loaded successfully');
+				initGooglePlaces();
+			};
+			configScript.onerror = (error) => {
+				console.error('Failed to load configuration script:', error);
+				console.log('Attempted to load:', configScript.src);
+			};
 			document.head.appendChild(configScript);
 		</script>
 		<style>
