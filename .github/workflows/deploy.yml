@@ -27,29 +27,33 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
       
-      - name: Inject Config
+      - name: Create assets directory
+        run: mkdir -p assets/js
+      
+      - name: Create config file
         run: |
-          # Process each HTML file
+          echo "window.CONFIG = {" > assets/js/config.js
+          echo "    GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}'" >> assets/js/config.js
+          echo "};" >> assets/js/config.js
+          
+          echo "Created config.js"
+          ls -l assets/js/config.js
+      
+      - name: Update HTML files
+        run: |
           for file in *.html; do
-            # Create a temporary file
             awk '
               /<head>/ {
                 print $0
-                print "    <script type=\"text/javascript\">"
-                print "    window.CONFIG = {"
-                print "        GOOGLE_PLACES_API_KEY: \"${{ secrets.GOOGLE_PLACES_API_KEY }}\""
-                print "    };"
-                print "    </script>"
+                print "    <script src=\"/assets/js/config.js\"></script>"
                 next
               }
               { print }
             ' "$file" > temp.html
-            
-            # Replace original file
             mv temp.html "$file"
           done
           
-          echo "Injected CONFIG into HTML files"
+          echo "Updated HTML files with config script tag"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
