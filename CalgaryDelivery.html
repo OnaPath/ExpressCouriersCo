@@ -105,10 +105,10 @@
 			// Initialize Google Places API
 			function initGooglePlaces() {
 				if (!window.CONFIG || !window.CONFIG.GOOGLE_PLACES_API_KEY) {
-					console.error('CONFIG not available');
+					console.error('CONFIG not available in window');
 					return;
 				}
-				console.log('Loading Google Places API...');
+				console.log('Loading Google Places API with config:', window.CONFIG);
 				const script = document.createElement('script');
 				script.src = `https://maps.googleapis.com/maps/api/js?key=${window.CONFIG.GOOGLE_PLACES_API_KEY}&libraries=places&callback=initAutocomplete&loading=async`;
 				script.async = true;

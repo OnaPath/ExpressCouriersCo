@@ -32,9 +32,9 @@ jobs:
           # Create the config script
           CONFIG_SCRIPT="<script>window.CONFIG = { GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}' };</script>"
           
-          # Insert it before the first script tag in each HTML file
+          # Insert it before dispatchService.js in each HTML file
           for file in *.html; do
-            sed -i "0,/<script/s//<script>window.CONFIG = { GOOGLE_PLACES_API_KEY: '${{ secrets.GOOGLE_PLACES_API_KEY }}' };<\/script>\n<script/" "$file"
+            sed -i "s|<script src=\"assets/js/dispatchService.js\"|${CONFIG_SCRIPT}\n<script src=\"assets/js/dispatchService.js\"|" "$file"
           done
           
           echo "Injected CONFIG into HTML files"
