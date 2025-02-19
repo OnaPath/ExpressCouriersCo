@@ -1,7 +1,11 @@
 class DispatchService {
     constructor() {
-        this.apiUrl = CONFIG.API_URL;
-        this.apiKey = CONFIG.API_KEY;
+        // Use window.CONFIG for Google Places API
+        this.googleApiKey = window.CONFIG ? window.CONFIG.GOOGLE_PLACES_API_KEY : null;
+        
+        // Default API settings
+        this.apiUrl = 'https://api.example.com/deliveries';  // Replace with your actual API URL
+        this.apiKey = 'your-default-api-key';  // Replace with your default API key
     }
 
     async createDelivery(deliveryDetails) {
