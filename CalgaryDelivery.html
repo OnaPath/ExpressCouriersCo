@@ -180,15 +180,11 @@
 
 							<h2>Sender Details</h2>
 							<div class="row gtr-uniform">
-								<h3>Sender's Information</h3>
 								<div class="col-6 col-12-xsmall">
-									<input type="text" name="sender-name" id="sender-name" placeholder="Sender's Name" required />
+									<input type="text" name="sender-name" placeholder="Sender's Name" required />
 								</div>
 								<div class="col-6 col-12-xsmall">
-									<input type="tel" name="sender-phone" id="sender-phone" placeholder="Sender's Phone" required />
-								</div>
-								<div class="col-12 col-12-xsmall">
-									<input type="email" name="sender-email" id="sender-email" placeholder="Sender's Email" required />
+									<input type="tel" name="sender-phone" placeholder="Sender's Phone" required />
 								</div>
 								<div class="col-12">
 									<div class="address-wrapper">
@@ -197,7 +193,6 @@
 										<input type="password" style="display:none">
 										<input type="text" 
 											  name="pickup-address" 
-											  id="pickup-address"
 											  placeholder="Pickup Address" 
 											  autocomplete="off"
 											  data-google-places="true"
@@ -208,15 +203,11 @@
 
 							<h2>Receiver Details</h2>
 							<div class="row gtr-uniform">
-								<h3>Receiver's Information</h3>
 								<div class="col-6 col-12-xsmall">
-									<input type="text" name="receiver-name" id="receiver-name" placeholder="Receiver's Name" required />
+									<input type="text" name="receiver-name" placeholder="Receiver's Name" required />
 								</div>
 								<div class="col-6 col-12-xsmall">
-									<input type="tel" name="receiver-phone" id="receiver-phone" placeholder="Receiver's Phone" required />
-								</div>
-								<div class="col-12 col-12-xsmall">
-									<input type="email" name="receiver-email" id="receiver-email" placeholder="Receiver's Email" required />
+									<input type="tel" name="receiver-phone" placeholder="Receiver's Phone" required />
 								</div>
 								<div class="col-12">
 									<div class="address-wrapper">
@@ -225,7 +216,6 @@
 										<input type="password" style="display:none">
 										<input type="text" 
 											  name="dropoff-address" 
-											  id="dropoff-address"
 											  placeholder="Delivery Address" 
 											  autocomplete="off"
 											  data-google-places="true"
@@ -445,9 +435,9 @@
 						// Position the suggestions list below the input
 						const inputRect = input.getBoundingClientRect();
 						suggestionsList.style.position = 'absolute';
-						suggestionsList.style.top = `${inputRect.bottom}px`;
-						suggestionsList.style.left = `${inputRect.left}px`;
-						suggestionsList.style.width = `${inputRect.width}px`;
+						suggestionsList.style.top = '100%';
+						suggestionsList.style.left = '0';
+						suggestionsList.style.width = '100%';
 						suggestionsList.style.display = 'block';
 					} else {
 						suggestionsList.style.display = 'none';

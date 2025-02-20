@@ -4529,33 +4529,55 @@ input, select, textarea {
 /* Address Dropdown Styling */
 .address-wrapper {
     position: relative !important;
-    width: 100%;
+    width: 100% !important;
+    display: block !important;
+    z-index: 100 !important; /* Ensure wrapper is above other elements */
+}
+
+.address-wrapper input {
+    width: 100% !important;
+    position: relative !important;
+    z-index: 101 !important; /* Input above wrapper but below dropdown */
 }
 
 .suggestions-list {
     position: absolute !important;
-    top: 100% !important;  /* Position right below the input */
+    top: calc(100% + 1px) !important; /* Slight offset to prevent overlap */
     left: 0 !important;
+    right: 0 !important;
     width: 100% !important;
     background: #312450 !important;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 4px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-top: none !important;
+    max-height: 200px !important;
+    overflow-y: auto !important;
+    z-index: 102 !important; /* Highest z-index to show above input */
     margin: 0 !important;
     padding: 0 !important;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 10000;
+    list-style: none !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
 }
 
 .suggestions-list li {
-    padding: 8px 12px;
-    cursor: pointer;
+    padding: 8px 12px !important;
+    cursor: pointer !important;
     color: rgba(255, 255, 255, 0.65) !important;
-    font-size: 0.9em;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    font-size: 0.9em !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+    transition: background-color 0.2s ease !important;
 }
 
 .suggestions-list li:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+}
+
+.suggestions-list li:last-child {
+    border-bottom: none !important;
+}
+
+/* Ensure form fields don't create stacking context issues */
+form .field {
+    position: relative !important;
+    z-index: 1 !important;
 }
