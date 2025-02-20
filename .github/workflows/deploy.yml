@@ -2,16 +2,16 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]  # Triggers on push to main branch
-  workflow_dispatch:      # Allows manual trigger
+    branches: ["main"]  # Trigger on push to main
+  workflow_dispatch:    # Allow manual trigger
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: read        # Read repo contents
+  pages: write          # Write to Pages
+  id-token: write       # Authenticate with GitHub token
 
 concurrency:
-  group: "pages"
+  group: "pages"        # Avoid parallel runs
   cancel-in-progress: false
 
 jobs:
@@ -23,22 +23,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      
-      - name: Replace API Key
-        run: |
-          # Simple string replacement
-          find . -type f -name "*.html" -exec sed -i "s|{{ GOOGLE_API_KEY }}|${{ secrets.GOOGLE_PLACES_API_KEY }}|g" {} +
-          
-          echo "Replaced API key placeholder in HTML files"
-      
-      - name: Upload artifact
+        with:
+          fetch-depth: 1    # Shallow clone for speed
+
+      - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
-      
+          path: '.'         # Use root directory (your static files)
+
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4 
+        uses: actions/deploy-pages@v4

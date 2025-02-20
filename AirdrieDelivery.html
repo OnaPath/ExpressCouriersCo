@@ -140,30 +140,77 @@
 			}
 		</style>
 		<script>
-			// Load Google Places API after config is loaded
-			function initGooglePlaces() {
-				console.log('Loading Google Places API with key:', CONFIG.GOOGLE_PLACES_API_KEY);
-				const script = document.createElement('script');
-				script.src = `https://maps.googleapis.com/maps/api/js?key=${CONFIG.GOOGLE_PLACES_API_KEY}&libraries=places&callback=initAutocomplete&loading=async`;
-				script.async = true;
-				script.defer = true;
-				script.onerror = () => console.error('Failed to load Google Places API');
-				script.onload = () => console.log('Google Places API loaded successfully');
-				document.head.appendChild(script);
-			}
-		</script>
-		<script defer src="assets/js/dispatchService.js"></script>
-		<script defer src="assets/js/deliveryForm.js"></script>
-		<script defer src="assets/js/addressValidation.js"></script>
-		<script>
-			// Update to use production config for non-localhost
-			const configScript = document.createElement('script');
-			configScript.src = window.location.hostname.includes('localhost') 
-				? 'assets/js/config.development.google.js'
-				: 'assets/js/config.production.google.js';
-			configScript.onload = initGooglePlaces;
-			configScript.onerror = () => console.error('Failed to load configuration script');
-			document.head.appendChild(configScript);
+			// Address Autocomplete Handler
+			document.addEventListener('DOMContentLoaded', () => {
+				const addressInput = document.getElementById('address-input');
+				const suggestionsList = document.getElementById('suggestions');
+
+				// Debounce function to limit API calls
+				const debounce = (func, delay) => {
+					let timeoutId;
+					return (...args) => {
+						clearTimeout(timeoutId);
+						timeoutId = setTimeout(() => func.apply(null, args), delay);
+					};
+				};
+
+				// Fetch suggestions from server-side endpoint
+				const fetchSuggestions = async (query) => {
+					if (query.length < 3) {
+						suggestionsList.style.display = 'none';
+						return;
+					}
+
+					try {
+						const response = await fetch(`http://99.79.69.87:3000/api/address-autocomplete?input=${encodeURIComponent(query)}`, {
+							method: 'GET',
+							headers: {
+								'Content-Type': 'application/json',
+							},
+						});
+
+						if (!response.ok) {
+							throw new Error(`Server error: ${response.status}`);
+						}
+
+						const data = await response.json();
+
+						if (data.status === 'OK' && data.predictions.length > 0) {
+							suggestionsList.innerHTML = '';
+							data.predictions.forEach(prediction => {
+								const li = document.createElement('li');
+								li.textContent = prediction.description;
+								li.addEventListener('click', () => {
+									addressInput.value = prediction.description;
+									suggestionsList.style.display = 'none';
+								});
+								suggestionsList.appendChild(li);
+							});
+							suggestionsList.style.display = 'block';
+						} else {
+							suggestionsList.style.display = 'none';
+						}
+					} catch (error) {
+						console.error('Error fetching address suggestions:', error);
+						suggestionsList.style.display = 'none';
+					}
+				};
+
+				// Debounced input handler
+				const debouncedFetch = debounce(fetchSuggestions, 300);
+
+				// Listen for input changes
+				addressInput.addEventListener('input', (e) => {
+					debouncedFetch(e.target.value.trim());
+				});
+
+				// Optional: Clear suggestions on focus loss
+				addressInput.addEventListener('blur', () => {
+					setTimeout(() => {
+						suggestionsList.style.display = 'none';
+					}, 200); // Delay to allow click on suggestion
+				});
+			});
 		</script>
 	</head>
 	<body class="is-preload">
