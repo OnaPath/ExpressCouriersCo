@@ -155,14 +155,14 @@
 				};
 
 				// Fetch suggestions from server-side endpoint
-				const fetchSuggestions = async (query, input) => {
+				const fetchSuggestions = async (query) => {
 					if (query.length < 3) {
 						suggestionsList.style.display = 'none';
 						return;
 					}
 
 					try {
-						const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}&components=country:ca|locality:airdrie`, {
+						const response = await fetch(`http://99.79.69.87:3000/api/address-autocomplete?input=${encodeURIComponent(query)}`, {
 							method: 'GET',
 							headers: {
 								'Content-Type': 'application/json',
@@ -258,6 +258,9 @@
 								<div class="col-6 col-12-xsmall">
 									<input type="tel" name="sender-phone" placeholder="Sender's Phone" required />
 								</div>
+								<div class="col-6 col-12-xsmall">
+									<input type="email" name="sender-email" placeholder="Sender's Email" required />
+								</div>
 								<div class="col-12">
 									<div class="address-wrapper">
 										<!-- Dummy fields to trick browser autofill -->
@@ -280,6 +283,9 @@
 								</div>
 								<div class="col-6 col-12-xsmall">
 									<input type="tel" name="receiver-phone" placeholder="Receiver's Phone" required />
+								</div>
+								<div class="col-6 col-12-xsmall">
+									<input type="email" name="receiver-email" placeholder="Receiver's Email" required />
 								</div>
 								<div class="col-12">
 									<div class="address-wrapper">
