@@ -4570,3 +4570,18 @@ input[type="text"][data-google-places="true"] {
     color: #312450 !important;
     background: #ffffff;
 }
+
+/* Reset the input field styling to match other fields */
+input[type="text"][data-google-places="true"] {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+    border: solid 1px rgba(255, 255, 255, 0.15);
+}
+
+input[type="text"][data-google-places="true"]::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+input[type="text"][data-google-places="true"]:focus {
+    border-color: #b74e91;
+}
