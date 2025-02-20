@@ -102,113 +102,116 @@
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 		<style>
 			.address-wrapper {
-				position: relative;
-				margin-bottom: 2.5em !important; /* Add space below address fields */
+				position: relative !important;
+				width: 100% !important;
+				z-index: 1000 !important;
+				margin-bottom: 2.5em !important;
 			}
-			.pac-container {
-				z-index: 999999 !important;
+
+			.suggestions-list {
 				position: absolute !important;
-				pointer-events: auto !important;
-				box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-				background: #fff;
-				border: 1px solid #ccc;
-				margin-top: 2px !important;
-				display: block !important;
-				visibility: visible !important;
+				top: calc(100% + 1px) !important;
+				left: 0 !important;
+				width: 100% !important;
+				background: #312450 !important;
+				border: 1px solid rgba(255, 255, 255, 0.15) !important;
+				border-top: none !important;
+				max-height: 200px !important;
+				overflow-y: auto !important;
+				z-index: 1001 !important;
+				margin: 0 !important;
+				padding: 0 !important;
+				list-style: none !important;
+				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
 			}
-			/* Ensure consistent spacing after address sections */
-			.row.gtr-uniform > .col-12:last-child {
-				margin-bottom: 2em;
+
+			.suggestions-list li {
+				padding: 8px 12px !important;
+				cursor: pointer !important;
+				color: rgba(255, 255, 255, 0.65) !important;
+				font-size: 0.9em !important;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
 			}
-			/* Style the Google attribution to be more subtle */
-			.pac-container:after {
-				/* Light theme styling */
-				background-color: #fff !important;
-				height: 20px !important;
-				padding: 3px 6px !important;
-				color: #666 !important;
-				font-size: 0.7em !important;
-				line-height: 14px !important;
-			}
-			/* Style the dropdown items */
-			.pac-item {
-				padding: 6px 8px;
-				cursor: pointer;
-			}
-			.pac-item:hover {
-				background-color: #f8f9fa;
+
+			.suggestions-list li:hover {
+				background-color: rgba(255, 255, 255, 0.05) !important;
+				color: #ffffff !important;
 			}
 		</style>
 		<script>
-			// Address Autocomplete Handler
 			document.addEventListener('DOMContentLoaded', () => {
-				const addressInput = document.getElementById('address-input');
-				const suggestionsList = document.getElementById('suggestions');
+				// Get all address inputs
+				const addressInputs = document.querySelectorAll('[data-google-places="true"]');
 
-				// Debounce function to limit API calls
-				const debounce = (func, delay) => {
-					let timeoutId;
-					return (...args) => {
-						clearTimeout(timeoutId);
-						timeoutId = setTimeout(() => func.apply(null, args), delay);
+				addressInputs.forEach(input => {
+					// Create unique suggestions list for each input
+					const suggestionsList = document.createElement('ul');
+					suggestionsList.className = 'suggestions-list';
+					suggestionsList.style.display = 'none';
+					
+					// Append suggestions list to input's wrapper
+					input.closest('.address-wrapper').appendChild(suggestionsList);
+
+					// Debounce function
+					const debounce = (func, delay) => {
+						let timeoutId;
+						return (...args) => {
+							clearTimeout(timeoutId);
+							timeoutId = setTimeout(() => func.apply(null, args), delay);
+						};
 					};
-				};
 
-				// Fetch suggestions from server-side endpoint
-				const fetchSuggestions = async (query) => {
-					if (query.length < 3) {
-						suggestionsList.style.display = 'none';
-						return;
-					}
-
-					try {
-						const response = await fetch(`http://99.79.69.87:3000/api/address-autocomplete?input=${encodeURIComponent(query)}`, {
-							method: 'GET',
-							headers: {
-								'Content-Type': 'application/json',
-							},
-						});
-
-						if (!response.ok) {
-							throw new Error(`Server error: ${response.status}`);
+					// Fetch suggestions
+					const fetchSuggestions = async (query, input) => {
+						if (query.length < 3) {
+							suggestionsList.style.display = 'none';
+							return;
 						}
 
-						const data = await response.json();
+						try {
+							const response = await fetch(`http://99.79.69.87:3000/api/address-autocomplete?input=${encodeURIComponent(query)}`);
+							const data = await response.json();
 
-						if (data.status === 'OK' && data.predictions.length > 0) {
-							suggestionsList.innerHTML = '';
-							data.predictions.forEach(prediction => {
-								const li = document.createElement('li');
-								li.textContent = prediction.description;
-								li.addEventListener('click', () => {
-									addressInput.value = prediction.description;
-									suggestionsList.style.display = 'none';
+							if (data.status === 'OK' && data.predictions.length > 0) {
+								suggestionsList.innerHTML = '';
+								data.predictions.forEach(prediction => {
+									const li = document.createElement('li');
+									li.textContent = prediction.description;
+									li.addEventListener('click', () => {
+										input.value = prediction.description;
+										input.dataset.selectedFromDropdown = 'true';
+										suggestionsList.style.display = 'none';
+									});
+									suggestionsList.appendChild(li);
 								});
-								suggestionsList.appendChild(li);
-							});
-							suggestionsList.style.display = 'block';
-						} else {
+								suggestionsList.style.display = 'block';
+							} else {
+								suggestionsList.style.display = 'none';
+							}
+						} catch (error) {
+							console.error('Error fetching suggestions:', error);
 							suggestionsList.style.display = 'none';
 						}
-					} catch (error) {
-						console.error('Error fetching address suggestions:', error);
-						suggestionsList.style.display = 'none';
-					}
-				};
+					};
 
-				// Debounced input handler
-				const debouncedFetch = debounce(fetchSuggestions, 300);
+					// Setup event listeners
+					const debouncedFetch = debounce((query) => fetchSuggestions(query, input), 300);
 
-				// Listen for input changes
-				addressInput.addEventListener('input', (e) => {
-					debouncedFetch(e.target.value.trim());
-				});
+					input.addEventListener('input', (e) => {
+						input.dataset.selectedFromDropdown = 'false';
+						debouncedFetch(e.target.value.trim());
+					});
 
-				// Optional: Clear suggestions on focus loss
-				addressInput.addEventListener('blur', () => {
-					setTimeout(() => {
-						suggestionsList.style.display = 'none';
-					}, 200); // Delay to allow click on suggestion
+					input.addEventListener('blur', () => {
+						setTimeout(() => {
+							suggestionsList.style.display = 'none';
+						}, 200);
+					});
+
+					// Prevent paste
+					input.addEventListener('paste', (e) => {
+						e.preventDefault();
+					});
 				});
 			});
 		</script>
@@ -258,9 +261,6 @@
 								<div class="col-6 col-12-xsmall">
 									<input type="tel" name="sender-phone" placeholder="Sender's Phone" required />
 								</div>
-								<div class="col-6 col-12-xsmall">
-									<input type="email" name="sender-email" placeholder="Sender's Email" required />
-								</div>
 								<div class="col-12">
 									<div class="address-wrapper">
 										<!-- Dummy fields to trick browser autofill -->
@@ -283,9 +283,6 @@
 								</div>
 								<div class="col-6 col-12-xsmall">
 									<input type="tel" name="receiver-phone" placeholder="Receiver's Phone" required />
-								</div>
-								<div class="col-6 col-12-xsmall">
-									<input type="email" name="receiver-email" placeholder="Receiver's Email" required />
 								</div>
 								<div class="col-12">
 									<div class="address-wrapper">
