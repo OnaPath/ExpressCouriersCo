@@ -4525,3 +4525,64 @@ input, select, textarea {
 .suggestions-list li:hover {
     background-color: #f5f5f5;
 }
+
+/* Address Dropdown Styling */
+.address-wrapper {
+    position: relative;
+    margin-bottom: 2.5em !important;
+}
+
+.suggestions-list {
+    position: fixed; /* Change to fixed to maintain position while scrolling */
+    background: #312450; /* Match sidebar background color */
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    width: calc(100% - 40px); /* Account for padding */
+    z-index: 10000;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.suggestions-list li {
+    padding: 12px 16px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.85);
+    text-align: left;
+}
+
+.suggestions-list li:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+}
+
+/* Ensure input text is visible */
+input[type="text"][data-google-places="true"] {
+    color: rgba(255, 255, 255, 0.85) !important;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+input[type="text"][data-google-places="true"]::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Scrollbar styling for the dropdown */
+.suggestions-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.suggestions-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.suggestions-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
