@@ -241,146 +241,143 @@
 	});
 
 	document.addEventListener('DOMContentLoaded', function() {
-		const tipButtons = document.querySelectorAll('.tip-button');
-		const customTipInput = document.getElementById('custom-tip');
-		const tipInput = document.getElementById('tip');
-		const totalDisplay = document.getElementById('total-amount');
-		const deliveryFee = 15.00;
+		// Constants
+		const DELIVERY_FEE = 20.00;
+		const GST = 1.00;
+		const BASE_TOTAL = DELIVERY_FEE + GST;
 
-		function updateTotal(tipAmount) {
-			const total = deliveryFee + parseFloat(tipAmount || 0);
-			totalDisplay.textContent = `$${total.toFixed(2)}`;
-			tipInput.value = tipAmount;
+		// Get DOM elements with null checks
+		const elements = {
+			tipSelect: document.getElementById('tip'),
+			subtotalElement: document.getElementById('subtotal'),
+			gstElement: document.getElementById('gst'),
+			totalElement: document.getElementById('total'),
+			tipButtons: document.querySelectorAll('.tip-button'),
+			customTipInput: document.getElementById('custom-tip'),
+			tipDisplay: document.getElementById('tip-display'),
+			totalDisplay: document.getElementById('total-display'),
+			orderTotal: document.getElementById('order_total')
+		};
+
+		// Update total function with null checks
+		function updateTotal(tipAmount = 0) {
+			const tip = Number(tipAmount) || 0;
+			const total = BASE_TOTAL + tip;
+			
+			if (elements.tipDisplay) elements.tipDisplay.textContent = tip.toFixed(2);
+			if (elements.totalDisplay) elements.totalDisplay.textContent = total.toFixed(2);
+			if (elements.orderTotal) elements.orderTotal.value = total.toFixed(2);
 		}
 
-		// Handle percentage tip buttons
-		tipButtons.forEach(button => {
-			button.addEventListener('click', function() {
-				// Clear custom tip input
-				customTipInput.value = '';
-				
-				// If this button is already selected, deselect it
-				if (this.classList.contains('selected')) {
-					this.classList.remove('selected');
-					updateTotal(0);
-					return;
-				}
-				
-				// Remove selected class from all buttons
-				tipButtons.forEach(btn => btn.classList.remove('selected'));
-				
-				// Add selected class to clicked button
-				this.classList.add('selected');
-				
-				// Calculate tip based on percentage
-				const percentage = parseFloat(this.getAttribute('data-percentage'));
-				const tipAmount = (deliveryFee * (percentage / 100));
-				
-				updateTotal(tipAmount);
+		// Setup tip buttons if they exist
+		if (elements.tipButtons && elements.tipButtons.length > 0) {
+			elements.tipButtons.forEach(button => {
+				button.addEventListener('click', function() {
+					if (elements.customTipInput) elements.customTipInput.value = '';
+					
+					elements.tipButtons.forEach(btn => btn.classList.remove('selected'));
+					this.classList.add('selected');
+					
+					const percentage = parseFloat(this.getAttribute('data-percentage'));
+					const tipAmount = (DELIVERY_FEE * (percentage / 100));
+					
+					updateTotal(tipAmount);
+				});
 			});
-		});
+		}
 
-		// Handle custom tip input
-		customTipInput.addEventListener('input', function() {
-			// Remove selected class from percentage buttons
-			tipButtons.forEach(btn => btn.classList.remove('selected'));
-			
-			// Update total with custom amount
-			const customAmount = parseFloat(this.value) || 0;
-			updateTotal(customAmount);
-		});
+		// Setup custom tip input if it exists
+		if (elements.customTipInput) {
+			elements.customTipInput.addEventListener('input', function() {
+				if (elements.tipButtons) {
+					elements.tipButtons.forEach(btn => btn.classList.remove('selected'));
+				}
+				updateTotal(this.value);
+			});
+		}
 
 		// Initialize with no tip
 		updateTotal(0);
 
-		// Card number formatting
-		const cardInput = document.getElementById('card-number');
-		cardInput.addEventListener('input', function(e) {
-			// Remove any non-digits
-			let value = this.value.replace(/\D/g, '');
-			// Truncate to 16 digits
-			value = value.substring(0, 16);
-			this.value = value;
-		});
+		// Address autocomplete setup
+		const addressInputs = document.querySelectorAll('[data-google-places="true"]');
+		if (addressInputs.length > 0) {
+			const suggestionsList = document.createElement('ul');
+			suggestionsList.className = 'suggestions-list';
+			suggestionsList.style.display = 'none';
+			document.body.appendChild(suggestionsList);
 
-		// Expiry date formatting
-		const expiryInput = document.getElementById('expiry');
-		let prevValue = '';
-		
-		expiryInput.addEventListener('input', function(e) {
-			let value = this.value.replace(/\D/g, '');
-			
-			// Allow backspacing
-			if (this.value.length < prevValue.length) {
-				prevValue = this.value;
-				return;
-			}
-			
-			// Format as MM/YY
-			if (value.length >= 2) {
-				value = value.substring(0, 2) + '/' + value.substring(2, 4);
-			}
-			
-			this.value = value;
-			prevValue = this.value;
-		});
+			// Debounce function
+			const debounce = (func, delay) => {
+				let timeoutId;
+				return (...args) => {
+					clearTimeout(timeoutId);
+					timeoutId = setTimeout(() => func.apply(null, args), delay);
+				};
+			};
 
-		// CVV formatting
-		const cvvInput = document.getElementById('cvv');
-		cvvInput.addEventListener('input', function(e) {
-			// Remove any non-digits
-			let value = this.value.replace(/\D/g, '');
-			// Truncate to 4 digits
-			value = value.substring(0, 4);
-			this.value = value;
-		});
+			// Fetch suggestions function
+			const fetchSuggestions = async (query, input) => {
+				if (query.length < 3) {
+					suggestionsList.style.display = 'none';
+					return;
+				}
 
-		// Add null checks for form elements
-		const tipSelect = document.getElementById('tip');
-		const subtotalElement = document.getElementById('subtotal');
-		const gstElement = document.getElementById('gst');
-		const totalElement = document.getElementById('total');
+				try {
+					const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}`, {
+						method: 'GET',
+						headers: {
+							'Content-Type': 'application/json',
+						}
+					});
 
-		function updateTotal() {
-			if (!tipSelect || !subtotalElement || !gstElement || !totalElement) {
-				return; // Exit if elements don't exist
-			}
-			// ... rest of update total logic ...
-		}
+					if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+					const data = await response.json();
 
-		// Only add event listeners if elements exist
-		if (tipSelect) {
-			tipSelect.addEventListener('change', updateTotal);
+					if (data.status === 'OK' && data.predictions.length > 0) {
+						suggestionsList.innerHTML = '';
+						data.predictions.forEach(prediction => {
+							const li = document.createElement('li');
+							li.textContent = prediction.description;
+							li.addEventListener('click', () => {
+								input.value = prediction.description;
+								input.dataset.selectedFromDropdown = 'true';
+								suggestionsList.style.display = 'none';
+							});
+							suggestionsList.appendChild(li);
+						});
+
+						const inputRect = input.getBoundingClientRect();
+						suggestionsList.style.position = 'absolute';
+						suggestionsList.style.top = `${inputRect.bottom}px`;
+						suggestionsList.style.left = `${inputRect.left}px`;
+						suggestionsList.style.width = `${inputRect.width}px`;
+						suggestionsList.style.display = 'block';
+					} else {
+						suggestionsList.style.display = 'none';
+					}
+				} catch (error) {
+					console.error('Error fetching suggestions:', error);
+					suggestionsList.style.display = 'none';
+				}
+			};
+
+			// Setup each address input
+			addressInputs.forEach(input => {
+				const debouncedFetch = debounce((query) => fetchSuggestions(query, input), 300);
+				
+				input.addEventListener('input', (e) => {
+					input.dataset.selectedFromDropdown = 'false';
+					debouncedFetch(e.target.value.trim());
+				});
+
+				input.addEventListener('blur', () => {
+					setTimeout(() => {
+						suggestionsList.style.display = 'none';
+					}, 200);
+				});
+			});
 		}
 	});
-
-	// Update the fetch URL to use HTTPS
-	const fetchSuggestions = async (query, input) => {
-		if (query.length < 3) {
-			suggestionsList.style.display = 'none';
-			return;
-		}
-
-		try {
-			const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				mode: 'cors',
-				credentials: 'include'
-			});
-
-			if (!response.ok) {
-				throw new Error(`Server error: ${response.status}`);
-			}
-
-			const data = await response.json();
-			// ... rest of the fetch handling code ...
-		} catch (error) {
-			console.error('Error fetching address suggestions:', error);
-			suggestionsList.style.display = 'none';
-		}
-	};
 
 })(jQuery);

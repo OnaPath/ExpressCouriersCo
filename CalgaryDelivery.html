@@ -99,34 +99,8 @@
 		</script>
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-
-		<!-- Add these scripts in the head section -->
-		<!-- <script>
-			var CONFIG = {
-				GOOGLE_PLACES_API_KEY: '{{ GOOGLE_API_KEY }}'
-			};
-		</script>
-		<script>
-			// Initialize Google Places API
-			function initGooglePlaces() {
-				if (!window.CONFIG || !window.CONFIG.GOOGLE_PLACES_API_KEY) {
-					console.error('CONFIG not available in window');
-					return;
-				}
-				console.log('Loading Google Places API with config:', window.CONFIG);
-				const script = document.createElement('script');
-				script.src = `https://maps.googleapis.com/maps/api/js?key=${window.CONFIG.GOOGLE_PLACES_API_KEY}&libraries=places&callback=initAutocomplete&loading=async`;
-				script.async = true;
-				script.defer = true;
-				document.head.appendChild(script);
-			}
-			
-			// Initialize when document is ready
-			document.addEventListener('DOMContentLoaded', initGooglePlaces);
-		</script> -->
 		<script defer src="/assets/js/dispatchService.js"></script>
 		<script defer src="/assets/js/deliveryForm.js"></script>
-		<script defer src="/assets/js/addressValidation.js"></script>
 		<style>
 			.address-wrapper {
 				position: relative;
