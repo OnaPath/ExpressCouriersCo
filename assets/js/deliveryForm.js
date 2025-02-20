@@ -75,20 +75,26 @@ class DeliveryFormHandler {
     }
 
     collectFormData() {
+        // Add null checks and default values
+        const form = this.form;
+        if (!form) {
+            throw new Error('Form not found');
+        }
+
         return {
-            senderName: this.form.querySelector('[name="sender-name"]').value,
-            senderPhone: this.form.querySelector('[name="sender-phone"]').value,
-            pickupAddress: this.form.querySelector('[name="pickup-address"]').value,
-            receiverName: this.form.querySelector('[name="receiver-name"]').value,
-            receiverPhone: this.form.querySelector('[name="receiver-phone"]').value,
-            dropoffAddress: this.form.querySelector('[name="dropoff-address"]').value,
-            deliveryNotes: this.form.querySelector('[name="delivery-notes"]').value,
-            weight: this.form.querySelector('[name="weight"]').value,
-            subtotal: parseFloat(this.form.querySelector('.subtotal').textContent.replace(/[^0-9.]/g, '')),
-            gst: parseFloat(this.form.querySelector('.gst').textContent.replace(/[^0-9.]/g, '')),
-            tip: parseFloat(this.form.querySelector('#tip-display').textContent),
-            total: parseFloat(this.form.querySelector('#total-display').textContent),
-            city: this.form.querySelector('[name="city"]').value
+            senderName: form.querySelector('#sender-name')?.value || '',
+            senderPhone: form.querySelector('#sender-phone')?.value || '',
+            pickupAddress: form.querySelector('#pickup-address')?.value || '',
+            receiverName: form.querySelector('#receiver-name')?.value || '',
+            receiverPhone: form.querySelector('#receiver-phone')?.value || '',
+            dropoffAddress: form.querySelector('#dropoff-address')?.value || '',
+            deliveryNotes: form.querySelector('#delivery-notes')?.value || '',
+            weight: form.querySelector('#weight')?.value || '',
+            subtotal: DELIVERY_FEE, // Use constant from AirdrieDelivery.html
+            gst: GST, // Use constant from AirdrieDelivery.html
+            tip: parseFloat(document.getElementById('tip-display')?.textContent || '0'),
+            total: parseFloat(document.getElementById('total-display')?.textContent || '0'),
+            city: 'Airdrie' // Hardcoded for AirdrieDelivery.html
         };
     }
 

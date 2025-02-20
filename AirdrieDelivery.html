@@ -145,6 +145,11 @@
 				const addressInput = document.getElementById('address-input');
 				const suggestionsList = document.getElementById('suggestions');
 
+				if (!addressInput || !suggestionsList) {
+					console.warn('Address input elements not found');
+					return;
+				}
+
 				// Debounce function to limit API calls
 				const debounce = (func, delay) => {
 					let timeoutId;
@@ -412,6 +417,13 @@
 			<script src="assets/js/browser.min.js"></script>
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
+			
+			<!-- Add these before main.js -->
+			<script src="assets/js/config.js"></script>
+			<script src="assets/js/dispatchService.js"></script>
+			<script src="assets/js/deliveryForm.js"></script>
+			
+			<!-- Load main.js last -->
 			<script src="assets/js/main.js"></script>
 
 		<script>

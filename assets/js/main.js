@@ -334,6 +334,24 @@
 			value = value.substring(0, 4);
 			this.value = value;
 		});
+
+		// Add null checks for form elements
+		const tipSelect = document.getElementById('tip');
+		const subtotalElement = document.getElementById('subtotal');
+		const gstElement = document.getElementById('gst');
+		const totalElement = document.getElementById('total');
+
+		function updateTotal() {
+			if (!tipSelect || !subtotalElement || !gstElement || !totalElement) {
+				return; // Exit if elements don't exist
+			}
+			// ... rest of update total logic ...
+		}
+
+		// Only add event listeners if elements exist
+		if (tipSelect) {
+			tipSelect.addEventListener('change', updateTotal);
+		}
 	});
 
 })(jQuery);
