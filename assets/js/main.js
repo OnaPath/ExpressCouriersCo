@@ -354,4 +354,30 @@
 		}
 	});
 
+	// Update the fetch URL to use HTTPS
+	const fetchSuggestions = async (query, input) => {
+		if (query.length < 3) {
+			suggestionsList.style.display = 'none';
+			return;
+		}
+
+		try {
+			const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+
+			if (!response.ok) {
+				throw new Error(`Server error: ${response.status}`);
+			}
+
+			// ... rest of the fetch handling code ...
+		} catch (error) {
+			console.error('Error fetching address suggestions:', error);
+			suggestionsList.style.display = 'none';
+		}
+	};
+
 })(jQuery);
