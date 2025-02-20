@@ -369,8 +369,11 @@
 							return;
 						}
 
+						// Get city from hidden input, default to 'calgary'
+						const city = document.querySelector('input[name="city"]').value || 'calgary';
+						
 						try {
-							const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}`);
+							const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}&city=${encodeURIComponent(city)}`);
 							const data = await response.json();
 
 							if (data.status === 'OK' && data.predictions.length > 0) {

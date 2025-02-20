@@ -4638,3 +4638,32 @@ input[type="text"][data-google-places="true"]:focus {
 .suggestions-list li:hover {
     background-color: #f5f5f5;
 }
+
+/* Style dropdown to match form field theme */
+.suggestions-list {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #312450 !important;  /* Match the dark theme background */
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    margin: 0;
+    padding: 0;
+}
+
+.suggestions-list li {
+    padding: 8px 12px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.65) !important;  /* Light text color to match form */
+    font-size: 0.9em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.suggestions-list li:hover {
+    background-color: rgba(255, 255, 255, 0.05);  /* Subtle highlight on hover */
+}
