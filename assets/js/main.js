@@ -316,29 +316,40 @@
 				};
 			};
 
-			// Fetch suggestions function
-			const fetchSuggestions = async (query, input) => {
-				if (query.length < 3) {
+			// Update the position of the suggestions list
+			function updateSuggestionsPosition(input, suggestionsList) {
+				const inputWrapper = input.closest('.address-wrapper');
+				if (!inputWrapper) return;
+
+				// Reset the list's display to ensure it's positioned correctly
+				suggestionsList.style.display = 'none';
+				
+				// Position relative to the wrapper
+				const inputRect = input.getBoundingClientRect();
+				const wrapperRect = inputWrapper.getBoundingClientRect();
+				
+				suggestionsList.style.width = `${inputRect.width}px`;
+				suggestionsList.style.display = 'block';
+			}
+
+			// Modify the existing address input initialization
+			document.addEventListener('DOMContentLoaded', () => {
+				const addressInputs = document.querySelectorAll('[data-google-places="true"]');
+				
+				addressInputs.forEach(input => {
+					const wrapper = input.closest('.address-wrapper');
+					if (!wrapper) return;
+
+					// Create suggestions list for this input
+					const suggestionsList = document.createElement('ul');
+					suggestionsList.className = 'suggestions-list';
 					suggestionsList.style.display = 'none';
-					return;
-				}
+					wrapper.appendChild(suggestionsList);
 
-		try {
-			const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				mode: 'cors',
-				credentials: 'include'
-			});
-
-					if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-					const data = await response.json();
-
-					if (data.status === 'OK' && data.predictions.length > 0) {
+					// Update position when showing suggestions
+					const showSuggestions = (predictions) => {
 						suggestionsList.innerHTML = '';
-						data.predictions.forEach(prediction => {
+						predictions.forEach(prediction => {
 							const li = document.createElement('li');
 							li.textContent = prediction.description;
 							li.addEventListener('click', () => {
@@ -348,74 +359,47 @@
 							});
 							suggestionsList.appendChild(li);
 						});
+						updateSuggestionsPosition(input, suggestionsList);
+					};
 
-						const inputRect = input.getBoundingClientRect();
-						suggestionsList.style.position = 'absolute';
-						suggestionsList.style.top = `${inputRect.bottom}px`;
-						suggestionsList.style.left = `${inputRect.left}px`;
-						suggestionsList.style.width = `${inputRect.width}px`;
-						suggestionsList.style.display = 'block';
-					} else {
-						suggestionsList.style.display = 'none';
-					}
-				} catch (error) {
-					console.error('Error fetching suggestions:', error);
-					suggestionsList.style.display = 'none';
-				}
-			};
+					// Modify the existing fetchSuggestions function
+					const fetchSuggestions = async (query) => {
+						if (query.length < 3) {
+							suggestionsList.style.display = 'none';
+							return;
+						}
 
-			// Setup each address input
-			addressInputs.forEach(input => {
-				const debouncedFetch = debounce((query) => fetchSuggestions(query, input), 300);
-				
-				input.addEventListener('input', (e) => {
-					input.dataset.selectedFromDropdown = 'false';
-					debouncedFetch(e.target.value.trim());
-				});
+						try {
+							const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}`);
+							const data = await response.json();
 
-				input.addEventListener('blur', () => {
-					setTimeout(() => {
-						suggestionsList.style.display = 'none';
-					}, 200);
+							if (data.status === 'OK' && data.predictions.length > 0) {
+								showSuggestions(data.predictions);
+							} else {
+								suggestionsList.style.display = 'none';
+							}
+						} catch (error) {
+							console.error('Error fetching suggestions:', error);
+							suggestionsList.style.display = 'none';
+						}
+					};
+
+					// Setup event listeners
+					const debouncedFetch = debounce(fetchSuggestions, 300);
+					
+					input.addEventListener('input', (e) => {
+						input.dataset.selectedFromDropdown = 'false';
+						debouncedFetch(e.target.value.trim());
+					});
+
+					input.addEventListener('blur', () => {
+						setTimeout(() => {
+							suggestionsList.style.display = 'none';
+						}, 200);
+					});
 				});
 			});
 		}
-	});
-
-	// Update the position of the suggestions list
-	function updateSuggestionsPosition(input, suggestionsList) {
-		const rect = input.getBoundingClientRect();
-		suggestionsList.style.top = `${rect.bottom + window.scrollY}px`;
-		suggestionsList.style.left = `${rect.left}px`;
-		suggestionsList.style.width = `${rect.width}px`;
-	}
-
-	// Add this to your existing address input initialization
-	document.addEventListener('DOMContentLoaded', () => {
-		const addressInputs = document.querySelectorAll('[data-google-places="true"]');
-		
-		addressInputs.forEach(input => {
-			const suggestionsList = input.parentElement.querySelector('.suggestions-list');
-			if (!suggestionsList) return;
-
-			// Update position when input receives focus
-			input.addEventListener('focus', () => {
-				updateSuggestionsPosition(input, suggestionsList);
-			});
-
-			// Update position on scroll and resize
-			window.addEventListener('scroll', () => {
-				if (suggestionsList.style.display === 'block') {
-					updateSuggestionsPosition(input, suggestionsList);
-				}
-			});
-
-			window.addEventListener('resize', () => {
-				if (suggestionsList.style.display === 'block') {
-					updateSuggestionsPosition(input, suggestionsList);
-				}
-			});
-		});
 	});
 
 })(jQuery);

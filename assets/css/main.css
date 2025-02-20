@@ -4533,56 +4533,40 @@ input, select, textarea {
 }
 
 .suggestions-list {
-    position: absolute; /* Change from fixed to absolute */
-    top: 100%; /* Position right below the input */
-    left: 0;
-    width: 100%;
-    background: #312450; /* Match theme background */
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 4px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    width: 100% !important;
     max-height: 200px;
     overflow-y: auto;
-    z-index: 1000;
-    margin-top: 4px;
+    background: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 .suggestions-list li {
-    padding: 12px 16px;
+    padding: 8px 12px;
     cursor: pointer;
-    color: #ffffff; /* Light text for dark background */
-    text-align: left;
-    transition: background-color 0.2s ease;
+    color: #312450 !important;
+    font-size: 0.9em;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.suggestions-list li:last-child {
+    border-bottom: none;
 }
 
 .suggestions-list li:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #f5f5f5;
 }
 
-/* Scrollbar styling */
-.suggestions-list::-webkit-scrollbar {
-    width: 8px;
-}
-
-.suggestions-list::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.suggestions-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-}
-
-.suggestions-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-/* Input field styling */
+/* Ensure input text is visible */
 input[type="text"][data-google-places="true"] {
-    color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-input[type="text"][data-google-places="true"]::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: #312450 !important;
+    background: #ffffff;
 }
