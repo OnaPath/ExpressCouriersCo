@@ -138,83 +138,6 @@
 				color: #ffffff !important;
 			}
 		</style>
-		<script>
-			document.addEventListener('DOMContentLoaded', () => {
-				// Get all address inputs
-				const addressInputs = document.querySelectorAll('[data-google-places="true"]');
-
-				addressInputs.forEach(input => {
-					// Create unique suggestions list for each input
-					const suggestionsList = document.createElement('ul');
-					suggestionsList.className = 'suggestions-list';
-					suggestionsList.style.display = 'none';
-					
-					// Append suggestions list to input's wrapper
-					input.closest('.address-wrapper').appendChild(suggestionsList);
-
-					// Debounce function
-					const debounce = (func, delay) => {
-						let timeoutId;
-						return (...args) => {
-							clearTimeout(timeoutId);
-							timeoutId = setTimeout(() => func.apply(null, args), delay);
-						};
-					};
-
-					// Fetch suggestions
-					const fetchSuggestions = async (query, input) => {
-						if (query.length < 3) {
-							suggestionsList.style.display = 'none';
-							return;
-						}
-
-						try {
-							const response = await fetch(`http://99.79.69.87:3000/api/address-autocomplete?input=${encodeURIComponent(query)}`);
-							const data = await response.json();
-
-							if (data.status === 'OK' && data.predictions.length > 0) {
-								suggestionsList.innerHTML = '';
-								data.predictions.forEach(prediction => {
-									const li = document.createElement('li');
-									li.textContent = prediction.description;
-									li.addEventListener('click', () => {
-										input.value = prediction.description;
-										input.dataset.selectedFromDropdown = 'true';
-										suggestionsList.style.display = 'none';
-									});
-									suggestionsList.appendChild(li);
-								});
-								suggestionsList.style.display = 'block';
-							} else {
-								suggestionsList.style.display = 'none';
-							}
-						} catch (error) {
-							console.error('Error fetching suggestions:', error);
-							suggestionsList.style.display = 'none';
-						}
-					};
-
-					// Setup event listeners
-					const debouncedFetch = debounce((query) => fetchSuggestions(query, input), 300);
-
-					input.addEventListener('input', (e) => {
-						input.dataset.selectedFromDropdown = 'false';
-						debouncedFetch(e.target.value.trim());
-					});
-
-					input.addEventListener('blur', () => {
-						setTimeout(() => {
-							suggestionsList.style.display = 'none';
-						}, 200);
-					});
-
-					// Prevent paste
-					input.addEventListener('paste', (e) => {
-						e.preventDefault();
-					});
-				});
-			});
-		</script>
 	</head>
 	<body class="is-preload">
 
@@ -475,6 +398,96 @@
 			
 			// Initialize delivery form
 			const deliveryForm = new DeliveryFormHandler('delivery-form');
+		});
+		</script>
+
+		<!-- Then, add this script block at the bottom of the file, just before the closing </body> tag -->
+		<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			// Get all address inputs
+			const addressInputs = document.querySelectorAll('[data-google-places="true"]');
+
+			addressInputs.forEach(input => {
+				// Create unique suggestions list for each input
+				const suggestionsList = document.createElement('ul');
+				suggestionsList.className = 'suggestions-list';
+				suggestionsList.style.display = 'none';
+				
+				// Append suggestions list to input's wrapper
+				input.closest('.address-wrapper').appendChild(suggestionsList);
+
+				// Debounce function
+				const debounce = (func, delay) => {
+					let timeoutId;
+					return (...args) => {
+						clearTimeout(timeoutId);
+						timeoutId = setTimeout(() => func.apply(null, args), delay);
+					};
+				};
+
+				// Fetch suggestions
+				const fetchSuggestions = async (query, input) => {
+					if (query.length < 3) {
+						suggestionsList.style.display = 'none';
+						return;
+					}
+
+					try {
+						const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}&components=country:ca|locality:airdrie`);
+						const data = await response.json();
+
+						if (data.status === 'OK' && data.predictions.length > 0) {
+							suggestionsList.innerHTML = '';
+							data.predictions.forEach(prediction => {
+								const li = document.createElement('li');
+								li.textContent = prediction.description;
+								li.addEventListener('click', () => {
+									input.value = prediction.description;
+									input.dataset.selectedFromDropdown = 'true';
+									suggestionsList.style.display = 'none';
+								});
+								suggestionsList.appendChild(li);
+							});
+							suggestionsList.style.display = 'block';
+						} else {
+							suggestionsList.style.display = 'none';
+						}
+					} catch (error) {
+						console.error('Error fetching suggestions:', error);
+						suggestionsList.style.display = 'none';
+					}
+				};
+
+				// Setup event listeners
+				const debouncedFetch = debounce((query) => fetchSuggestions(query, input), 300);
+
+				input.addEventListener('input', (e) => {
+					input.dataset.selectedFromDropdown = 'false';
+					debouncedFetch(e.target.value.trim());
+				});
+
+				input.addEventListener('blur', () => {
+					setTimeout(() => {
+						suggestionsList.style.display = 'none';
+					}, 200);
+				});
+
+				// Add validation on form submit
+				input.closest('form').addEventListener('submit', (e) => {
+					if (input.dataset.selectedFromDropdown !== 'true') {
+						e.preventDefault();
+						input.setCustomValidity('Please select an address from the dropdown');
+						input.reportValidity();
+					} else {
+						input.setCustomValidity('');
+					}
+				});
+
+				// Prevent paste
+				input.addEventListener('paste', (e) => {
+					e.preventDefault();
+				});
+			});
 		});
 		</script>
 
