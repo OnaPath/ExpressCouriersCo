@@ -343,50 +343,23 @@
 						return;
 					}
 
-					// Create suggestions list for this input
+					// Create suggestions list specifically for this input
 					const suggestionsList = document.createElement('ul');
 					suggestionsList.className = 'suggestions-list';
+					suggestionsList.id = `suggestions-${input.id}`; // Unique ID for each dropdown
 					suggestionsList.style.display = 'none';
-					
-					// Log positioning information for debugging
-					console.log('Input rect:', input.getBoundingClientRect());
-					console.log('Wrapper rect:', wrapper.getBoundingClientRect());
-					
-					// Append to wrapper and set initial positioning
 					wrapper.appendChild(suggestionsList);
-					
-					// Update position function
-					const updatePosition = () => {
-						const inputRect = input.getBoundingClientRect();
-						suggestionsList.style.position = 'absolute';
-						suggestionsList.style.top = input.offsetHeight + 'px';
-						suggestionsList.style.left = '0';
-						suggestionsList.style.width = '100%';
-						suggestionsList.style.zIndex = '10000';
-						
-						// Log positioning for debugging
-						console.log('Updated position:', {
-							top: suggestionsList.style.top,
-							left: suggestionsList.style.left,
-							width: suggestionsList.style.width
-						});
-					};
 
-					// Update position when showing suggestions
-					const showSuggestions = (predictions) => {
-						suggestionsList.innerHTML = '';
-						predictions.forEach(prediction => {
-							const li = document.createElement('li');
-							li.textContent = prediction.description;
-							li.addEventListener('click', () => {
-								input.value = prediction.description;
-								input.dataset.selectedFromDropdown = 'true';
-								suggestionsList.style.display = 'none';
-							});
-							suggestionsList.appendChild(li);
-						});
-						suggestionsList.style.display = 'block';
-						updatePosition();
+					// Function to position dropdown relative to its input
+					const positionDropdown = () => {
+						const inputRect = input.getBoundingClientRect();
+						const wrapperRect = wrapper.getBoundingClientRect();
+						
+						suggestionsList.style.position = 'absolute';
+						suggestionsList.style.width = `${input.offsetWidth}px`;
+						suggestionsList.style.top = `${input.offsetHeight}px`;
+						suggestionsList.style.left = '0';
+						suggestionsList.style.zIndex = '10000';
 					};
 
 					// Modify the existing fetchSuggestions function
@@ -396,15 +369,28 @@
 							return;
 						}
 
-						// Get city from hidden input, default to 'calgary'
-						const city = document.querySelector('input[name="city"]').value || 'calgary';
-						
 						try {
-							const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}&city=${encodeURIComponent(city)}`);
+							// Get city from hidden input, default to 'calgary'
+							const city = document.querySelector('input[name="city"]')?.value || 'calgary';
+							
+							const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}&components=country:ca|locality:${city}`);
 							const data = await response.json();
 
 							if (data.status === 'OK' && data.predictions.length > 0) {
-								showSuggestions(data.predictions);
+								suggestionsList.innerHTML = '';
+								data.predictions.forEach(prediction => {
+									const li = document.createElement('li');
+									li.textContent = prediction.description;
+									li.addEventListener('click', () => {
+										input.value = prediction.description;
+										input.dataset.selectedFromDropdown = 'true';
+										suggestionsList.style.display = 'none';
+									});
+									suggestionsList.appendChild(li);
+								});
+								
+								suggestionsList.style.display = 'block';
+								positionDropdown(); // Position dropdown after populating
 							} else {
 								suggestionsList.style.display = 'none';
 							}
@@ -426,6 +412,13 @@
 						setTimeout(() => {
 							suggestionsList.style.display = 'none';
 						}, 200);
+					});
+
+					// Reposition dropdown on window resize
+					window.addEventListener('resize', () => {
+						if (suggestionsList.style.display === 'block') {
+							positionDropdown();
+						}
 					});
 				});
 			});
