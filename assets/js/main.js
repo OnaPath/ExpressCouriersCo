@@ -348,19 +348,11 @@
 					suggestionsList.className = 'suggestions-list';
 					suggestionsList.id = `suggestions-${input.id}`; // Unique ID for each dropdown
 					suggestionsList.style.display = 'none';
-					wrapper.appendChild(suggestionsList);
+					wrapper.appendChild(suggestionsList);  // Append to wrapper instead of body
 
-					// Function to position dropdown relative to its input
+					// Function to position dropdown
 					const positionDropdown = () => {
-						// Get the input's position relative to the viewport
-						const inputRect = input.getBoundingClientRect();
-						
-						// Set the dropdown position relative to the wrapper
-						suggestionsList.style.position = 'absolute';
-						suggestionsList.style.width = '100%';
-						suggestionsList.style.top = '100%';  // Position right below the input
-						suggestionsList.style.left = '0';
-						suggestionsList.style.zIndex = '10000';
+						suggestionsList.style.display = 'block';
 					};
 
 					// Modify the existing fetchSuggestions function
@@ -388,8 +380,7 @@
 									suggestionsList.appendChild(li);
 								});
 								
-								suggestionsList.style.display = 'block';
-								positionDropdown(); // Position dropdown after populating
+								positionDropdown();
 							} else {
 								suggestionsList.style.display = 'none';
 							}
@@ -411,13 +402,6 @@
 						setTimeout(() => {
 							suggestionsList.style.display = 'none';
 						}, 200);
-					});
-
-					// Handle window resize
-					window.addEventListener('resize', () => {
-						if (suggestionsList.style.display === 'block') {
-							positionDropdown();
-						}
 					});
 				});
 			});
