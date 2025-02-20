@@ -352,12 +352,13 @@
 
 					// Function to position dropdown relative to its input
 					const positionDropdown = () => {
+						// Get the input's position relative to the viewport
 						const inputRect = input.getBoundingClientRect();
-						const wrapperRect = wrapper.getBoundingClientRect();
 						
+						// Set the dropdown position relative to the wrapper
 						suggestionsList.style.position = 'absolute';
-						suggestionsList.style.width = `${input.offsetWidth}px`;
-						suggestionsList.style.top = `${input.offsetHeight}px`;
+						suggestionsList.style.width = '100%';
+						suggestionsList.style.top = '100%';  // Position right below the input
 						suggestionsList.style.left = '0';
 						suggestionsList.style.zIndex = '10000';
 					};
@@ -370,9 +371,7 @@
 						}
 
 						try {
-							// Get city from hidden input, default to 'calgary'
 							const city = document.querySelector('input[name="city"]')?.value || 'calgary';
-							
 							const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}&components=country:ca|locality:${city}`);
 							const data = await response.json();
 
@@ -400,7 +399,7 @@
 						}
 					};
 
-					// Setup event listeners
+					// Setup event listeners with debouncing
 					const debouncedFetch = debounce(fetchSuggestions, 300);
 					
 					input.addEventListener('input', (e) => {
@@ -414,7 +413,7 @@
 						}, 200);
 					});
 
-					// Reposition dropdown on window resize
+					// Handle window resize
 					window.addEventListener('resize', () => {
 						if (suggestionsList.style.display === 'block') {
 							positionDropdown();
