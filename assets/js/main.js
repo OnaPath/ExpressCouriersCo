@@ -321,15 +321,15 @@
 				const inputWrapper = input.closest('.address-wrapper');
 				if (!inputWrapper) return;
 
-				// Reset the list's display to ensure it's positioned correctly
-				suggestionsList.style.display = 'none';
-				
-				// Position relative to the wrapper
 				const inputRect = input.getBoundingClientRect();
 				const wrapperRect = inputWrapper.getBoundingClientRect();
 				
+				suggestionsList.style.position = 'absolute';
+				suggestionsList.style.top = `${inputRect.bottom}px`;  // Position below the input
+				suggestionsList.style.left = `${inputRect.left}px`;
 				suggestionsList.style.width = `${inputRect.width}px`;
 				suggestionsList.style.display = 'block';
+				suggestionsList.style.zIndex = '10000';  // Ensure dropdown appears above other elements
 			}
 
 			// Modify the existing address input initialization
@@ -344,7 +344,7 @@
 					const suggestionsList = document.createElement('ul');
 					suggestionsList.className = 'suggestions-list';
 					suggestionsList.style.display = 'none';
-					wrapper.appendChild(suggestionsList);
+					wrapper.appendChild(suggestionsList);  // Append to wrapper instead of document.body
 
 					// Update position when showing suggestions
 					const showSuggestions = (predictions) => {
