@@ -4,8 +4,8 @@
 		<title>Lethbridge Same Day Delivery Service | Express Couriers & Co | $20 Flat Rate</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<meta name="description" content="Professional same-day delivery service in Lethbridge. $20 flat rate, real-time tracking, immediate pickup. Serving all Lethbridge neighborhoods including Downtown, West & South Lethbridge." />
-		<meta name="keywords" content="Lethbridge delivery, courier service Lethbridge, same day delivery, local delivery, University of Lethbridge delivery, express delivery, hotshot delivery Lethbridge" />
+		<meta name="description" content="Professional same-day delivery service in Lethbridge. $20 flat rate, real-time tracking, immediate pickup. Serving all Lethbridge neighborhoods." />
+		<meta name="keywords" content="Lethbridge delivery, courier service Lethbridge, same day delivery, local delivery, downtown Lethbridge delivery, express delivery, hotshot delivery Lethbridge" />
 		<meta name="robots" content="index, follow" />
 		<link rel="canonical" href="https://www.expresscouriers.co/LethbridgeDelivery.html" />
 		
@@ -75,92 +75,35 @@
 				"Paradise Canyon",
 				"Lethbridge Industrial Park",
 				"Warehouse District"
-			],
-			"hasOfferCatalog": {
-				"@type": "OfferCatalog",
-				"name": "Delivery Services",
-				"itemListElement": [
-					{
-						"@type": "Offer",
-						"itemOffered": {
-							"@type": "Service",
-							"name": "Same Day Delivery",
-							"description": "Professional delivery service for small businesses and individuals within Lethbridge with real-time tracking"
-						},
-						"priceSpecification": {
-							"@type": "PriceSpecification",
-							"price": "20.00",
-							"priceCurrency": "CAD"
-						}
-					}
-				]
-			}
+			]
 		}
 		</script>
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-		<script>
-			var CONFIG = {
-				GOOGLE_PLACES_API_KEY: '{{ GOOGLE_API_KEY }}'
-			};
-		</script>
-		<script>
-			// Initialize Google Places API
-			function initGooglePlaces() {
-				if (!window.CONFIG || !window.CONFIG.GOOGLE_PLACES_API_KEY) {
-					console.error('CONFIG not available in window');
-					return;
-				}
-				console.log('Loading Google Places API with config:', window.CONFIG);
-				const script = document.createElement('script');
-				script.src = `https://maps.googleapis.com/maps/api/js?key=${window.CONFIG.GOOGLE_PLACES_API_KEY}&libraries=places&callback=initAutocomplete&loading=async`;
-				script.async = true;
-				script.defer = true;
-				document.head.appendChild(script);
-			}
-			
-			document.addEventListener('DOMContentLoaded', initGooglePlaces);
-		</script>
 		<script defer src="/assets/js/dispatchService.js"></script>
 		<script defer src="/assets/js/deliveryForm.js"></script>
-		<script defer src="/assets/js/addressValidation.js"></script>
 		<style>
-			.address-wrapper {
-				position: relative;
-				margin-bottom: 2.5em !important; /* Add space below address fields */
+			.suggestions-list {
+				position: absolute;
+				background: white;
+				border: 1px solid #ddd;
+				border-top: none;
+				max-height: 200px;
+				overflow-y: auto;
+				z-index: 1000;
+				list-style: none;
+				padding: 0;
+				margin: 0;
+				box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 			}
-			.pac-container {
-				z-index: 999999 !important;
-				position: absolute !important;
-				pointer-events: auto !important;
-				box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-				background: #fff;
-				border: 1px solid #ccc;
-				margin-top: 2px !important;
-				display: block !important;
-				visibility: visible !important;
-			}
-			/* Ensure consistent spacing after address sections */
-			.row.gtr-uniform > .col-12:last-child {
-				margin-bottom: 2em;
-			}
-			/* Style the Google attribution to be more subtle */
-			.pac-container:after {
-				/* Light theme styling */
-				background-color: #fff !important;
-				height: 20px !important;
-				padding: 3px 6px !important;
-				color: #666 !important;
-				font-size: 0.7em !important;
-				line-height: 14px !important;
-			}
-			/* Style the dropdown items */
-			.pac-item {
-				padding: 6px 8px;
+
+			.suggestions-list li {
+				padding: 8px 12px;
 				cursor: pointer;
 			}
-			.pac-item:hover {
-				background-color: #f8f9fa;
+
+			.suggestions-list li:hover {
+				background-color: #f5f5f5;
 			}
 		</style>
 	</head>
@@ -387,80 +330,6 @@
 		document.addEventListener('DOMContentLoaded', function() {
 			updateAmounts(0);
 			const deliveryForm = new DeliveryFormHandler('delivery-form');
-		});
-		</script>
-
-		<script>
-		// Address Autocomplete Handler
-		document.addEventListener('DOMContentLoaded', () => {
-			const addressInput = document.getElementById('address-input');
-			const suggestionsList = document.getElementById('suggestions');
-
-			// Debounce function to limit API calls
-			const debounce = (func, delay) => {
-				let timeoutId;
-				return (...args) => {
-					clearTimeout(timeoutId);
-					timeoutId = setTimeout(() => func.apply(null, args), delay);
-				};
-			};
-
-			// Fetch suggestions from server-side endpoint
-			const fetchSuggestions = async (query) => {
-				if (query.length < 3) {
-					suggestionsList.style.display = 'none';
-					return;
-				}
-
-				try {
-					const response = await fetch(`http://99.79.69.87:3000/api/address-autocomplete?input=${encodeURIComponent(query)}`, {
-						method: 'GET',
-						headers: {
-							'Content-Type': 'application/json',
-						},
-					});
-
-					if (!response.ok) {
-						throw new Error(`Server error: ${response.status}`);
-					}
-
-					const data = await response.json();
-
-					if (data.status === 'OK' && data.predictions.length > 0) {
-						suggestionsList.innerHTML = '';
-						data.predictions.forEach(prediction => {
-							const li = document.createElement('li');
-							li.textContent = prediction.description;
-							li.addEventListener('click', () => {
-								addressInput.value = prediction.description;
-								suggestionsList.style.display = 'none';
-							});
-							suggestionsList.appendChild(li);
-						});
-						suggestionsList.style.display = 'block';
-					} else {
-						suggestionsList.style.display = 'none';
-					}
-				} catch (error) {
-					console.error('Error fetching address suggestions:', error);
-					suggestionsList.style.display = 'none';
-				}
-			};
-
-			// Debounced input handler
-			const debouncedFetch = debounce(fetchSuggestions, 300);
-
-			// Listen for input changes
-			addressInput.addEventListener('input', (e) => {
-				debouncedFetch(e.target.value.trim());
-			});
-
-			// Optional: Clear suggestions on focus loss
-			addressInput.addEventListener('blur', () => {
-				setTimeout(() => {
-					suggestionsList.style.display = 'none';
-				}, 200); // Delay to allow click on suggestion
-			});
 		});
 		</script>
 
