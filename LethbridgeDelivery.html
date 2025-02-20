@@ -189,23 +189,36 @@
 								</div>
 							</div>
 
-							<h3>Package Specifications</h3>
+							<h2>Package Details</h2>
 							<div class="row gtr-uniform">
 								<div class="col-12">
-									<textarea name="delivery-notes" placeholder="Delivery Instructions (Optional)"></textarea>
+									<input type="text" name="weight" id="weight" value="" placeholder="Approximate Weight (kg) - Maximum 20kg" required />
+								</div>
+								<div class="col-12">
+									<textarea name="delivery-notes" id="delivery-notes" placeholder="Add any specific helpful delivery instructions here (e.g. buzzer code, landmarks, preferred entrance). Courier must hand off package to a person at the dropoff address. Package must fit in a standard personal sedan." rows="4"></textarea>
 								</div>
 							</div>
-							<div class="col-12">
-								<h3>Delivery Fee</h3>
-								<div class="price-breakdown">
-									<div class="subtotal">Delivery Fee: $20.00</div>
-									<div class="gst">GST: $1.00</div>
-									<div class="tip">Tip: $<span id="tip-display">0.00</span></div>
-									<div class="total">Total: $<span id="total-display">21.00</span></div>
+
+							<div class="form-section">
+								<h2>Payment Details</h2>
+								<div class="fee-display">
+									<div class="subtotal">
+										<span>Delivery Fee:</span>
+										<span class="price">$20.00</span>
+									</div>
+									<div class="gst">
+										<span>GST (5%):</span>
+										<span class="price">$1.00</span>
+									</div>
+									<div class="tip">
+										<span>Tip:</span>
+										<span class="price">$<span id="tip-display">0.00</span></span>
+									</div>
+									<div class="total">
+										<span>Total:</span>
+										<span class="price">$<span id="total-display">21.00</span></span>
+									</div>
 								</div>
-							</div>
-							<div class="col-12">
-								<h3>Tip Your Courier</h3>
 								<div class="tip-options">
 									<button type="button" class="tip-button" data-percentage="15">15% ($3.00)</button>
 									<button type="button" class="tip-button" data-percentage="20">20% ($4.00)</button>
@@ -216,6 +229,7 @@
 									<input type="hidden" name="tip" id="tip" value="0">
 								</div>
 							</div>
+
 							<div class="col-12">
 								<input type="checkbox" id="terms" name="terms" required>
 								<label for="terms">I agree to the <a href="ServiceTerms.html">Terms of Service</a></label>

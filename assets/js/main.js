@@ -28,6 +28,120 @@
 			window.setTimeout(function() {
 				$body.removeClass('is-preload');
 			}, 100);
+
+			// Address dropdown positioning fix
+			const addressInputs = document.querySelectorAll('input[data-google-places]');
+			if (addressInputs.length > 0) {
+				addressInputs.forEach(input => {
+					// Create suggestions list if it doesn't exist
+					let suggestionsList = document.getElementById('suggestions-list');
+					if (!suggestionsList) {
+						suggestionsList = document.createElement('ul');
+						suggestionsList.id = 'suggestions-list';
+						suggestionsList.className = 'suggestions-list';
+						document.body.appendChild(suggestionsList);
+					}
+
+					// Update positioning function
+					const updateSuggestionsPosition = () => {
+						const inputRect = input.getBoundingClientRect();
+						const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+						
+						suggestionsList.style.position = 'absolute';
+						suggestionsList.style.top = `${inputRect.bottom + scrollTop}px`;
+						suggestionsList.style.left = `${inputRect.left}px`;
+						suggestionsList.style.width = `${inputRect.width}px`;
+						suggestionsList.style.zIndex = '1000';
+					};
+
+					// Update position when input is focused
+					input.addEventListener('focus', () => {
+						updateSuggestionsPosition();
+					});
+
+					// Update position when window is resized
+					window.addEventListener('resize', () => {
+						if (suggestionsList.style.display === 'block') {
+							updateSuggestionsPosition();
+						}
+					});
+
+					// Update position when page is scrolled
+					window.addEventListener('scroll', () => {
+						if (suggestionsList.style.display === 'block') {
+							updateSuggestionsPosition();
+						}
+					});
+				});
+			}
+
+			// Fix for the errors in main.js
+			// Only run the sidebar code if the sidebar exists
+			if ($sidebar.length) {
+				var $sidebar_a = $sidebar.find('a');
+
+				$sidebar_a
+					.addClass('scrolly')
+					.on('click', function() {
+
+						var $this = $(this);
+
+						// External link? Bail.
+							if ($this.attr('href').charAt(0) != '#')
+								return;
+
+						// Deactivate all links.
+							$sidebar_a.removeClass('active');
+
+						// Activate link *and* lock it (so Scrollex doesn't try to activate other links as we're scrolling to this one's section).
+							$this
+								.addClass('active')
+								.addClass('active-locked');
+
+					})
+					.each(function() {
+
+						var	$this = $(this),
+							id = $this.attr('href'),
+							$section = $(id);
+
+						// No section for this link? Bail.
+							if ($section.length < 1)
+								return;
+
+						// Scrollex.
+							$section.scrollex({
+								mode: 'middle',
+								top: '-20vh',
+								bottom: '-20vh',
+								initialize: function() {
+
+									// Deactivate section.
+										$section.addClass('inactive');
+
+								},
+								enter: function() {
+
+									// Activate section.
+										$section.removeClass('inactive');
+
+									// No locked links? Deactivate all links and activate this section's one.
+										if ($sidebar_a.filter('.active-locked').length == 0) {
+
+											$sidebar_a.removeClass('active');
+											$this.addClass('active');
+
+										}
+
+									// Otherwise, if this section's link is the one that's locked, unlock it.
+										else if ($this.hasClass('active-locked'))
+											$this.removeClass('active-locked');
+
+								}
+							});
+
+					});
+			}
 		});
 
 	// Forms.
@@ -323,13 +437,15 @@
 					return;
 				}
 
-				try {
-					const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}`, {
-						method: 'GET',
-						headers: {
-							'Content-Type': 'application/json',
-						}
-					});
+		try {
+			const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				mode: 'cors',
+				credentials: 'include'
+			});
 
 					if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 					const data = await response.json();
