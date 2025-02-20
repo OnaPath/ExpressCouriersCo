@@ -433,7 +433,7 @@
 					}
 
 					try {
-						const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}&components=country:ca|locality:Airdrie`);
+						const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}&city=airdrie`);
 						const data = await response.json();
 
 						if (data.status === 'OK' && data.predictions.length > 0) {
