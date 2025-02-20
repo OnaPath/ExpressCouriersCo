@@ -145,11 +145,6 @@
 				const addressInput = document.getElementById('address-input');
 				const suggestionsList = document.getElementById('suggestions');
 
-				if (!addressInput || !suggestionsList) {
-					console.warn('Address input elements not found');
-					return;
-				}
-
 				// Debounce function to limit API calls
 				const debounce = (func, delay) => {
 					let timeoutId;
@@ -217,6 +212,12 @@
 				});
 			});
 		</script>
+
+		<!-- Add these scripts in the head section -->
+		<script src="assets/js/config.js"></script>
+		<script defer src="/assets/js/dispatchService.js"></script>
+		<script defer src="/assets/js/deliveryForm.js"></script>
+		<script defer src="/assets/js/addressValidation.js"></script>
 	</head>
 	<body class="is-preload">
 
@@ -411,21 +412,15 @@
 			</footer>
 
 		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/jquery.scrolly.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			
-			<!-- Add these before main.js -->
-			<script src="assets/js/config.js"></script>
-			<script src="assets/js/dispatchService.js"></script>
-			<script src="assets/js/deliveryForm.js"></script>
-			
-			<!-- Load main.js last -->
-			<script src="assets/js/main.js"></script>
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/jquery.scrollex.min.js"></script>
+		<script src="assets/js/jquery.scrolly.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
 
+		<!-- Add the payment calculation script -->
 		<script>
 		// Constants
 		const DELIVERY_FEE = 20.00;
@@ -434,54 +429,56 @@
 
 		// Update displays
 		function updateAmounts(tipAmount) {
-			// Convert tip to number
 			const tip = Number(tipAmount) || 0;
-			
-			// Calculate total
 			const total = BASE_TOTAL + tip;
 			
-			// Update displays
-			document.getElementById('tip-display').textContent = tip.toFixed(2);
-			document.getElementById('total-display').textContent = total.toFixed(2);
+			const tipDisplay = document.getElementById('tip-display');
+			const totalDisplay = document.getElementById('total-display');
+			const orderTotal = document.getElementById('order_total');
+			
+			if (tipDisplay) tipDisplay.textContent = tip.toFixed(2);
+			if (totalDisplay) totalDisplay.textContent = total.toFixed(2);
+			if (orderTotal) orderTotal.value = total.toFixed(2);
 		}
 
-		// Handle tip buttons
-		document.querySelectorAll('.tip-button').forEach(button => {
-			button.addEventListener('click', function() {
-				// Clear selections
-				document.querySelectorAll('.tip-button').forEach(btn => 
-					btn.classList.remove('selected'));
-				this.classList.add('selected');
-				document.getElementById('custom-tip').value = '';
-				
-				// Calculate tip
-				const percentage = parseInt(this.dataset.percentage);
-				const tipAmount = DELIVERY_FEE * (percentage / 100);
-				
-				updateAmounts(tipAmount);
-			});
-		});
-
-		// Handle custom tip
-		document.getElementById('custom-tip').addEventListener('input', function() {
-			// Clear selections
-			document.querySelectorAll('.tip-button').forEach(btn => 
-				btn.classList.remove('selected'));
-			
-			updateAmounts(this.value);
-		});
-
-		// Initialize
+		// Wait for DOM to be ready
 		document.addEventListener('DOMContentLoaded', function() {
-			updateAmounts(0);
-		});
-		</script>
+			// Initialize tip buttons
+			const tipButtons = document.querySelectorAll('.tip-button');
+			const customTip = document.getElementById('custom-tip');
+			
+			if (tipButtons) {
+				tipButtons.forEach(button => {
+					button.addEventListener('click', function() {
+						// Clear selections
+						tipButtons.forEach(btn => btn.classList.remove('selected'));
+						this.classList.add('selected');
+						if (customTip) customTip.value = '';
+						
+						// Calculate tip
+						const percentage = parseInt(this.dataset.percentage);
+						const tipAmount = DELIVERY_FEE * (percentage / 100);
+						
+						updateAmounts(tipAmount);
+					});
+				});
+			}
 
-		<!-- Initialize form handler -->
-		<script>
-			document.addEventListener('DOMContentLoaded', function() {
-				const deliveryForm = new DeliveryFormHandler('delivery-form');
-			});
+			// Handle custom tip
+			if (customTip) {
+				customTip.addEventListener('input', function() {
+					// Clear selections
+					tipButtons.forEach(btn => btn.classList.remove('selected'));
+					updateAmounts(this.value);
+				});
+			}
+
+			// Initialize amounts
+			updateAmounts(0);
+			
+			// Initialize delivery form
+			const deliveryForm = new DeliveryFormHandler('delivery-form');
+		});
 		</script>
 
 	</body>

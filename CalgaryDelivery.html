@@ -407,12 +407,13 @@
 			});
 		</script>
 
-		<!-- Remove old Google Places scripts and config -->
+		<!-- Replace the Google Places initialization with our server endpoint -->
 		<script>
-			// Address Autocomplete Handler
 			document.addEventListener('DOMContentLoaded', () => {
-				const addressInput = document.getElementById('address-input');
-				const suggestionsList = document.getElementById('suggestions');
+				const addressInputs = document.querySelectorAll('[data-google-places="true"]');
+				const suggestionsList = document.createElement('ul');
+				suggestionsList.className = 'suggestions-list';
+				suggestionsList.style.display = 'none';
 
 				// Debounce function to limit API calls
 				const debounce = (func, delay) => {
@@ -424,7 +425,7 @@
 				};
 
 				// Fetch suggestions from server-side endpoint
-				const fetchSuggestions = async (query) => {
+				const fetchSuggestions = async (query, input) => {
 					if (query.length < 3) {
 						suggestionsList.style.display = 'none';
 						return;
@@ -450,11 +451,19 @@
 								const li = document.createElement('li');
 								li.textContent = prediction.description;
 								li.addEventListener('click', () => {
-									addressInput.value = prediction.description;
+									input.value = prediction.description;
+									input.dataset.selectedFromDropdown = 'true';
 									suggestionsList.style.display = 'none';
 								});
 								suggestionsList.appendChild(li);
 							});
+							
+							// Position the suggestions list below the input
+							const inputRect = input.getBoundingClientRect();
+							suggestionsList.style.position = 'absolute';
+							suggestionsList.style.top = `${inputRect.bottom}px`;
+							suggestionsList.style.left = `${inputRect.left}px`;
+							suggestionsList.style.width = `${inputRect.width}px`;
 							suggestionsList.style.display = 'block';
 						} else {
 							suggestionsList.style.display = 'none';
@@ -465,22 +474,70 @@
 					}
 				};
 
-				// Debounced input handler
-				const debouncedFetch = debounce(fetchSuggestions, 300);
+				// Add suggestions list to document
+				document.body.appendChild(suggestionsList);
 
-				// Listen for input changes
-				addressInput.addEventListener('input', (e) => {
-					debouncedFetch(e.target.value.trim());
-				});
+				// Setup each address input
+				addressInputs.forEach(input => {
+					const debouncedFetch = debounce((query) => fetchSuggestions(query, input), 300);
 
-				// Optional: Clear suggestions on focus loss
-				addressInput.addEventListener('blur', () => {
-					setTimeout(() => {
-						suggestionsList.style.display = 'none';
-					}, 200); // Delay to allow click on suggestion
+					// Listen for input changes
+					input.addEventListener('input', (e) => {
+						input.dataset.selectedFromDropdown = 'false';
+						debouncedFetch(e.target.value.trim());
+					});
+
+					// Add validation on form submit
+					input.closest('form').addEventListener('submit', (e) => {
+						if (input.dataset.selectedFromDropdown !== 'true') {
+							e.preventDefault();
+							input.setCustomValidity('Please select an address from the dropdown');
+							input.reportValidity();
+						} else {
+							input.setCustomValidity('');
+						}
+					});
+
+					// Clear suggestions on focus loss
+					input.addEventListener('blur', () => {
+						setTimeout(() => {
+							suggestionsList.style.display = 'none';
+						}, 200); // Delay to allow click on suggestion
+					});
+
+					// Prevent paste
+					input.addEventListener('paste', (e) => {
+						e.preventDefault();
+					});
 				});
 			});
 		</script>
+
+		<!-- Add styling for suggestions list -->
+		<style>
+			.suggestions-list {
+				position: absolute;
+				background: white;
+				border: 1px solid #ddd;
+				border-top: none;
+				max-height: 200px;
+				overflow-y: auto;
+				z-index: 1000;
+				list-style: none;
+				padding: 0;
+				margin: 0;
+				box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+			}
+
+			.suggestions-list li {
+				padding: 8px 12px;
+				cursor: pointer;
+			}
+
+			.suggestions-list li:hover {
+				background-color: #f5f5f5;
+			}
+		</style>
 
 	</body>
 </html>
