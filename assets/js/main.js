@@ -367,12 +367,15 @@
 				headers: {
 					'Content-Type': 'application/json',
 				},
+				mode: 'cors',
+				credentials: 'include'
 			});
 
 			if (!response.ok) {
 				throw new Error(`Server error: ${response.status}`);
 			}
 
+			const data = await response.json();
 			// ... rest of the fetch handling code ...
 		} catch (error) {
 			console.error('Error fetching address suggestions:', error);
