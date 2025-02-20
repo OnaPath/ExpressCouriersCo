@@ -190,7 +190,7 @@
 	// Partners and Integrations Carousel
 	document.addEventListener('DOMContentLoaded', function() {
 		const track = document.querySelector('.carousel-track');
-		is (!track) return; // Exit if no carousel
+		if (!track) return; // Exit if no carousel
 		const slides = Array.from(track.children);
 		const slideWidth = slides[0].getBoundingClientRect().width;
 		let slideIndex = 0;
