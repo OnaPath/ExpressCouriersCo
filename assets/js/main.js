@@ -364,7 +364,7 @@
 
 						try {
 							const city = document.querySelector('input[name="city"]')?.value || 'calgary';
-							const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}&components=country:ca|locality:${city}`);
+							const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}&city=${encodeURIComponent(city)}`);
 							const data = await response.json();
 
 							if (data.status === 'OK' && data.predictions.length > 0) {
