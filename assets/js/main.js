@@ -187,61 +187,6 @@
 				}
 			});
 
-	// Partners and Integrations Carousel
-	document.addEventListener('DOMContentLoaded', function() {
-		const track = document.querySelector('.carousel-track');
-		if (!track) return; // Exit if no carousel
-		const slides = Array.from(track.children);
-		const slideWidth = slides[0].getBoundingClientRect().width;
-		let slideIndex = 0;
-
-		// Arrange the slides next to one another
-		slides.forEach((slide, index) => {
-			slide.style.left = slideWidth * index + 'px';
-		});
-
-		function moveToSlide(index) {
-			track.style.transform = 'translateX(-' + slideWidth * index + 'px)';
-			slideIndex = index;
-		}
-
-		function moveCarousel() {
-			slideIndex++;
-			if (slideIndex >= slides.length) {
-				slideIndex = 0;
-			}
-			moveToSlide(slideIndex);
-		}
-
-		// Move carousel every 3 seconds
-		setInterval(moveCarousel, 3000);
-	});
-
-	// Partners Carousel
-	document.addEventListener('DOMContentLoaded', function() {
-		const track = document.querySelector('.carousel-track');
-		if (!track) return; // Exit if no carousel
-		const slides = Array.from(track.children);
-		let currentIndex = 0;
-
-		function moveCarousel() {
-			currentIndex++;
-			if (currentIndex >= slides.length) {
-				currentIndex = 0;
-				track.style.transition = 'none';
-				track.style.transform = 'translateX(0)';
-				setTimeout(() => {
-					track.style.transition = 'transform 0.5s ease-in-out';
-				}, 10);
-			} else {
-				track.style.transform = `translateX(-${currentIndex * 20}%)`;
-			}
-		}
-
-		// Move carousel every 3 seconds
-		setInterval(moveCarousel, 3000);
-	});
-
 	document.addEventListener('DOMContentLoaded', function() {
 		// Constants
 		const DELIVERY_FEE = 20.00;
