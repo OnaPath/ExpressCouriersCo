@@ -338,13 +338,39 @@
 				
 				addressInputs.forEach(input => {
 					const wrapper = input.closest('.address-wrapper');
-					if (!wrapper) return;
+					if (!wrapper) {
+						console.error('No wrapper found for address input');
+						return;
+					}
 
 					// Create suggestions list for this input
 					const suggestionsList = document.createElement('ul');
 					suggestionsList.className = 'suggestions-list';
 					suggestionsList.style.display = 'none';
-					wrapper.appendChild(suggestionsList);  // Append to wrapper instead of document.body
+					
+					// Log positioning information for debugging
+					console.log('Input rect:', input.getBoundingClientRect());
+					console.log('Wrapper rect:', wrapper.getBoundingClientRect());
+					
+					// Append to wrapper and set initial positioning
+					wrapper.appendChild(suggestionsList);
+					
+					// Update position function
+					const updatePosition = () => {
+						const inputRect = input.getBoundingClientRect();
+						suggestionsList.style.position = 'absolute';
+						suggestionsList.style.top = input.offsetHeight + 'px';
+						suggestionsList.style.left = '0';
+						suggestionsList.style.width = '100%';
+						suggestionsList.style.zIndex = '10000';
+						
+						// Log positioning for debugging
+						console.log('Updated position:', {
+							top: suggestionsList.style.top,
+							left: suggestionsList.style.left,
+							width: suggestionsList.style.width
+						});
+					};
 
 					// Update position when showing suggestions
 					const showSuggestions = (predictions) => {
@@ -359,7 +385,8 @@
 							});
 							suggestionsList.appendChild(li);
 						});
-						updateSuggestionsPosition(input, suggestionsList);
+						suggestionsList.style.display = 'block';
+						updatePosition();
 					};
 
 					// Modify the existing fetchSuggestions function

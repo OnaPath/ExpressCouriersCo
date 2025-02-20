@@ -4528,25 +4528,26 @@ input, select, textarea {
 
 /* Address Dropdown Styling */
 .address-wrapper {
-    position: relative;
+    position: relative !important;
+    width: 100%;
     margin-bottom: 2.5em !important;
 }
 
 .suggestions-list {
     position: absolute !important;
-    top: 100% !important;
+    top: calc(2.75em + 2px) !important; /* Height of input + small gap */
     left: 0 !important;
+    right: 0 !important;
     width: 100% !important;
     max-height: 200px;
     overflow-y: auto;
-    background: #ffffff !important;
-    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: #312450 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 4px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     z-index: 10000;
-    margin: 0;
+    margin: 0 !important;
     padding: 0;
-    list-style: none;
 }
 
 .suggestions-list li {
