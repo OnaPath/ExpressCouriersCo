@@ -17,6 +17,11 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
 
+      - name: Add Lightsail Host Key to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 99.79.69.87 >> ~/.ssh/known_hosts
+
       - name: Deploy to Lightsail
         run: |
           ssh bitnami@99.79.69.87 "cd /home/bitnami/express-couriers-api && git pull origin main && sudo cp -r /home/bitnami/express-couriers-api/* /opt/bitnami/apache/htdocs/ && sudo /opt/bitnami/ctlscript.sh restart apache"
