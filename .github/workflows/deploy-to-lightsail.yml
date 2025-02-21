@@ -1,36 +1,22 @@
-name: Deploy to GitHub Pages
+name: Deploy to Lightsail
 
 on:
   push:
-    branches: ["main"]  # Trigger on push to main
-  workflow_dispatch:    # Allow manual trigger
-
-permissions:
-  contents: read        # Read repo contents
-  pages: write          # Write to Pages
-  id-token: write       # Authenticate with GitHub token
-
-concurrency:
-  group: "pages"        # Avoid parallel runs
-  cancel-in-progress: false
+    branches:
+      - main
 
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1    # Shallow clone for speed
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Upload Artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.7.0
         with:
-          path: '.'         # Use root directory (your static files)
+          ssh-private-key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy to Lightsail
+        run: |
+          ssh bitnami@99.79.69.87 "cd /home/bitnami/express-couriers-api && git pull origin main && sudo cp -r /home/bitnami/express-couriers-api/* /opt/bitnami/apache/htdocs/ && sudo /opt/bitnami/ctlscript.sh restart apache"
