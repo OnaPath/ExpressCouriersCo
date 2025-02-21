@@ -433,7 +433,7 @@
 					}
 
 					try {
-						const response = await fetch(`https://api.expresscouriers.co:3000/api/address-autocomplete?input=${encodeURIComponent(query)}&city=airdrie`, {
+						const response = await fetch(`https://api.expresscouriers.co:3001/api/address-autocomplete?input=${encodeURIComponent(query)}&city=airdrie`, {
 							method: 'GET',
 							headers: {
 								'Accept': 'application/json',
@@ -496,6 +496,57 @@
 				});
 			});
 		});
+		</script>
+
+		<!-- Add this script just before the closing </body> tag -->
+		<script>
+			async function submitForm(event) {
+				// Only proceed if the button clicked was "Proceed to payment"
+				if (event.submitter && event.submitter.getAttribute('name') === 'proceed-to-payment') {
+					event.preventDefault();
+
+					const formData = {
+						senderName: document.querySelector('input[name="sender-name"]').value,
+						senderPhone: document.querySelector('input[name="sender-phone"]').value,
+						pickupAddress: document.querySelector('input[name="pickup-address"]').value,
+						receiverName: document.querySelector('input[name="receiver-name"]').value,
+						receiverPhone: document.querySelector('input[name="receiver-phone"]').value,
+						dropoffAddress: document.querySelector('input[name="dropoff-address"]').value,
+						deliveryNotes: document.querySelector('textarea[name="delivery-notes"]').value,
+						weight: document.querySelector('input[name="weight"]').value,
+						subtotal: parseFloat(document.querySelector('input[name="delivery_fee"]').value),
+						gst: parseFloat(document.querySelector('input[name="gst"]').value),
+						tip: parseFloat(document.querySelector('input[name="tip"]').value),
+						total: parseFloat(document.querySelector('input[name="order_total"]').value)
+					};
+
+					try {
+						const response = await fetch('https://endpoint.puffski.com/express/courier/order', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify(formData)
+						});
+
+						if (response.ok) {
+							console.log('Dispatch request sent successfully!');
+							// After successful webhook, submit the form to Moneris
+							event.target.submit();
+						} else {
+							console.error('Failed to send dispatch request. Status: ' + response.status);
+							// Optionally prevent form submission if webhook fails
+							alert('There was an error processing your request. Please try again.');
+						}
+					} catch (error) {
+						console.error('Error sending dispatch request:', error);
+						alert('There was an error processing your request. Please try again.');
+					}
+				}
+			}
+
+			// Add event listener to the form
+			document.getElementById('delivery-form').addEventListener('submit', submitForm);
 		</script>
 
 	</body>

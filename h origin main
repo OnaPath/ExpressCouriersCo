@@ -1,0 +1,114 @@
+[33m9405d0b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Add GitHub Actions for auto-deploy to Lightsail
+[33m12635f2[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m City
+[33mb083f33[m the commit message for your changes. Lines starting
+[33m602d462[m Removed carousel logic
+[33m4de0366[m If track
+[33m02c2b04[m Remove carousel logic
+[33m46173fa[m fetch
+[33m033713a[m Aidrie Local
+[33ma13a096[m AirdrieDelivery
+[33m469efba[m CAlgaryAirdrie
+[33m18ab164[m Aidrie/Lethbridge
+[33mf81ecc3[m Address Fields
+[33mde6cb9a[m Anchor
+[33ma483a42[m Anchor dropdown
+[33m317dba2[m Anchor field
+[33m58849c6[m Anchor
+[33m105b048[m Anchor input
+[33mb0b8509[m  z-index
+[33mefb3cb6[m Email field
+[33m67bd271[m City specific
+[33m0311dc2[m dropdown formatting
+[33m3a9fe6c[m Location specific css
+[33md7ffc0d[m Updated airdrie and lethbridge
+[33mc2cf465[m Position the dropdown
+[33m57ae168[m Change the dropdown positioning
+[33mc2fd324[m Formatting dropdown
+[33m0dd0a57[m Fix the dropdown positioning by:
+[33mac941ce[m LethbridgeDelivery
+[33md55219e[m Removed addressValidation.js
+[33m263c187[m Fix the CORS issues Handle null references properly
+[33m8f9bf6e[m removed front end call
+[33m6df5844[m updated https
+[33m1d865d7[m fetch
+[33mfd9cbb7[m Removed Google Places API initialization Added server-side endpoint integration Added suggestions list with styling
+[33m9a7631c[m Adds null checks using optional chaining (?.) Uses proper ID selectors (#) instead of name attributes Provides default values if elements aren't found Uses the constants defined in AirdrieDelivery.html for pricing
+[33me761c5f[m Address
+[33m8a9a0d9[m Formatting
+[33m6078889[m Removed assets/js/config.production.js Removed assets/js/config.production.google.js Kept other necessary ignores Maintained example config exception
+[33m9e0793e[m Simple placeholder in HTML Direct string replacement No complex file creation Easier to debug
+[33m5df2221[m Using perl instead of awk Added debug output Simplified script injection More reliable head tag detection
+[33mafc6876[m Using var instead of window. Added debug logging Added HTML comment for clarity Simplified the injection
+[33m5d290df[m Directly injecting CONFIG into head Added console.log for debugging Better error handling Verifies head tag exists
+[33m71cec41[m Creating a separate config.js file Adding script tag to load config.js Using proper file paths Better error handling
+[33m2e8e1c5[m Using awk instead of sed Better script formatting Proper file handling More reliable injection
+[33mf5d9eb7[m Injecting right after <head> tag Using proper script type Added debug output Better newline handling
+[33m04ec56e[m No SED
+[33mf6f702d[m Dispatchservice
+[33md4d2e3a[m remove config
+[33md111940[m config
+[33ma5665ef[m Debug
+[33m1c21708[m Calgary
+[33m4821451[m CalgaryDelivery
+[33mfd3c32f[m Fixed Sed command
+[33m19509d0[m config
+[33mb5c6e0b[m commit
+[33m2f2ed25[m Commit
+[33m75004a2[m calgary
+[33mfc7fa00[m Calgary
+[33m9384576[m Debug
+[33m09f75c0[m Debug
+[33m209e10f[m filecheck
+[33maf5bf31[m actions
+[33m9a11f36[m Simplify
+[33me18daf9[m redacted
+[33m88338da[m ErrorChecking
+[33m67df8c6[m Actions
+[33m4d29bb4[m AddedTriggerEvents
+[33mfdefc3d[m Depploy
+[33m462f721[m ManagingGoogle
+[33m57038cc[m addressupdate
+[33m1831155[m deploy
+[33m9215a13[m Deploy
+[33m58f8662[m addresstroubleshoot
+[33m5bd55f4[m GoogleLocationAPI
+[33m6831f25[m SEO improvements
+[33m9562cc1[m Updated Service Terms
+[33me8ac9d7[m Checkout optimize - updated pricing
+[33m6a45799[m Webhooks
+[33m23141fa[m Form handling webhooks
+[33m4c8a5e5[m Remove sensitive config files from git tracking
+[33mdd47d3e[m Changed Delivery Form Fields
+[33mbcc2ae6[m Favicon and SEO
+[33m53115b5[m SEO updated - and small edits
+[33me7cfd5e[m Center text - Preferred partner
+[33mcb39357[m General Edits
+[33m063851d[m Edited Payment at checkout link out to Moneris
+[33m8f8d9f8[m Add delivery buttons to index
+[33m8b643f0[m Updated Checkout on Airdrie, Calgary, lethbridge
+[33m76ebd9f[m Updating Application form
+[33mae54346[m Updated links on home page
+[33m0bd49f0[m Updated file structure
+[33m0d95ce4[m Write a message Major updates Save and close the editor (if you're in vim, press 'i' to insert, type your message , then press 'Esc' and type ':wq' to save and quit)
+[33m72416dc[m Update site with new URL structure
+[33mb6d137e[m Merge branch 'main' of https://github.com/OnaPath/ExpressCouriersCo
+[33m596bf7a[m Become a courier submit application
+[33m1cd1b2f[m Update BecomeaCourier.html
+[33mb3e90f9[m Update index.html
+[33mf321624[m Update index.html
+[33mfe013f0[m Merge branch 'main' of https://github.com/OnaPath/ExpressCouriersCo
+[33m0a24f5d[m Minor Edits
+[33m60be25a[m Update index.html
+[33m974aff9[m Feb 12 edits
+[33m9d5cef2[m Update BecomeaCourier.html
+[33m222eb79[m Update BecomeaPartner.html
+[33m3b5f9fe[m Update main.css
+[33mb045c1e[m Create CourierAapplicationForm.js
+[33md500179[m Update BecomeaCourier.html
+[33mddf9b04[m Update BecomeaCourier.html
+[33mac128ee[m Testing web updates - communities
+[33m9259766[m Create CNAME
+[33m0e893ba[m Delete CNAME
+[33m8f31605[m Create CNAME
+[33m95ac55b[m Testing Repo
+[33m16b55c6[m Initial commit

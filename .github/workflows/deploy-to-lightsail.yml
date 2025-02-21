@@ -1,4 +1,7 @@
 name: Deploy to Lightsail
+run: |
+    mkdir -p ~/.ssh
+    echo "99.79.69.87 ssh-ed25519 SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u5" >> ~/.ssh/known_hosts
 
 on:
   push:
