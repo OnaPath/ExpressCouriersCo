@@ -375,7 +375,7 @@
 		});
 		</script>
 
-		<!-- Add the address validation script -->
+		<!-- Update the address validation script -->
 		<script>
 		document.addEventListener('DOMContentLoaded', () => {
 			// Get all address inputs
@@ -390,15 +390,6 @@
 				// Append suggestions list to input's wrapper
 				input.closest('.address-wrapper').appendChild(suggestionsList);
 
-				// Debounce function
-				const debounce = (func, delay) => {
-					let timeoutId;
-					return (...args) => {
-						clearTimeout(timeoutId);
-						timeoutId = setTimeout(() => func.apply(null, args), delay);
-					};
-				};
-
 				// Fetch suggestions
 				const fetchSuggestions = async (query, input) => {
 					if (query.length < 3) {
@@ -407,10 +398,17 @@
 					}
 
 					try {
-						const response = await fetch(`https://api.expresscouriers.co:3001/api/address-autocomplete?input=${encodeURIComponent(query)}&components=country:ca|locality:lethbridge`);
+						const response = await fetch(`https://api.expresscouriers.co:3001/api/address-autocomplete?input=${encodeURIComponent(query)}&city=lethbridge`, {
+							method: 'GET',
+							headers: {
+								'Accept': 'application/json',
+								'Content-Type': 'application/json'
+							},
+							mode: 'cors'  // Explicitly set CORS mode
+						});
 						const data = await response.json();
 
-						if (data.status === 'OK' && data.predictions.length > 0) {
+						if (data.status === 'OK' && data.predictions && data.predictions.length > 0) {
 							suggestionsList.innerHTML = '';
 							data.predictions.forEach(prediction => {
 								const li = document.createElement('li');
@@ -430,6 +428,15 @@
 						console.error('Error fetching suggestions:', error);
 						suggestionsList.style.display = 'none';
 					}
+				};
+
+				// Debounce function
+				const debounce = (func, delay) => {
+					let timeoutId;
+					return (...args) => {
+						clearTimeout(timeoutId);
+						timeoutId = setTimeout(() => func.apply(null, args), delay);
+					};
 				};
 
 				// Setup event listeners

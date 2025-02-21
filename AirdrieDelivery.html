@@ -413,7 +413,7 @@
 		});
 		</script>
 
-		<!-- Add the address validation script at the bottom -->
+		<!-- Update the address validation script -->
 		<script>
 		document.addEventListener('DOMContentLoaded', () => {
 			// Get all address inputs
@@ -427,15 +427,6 @@
 				
 				// Append suggestions list to input's wrapper
 				input.closest('.address-wrapper').appendChild(suggestionsList);
-
-				// Debounce function
-				const debounce = (func, delay) => {
-					let timeoutId;
-					return (...args) => {
-						clearTimeout(timeoutId);
-						timeoutId = setTimeout(() => func.apply(null, args), delay);
-					};
-				};
 
 				// Fetch suggestions
 				const fetchSuggestions = async (query, input) => {
@@ -451,7 +442,7 @@
 								'Accept': 'application/json',
 								'Content-Type': 'application/json'
 							},
-							mode: 'cors'  // Explicitly set CORS mode for clarity
+							mode: 'cors'  // Explicitly set CORS mode
 						});
 						const data = await response.json();
 
@@ -475,6 +466,15 @@
 						console.error('Error fetching suggestions:', error);
 						suggestionsList.style.display = 'none';
 					}
+				};
+
+				// Debounce function
+				const debounce = (func, delay) => {
+					let timeoutId;
+					return (...args) => {
+						clearTimeout(timeoutId);
+						timeoutId = setTimeout(() => func.apply(null, args), delay);
+					};
 				};
 
 				// Setup event listeners
