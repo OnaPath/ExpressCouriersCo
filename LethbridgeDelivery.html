@@ -472,5 +472,84 @@
 		});
 		</script>
 
+		<!-- Add this script before the existing scripts -->
+		<script>
+		class DeliveryFormHandler {
+			constructor(formId) {
+				this.form = document.getElementById(formId);
+				if (!this.form) {
+					console.error(`Form with ID ${formId} not found`);
+					return;
+				}
+				
+				// Initialize form event listeners
+				this.form.addEventListener('submit', this.handleSubmit.bind(this));
+				
+				// Initialize validation
+				this.setupValidation();
+			}
+
+			setupValidation() {
+				// Add any specific validation rules here
+				const weightInput = this.form.querySelector('input[name="weight"]');
+				if (weightInput) {
+					weightInput.addEventListener('input', (e) => {
+						const value = parseFloat(e.target.value);
+						if (value > 20) {
+							e.target.setCustomValidity('Maximum weight is 20kg');
+						} else if (value <= 0) {
+							e.target.setCustomValidity('Weight must be greater than 0');
+						} else {
+							e.target.setCustomValidity('');
+						}
+					});
+				}
+			}
+
+			async handleSubmit(event) {
+				event.preventDefault();
+
+				// Validate all required fields
+				if (!this.form.checkValidity()) {
+					this.form.reportValidity();
+					return;
+				}
+
+				try {
+					// Get form data
+					const formData = {
+						senderName: this.form.querySelector('input[name="sender-name"]').value,
+						senderPhone: this.form.querySelector('input[name="sender-phone"]').value,
+						senderEmail: this.form.querySelector('input[name="sender-email"]').value,
+						pickupAddress: this.form.querySelector('input[name="pickup-address"]').value,
+						receiverName: this.form.querySelector('input[name="receiver-name"]').value,
+						receiverPhone: this.form.querySelector('input[name="receiver-phone"]').value,
+						receiverEmail: this.form.querySelector('input[name="receiver-email"]').value,
+						dropoffAddress: this.form.querySelector('input[name="dropoff-address"]').value,
+						deliveryNotes: this.form.querySelector('textarea[name="delivery-notes"]').value,
+						weight: this.form.querySelector('input[name="weight"]').value,
+						subtotal: parseFloat(this.form.querySelector('input[name="delivery_fee"]').value),
+						gst: parseFloat(this.form.querySelector('input[name="gst"]').value),
+						tip: parseFloat(this.form.querySelector('input[name="tip"]').value),
+						total: parseFloat(this.form.querySelector('input[name="order_total"]').value),
+						city: 'lethbridge'
+					};
+
+					// Submit the form
+					this.form.submit();
+
+				} catch (error) {
+					console.error('Error processing form submission:', error);
+					alert('There was an error processing your request. Please try again.');
+				}
+			}
+		}
+
+		// Initialize the form handler when the DOM is loaded
+		document.addEventListener('DOMContentLoaded', () => {
+			new DeliveryFormHandler('delivery-form');
+		});
+		</script>
+
 	</body>
 </html>
