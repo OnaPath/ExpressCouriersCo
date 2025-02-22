@@ -138,6 +138,21 @@
 				color: #ffffff !important;
 			}
 		</style>
+		<script>
+			// Fetch the API key from your server
+			fetch('https://api.expresscouriers.co/config/maps-api-key')
+				.then(response => response.json())
+				.then(data => {
+					// Dynamically create and append the Google Maps script
+					const script = document.createElement('script');
+					script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places&callback=initAutocomplete`;
+					script.async = true;
+					script.defer = true;
+					document.head.appendChild(script);
+				})
+				.catch(error => console.error('Error loading Google Maps API key:', error));
+		</script>
+		<script defer src="/assets/js/addressValidation.js"></script>
 	</head>
 	<body class="is-preload">
 
@@ -197,9 +212,8 @@
 										<input type="password" style="display:none">
 										<input type="text" 
 											  name="pickup-address" 
-											  placeholder="Pickup Address - Select from Dropdown" 
+											  placeholder="Pickup Address" 
 											  autocomplete="off"
-											  data-google-places="true"
 											  required />
 									</div>
 								</div>
@@ -226,9 +240,8 @@
 										<input type="password" style="display:none">
 										<input type="text" 
 											  name="dropoff-address" 
-											  placeholder="Delivery Address - Select from Dropdown" 
+											  placeholder="Delivery Address" 
 											  autocomplete="off"
-											  data-google-places="true"
 											  required />
 									</div>
 								</div>
@@ -413,101 +426,59 @@
 		});
 		</script>
 
-		<!-- Update the address validation script -->
+		<!-- Replace the existing address validation script -->
 		<script>
-		document.addEventListener('DOMContentLoaded', () => {
-			// Get all address inputs
-			const addressInputs = document.querySelectorAll('[data-google-places="true"]');
+		function initAutocomplete() {
+			const options = {
+				bounds: new google.maps.LatLngBounds(
+					new google.maps.LatLng(51.2627, -114.0434), // SW
+					new google.maps.LatLng(51.3227, -113.9834)  // NE
+				),
+				componentRestrictions: { country: 'ca' },
+				fields: ['address_components', 'geometry', 'formatted_address'],
+				strictBounds: true
+			};
 
-			addressInputs.forEach(input => {
-				// Create unique suggestions list for each input
-				const suggestionsList = document.createElement('ul');
-				suggestionsList.className = 'suggestions-list';
-				suggestionsList.style.display = 'none';
-				
-				// Append suggestions list to input's wrapper
-				input.closest('.address-wrapper').appendChild(suggestionsList);
+			// Initialize autocomplete for both address fields
+			const pickupInput = document.querySelector('input[name="pickup-address"]');
+			const dropoffInput = document.querySelector('input[name="dropoff-address"]');
 
-				// Fetch suggestions
-				const fetchSuggestions = async (query, input) => {
-					if (query.length < 3) {
-						suggestionsList.style.display = 'none';
-						return;
-					}
+			if (pickupInput && dropoffInput) {
+				const pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, options);
+				const dropoffAutocomplete = new google.maps.places.Autocomplete(dropoffInput, options);
 
-					try {
-						const response = await fetch(`https://api.expresscouriers.co:3001/api/address-autocomplete?input=${encodeURIComponent(query)}&city=airdrie`, {
-							method: 'GET',
-							headers: {
-								'Accept': 'application/json',
-								'Content-Type': 'application/json'
-							},
-							mode: 'cors'  // Explicitly set CORS mode
-						});
-						const data = await response.json();
+				// Add validation listeners
+				pickupAutocomplete.addListener('place_changed', () => validateAddress(pickupAutocomplete, 'pickup'));
+				dropoffAutocomplete.addListener('place_changed', () => validateAddress(dropoffAutocomplete, 'dropoff'));
+			}
+		}
 
-						if (data.status === 'OK' && data.predictions && data.predictions.length > 0) {
-							suggestionsList.innerHTML = '';
-							data.predictions.forEach(prediction => {
-								const li = document.createElement('li');
-								li.textContent = prediction.description;
-								li.addEventListener('click', () => {
-									input.value = prediction.description;
-									input.dataset.selectedFromDropdown = 'true';
-									suggestionsList.style.display = 'none';
-								});
-								suggestionsList.appendChild(li);
-							});
-							suggestionsList.style.display = 'block';
-						} else {
-							suggestionsList.style.display = 'none';
-						}
-					} catch (error) {
-						console.error('Error fetching suggestions:', error);
-						suggestionsList.style.display = 'none';
-					}
-				};
+		function validateAddress(autocomplete, type) {
+			const place = autocomplete.getPlace();
+			
+			if (!place.geometry) {
+				const input = document.querySelector(`input[name="${type}-address"]`);
+				input.setCustomValidity('Please select an address from the dropdown list');
+				input.reportValidity();
+				return false;
+			}
 
-				// Debounce function
-				const debounce = (func, delay) => {
-					let timeoutId;
-					return (...args) => {
-						clearTimeout(timeoutId);
-						timeoutId = setTimeout(() => func.apply(null, args), delay);
-					};
-				};
+			// Check if address is within Airdrie bounds
+			const lat = place.geometry.location.lat();
+			const lng = place.geometry.location.lng();
+			
+			if (lat < 51.2627 || lat > 51.3227 || lng < -114.0434 || lng > -113.9834) {
+				const input = document.querySelector(`input[name="${type}-address"]`);
+				input.setCustomValidity('Please select an address within Airdrie');
+				input.reportValidity();
+				return false;
+			}
 
-				// Setup event listeners
-				const debouncedFetch = debounce((query) => fetchSuggestions(query, input), 300);
-
-				input.addEventListener('input', (e) => {
-					input.dataset.selectedFromDropdown = 'false';
-					debouncedFetch(e.target.value.trim());
-				});
-
-				input.addEventListener('blur', () => {
-					setTimeout(() => {
-						suggestionsList.style.display = 'none';
-					}, 200);
-				});
-
-				// Add validation on form submit
-				input.closest('form').addEventListener('submit', (e) => {
-					if (input.dataset.selectedFromDropdown !== 'true') {
-						e.preventDefault();
-						input.setCustomValidity('Please select an address from the dropdown');
-						input.reportValidity();
-					} else {
-						input.setCustomValidity('');
-					}
-				});
-
-				// Prevent paste
-				input.addEventListener('paste', (e) => {
-					e.preventDefault();
-				});
-			});
-		});
+			// Clear any previous validation messages
+			const input = document.querySelector(`input[name="${type}-address"]`);
+			input.setCustomValidity('');
+			return true;
+		}
 		</script>
 
 		<!-- Add this script just before the closing </body> tag -->
