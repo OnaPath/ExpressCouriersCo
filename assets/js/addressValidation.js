@@ -74,6 +74,7 @@ function initAutocomplete() {
 }
 
 function validateAddress(autocomplete, type) {
+    console.log('validateAddress called:', { type });
     const place = autocomplete.getPlace();
     const city = document.querySelector('input[name="city"]').value.toLowerCase();
     
