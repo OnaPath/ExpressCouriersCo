@@ -76,31 +76,22 @@ function initAutocomplete() {
 function validateAddress(autocomplete, type) {
     console.log('validateAddress called:', { type });
     const place = autocomplete.getPlace();
-    const city = document.querySelector('input[name="city"]').value.toLowerCase();
     
+    // Allow manual entry by removing the dropdown requirement
     if (!place.geometry) {
-        const input = document.querySelector(`input[name="${type}-address"]`);
-        input.setCustomValidity('Please select an address from the dropdown list');
-        input.reportValidity();
-        return false;
+        return true; // Allow any input
     }
 
-    // Check if address is within city bounds
+    // Keep the city bounds check but make it a warning instead of an error
     const lat = place.geometry.location.lat();
     const lng = place.geometry.location.lng();
+    const city = document.querySelector('input[name="city"]').value.toLowerCase();
     const cityConfig = CITY_BOUNDS[city];
 
     if (lat < cityConfig.bounds.south || lat > cityConfig.bounds.north ||
         lng < cityConfig.bounds.west || lng > cityConfig.bounds.east) {
-        const input = document.querySelector(`input[name="${type}-address"]`);
-        input.setCustomValidity(`Please select an address within ${city.charAt(0).toUpperCase() + city.slice(1)}`);
-        input.reportValidity();
-        return false;
+        console.warn(`Address outside ${city} bounds, but allowing it for testing`);
     }
-
-    // Clear any previous validation messages
-    const input = document.querySelector(`input[name="${type}-address"]`);
-    input.setCustomValidity('');
 
     return true;
 }
@@ -110,30 +101,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const addressInputs = document.querySelectorAll('input[data-google-places]');
     
     addressInputs.forEach(input => {
-        // Store the last valid value
-        let lastValidValue = '';
-        
+        // Comment out or remove the validation for manual entry
+        /*
         input.addEventListener('input', function() {
-            // If the value was changed by selecting from dropdown, it's valid
             if (this.dataset.selectedFromDropdown === 'true') {
                 lastValidValue = this.value;
                 return;
             }
             
-            // If manually typed, show validation message
             this.setCustomValidity('Please select an address from the dropdown list');
             this.reportValidity();
         });
+        */
         
-        // When a place is selected from dropdown
+        // Keep the place_changed event for when they do use the dropdown
         input.addEventListener('place_changed', function() {
             this.dataset.selectedFromDropdown = 'true';
             this.setCustomValidity('');
         });
         
-        // Prevent paste
+        // Remove or comment out paste prevention
+        /*
         input.addEventListener('paste', function(e) {
             e.preventDefault();
         });
+        */
     });
 }); 
