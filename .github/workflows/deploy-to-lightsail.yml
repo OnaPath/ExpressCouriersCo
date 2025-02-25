@@ -1,27 +1,21 @@
 name: Deploy to Lightsail
-
 on:
   push:
-    branches:
-      - main
-
+    branches: [ main ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-
-      - name: Add Lightsail Host Key to known_hosts
+      - name: Add Lightsail Host Key
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H 99.79.69.87 >> ~/.ssh/known_hosts
-
       - name: Deploy to Lightsail
         run: |
-          ssh bitnami@99.79.69.87 "cd /home/bitnami/express-couriers-api && git pull origin main && sudo cp -r /home/bitnami/express-couriers-api/* /opt/bitnami/apache/htdocs/ && sudo /opt/bitnami/ctlscript.sh restart apache"
+          ssh bitnami@99.79.69.87 "cd /home/bitnami/express-couriers-api && git pull origin main && pm2 restart server"
