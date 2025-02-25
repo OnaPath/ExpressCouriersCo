@@ -1,4 +1,4 @@
-// Prevent redefinition
+// Define city boundaries once globally
 if (!window.CITY_BOUNDS) {
     window.CITY_BOUNDS = {
         'calgary': {
