@@ -30,47 +30,38 @@ const CITY_BOUNDS = {
 };
 
 function initAutocomplete() {
-    console.log('initAutocomplete called');
-    const cityInput = document.querySelector('input[name="city"]');
-    console.log('City input found:', cityInput);
-    const city = cityInput ? cityInput.value.toLowerCase() : '';
-    console.log('City value:', city);
+    const addressInputs = document.querySelectorAll('input[name$="-address"]');
     
-    const cityConfig = CITY_BOUNDS[city];
-    console.log('City config:', cityConfig);
-    
-    if (!cityConfig) {
-        console.error('No city config found for:', city);
-        return;
-    }
+    addressInputs.forEach(input => {
+        const city = input.dataset.city || 'airdrie';
+        const options = {
+            bounds: getCityBounds(city),
+            componentRestrictions: { country: 'ca' },
+            fields: ['address_components', 'geometry', 'formatted_address'],
+            strictBounds: true
+        };
+        
+        const autocomplete = new google.maps.places.Autocomplete(input, options);
+        autocomplete.addListener('place_changed', () => validateAddress(autocomplete, input));
+    });
+}
 
-    const options = {
-        bounds: new google.maps.LatLngBounds(
-            new google.maps.LatLng(cityConfig.bounds.south, cityConfig.bounds.west),
-            new google.maps.LatLng(cityConfig.bounds.north, cityConfig.bounds.east)
-        ),
-        componentRestrictions: { country: 'ca' },
-        fields: ['address_components', 'geometry', 'formatted_address'],
-        strictBounds: true
+function getCityBounds(city) {
+    const bounds = {
+        'airdrie': {
+            north: 51.3227,
+            south: 51.2627,
+            east: -113.9834,
+            west: -114.0434
+        }
+        // Add other cities as needed
     };
-    console.log('Autocomplete options:', options);
-
-    // Initialize autocomplete for both address fields
-    const pickupInput = document.querySelector('input[name="pickup-address"]');
-    const dropoffInput = document.querySelector('input[name="dropoff-address"]');
-    console.log('Found inputs:', { pickup: pickupInput, dropoff: dropoffInput });
-
-    if (!pickupInput || !dropoffInput) {
-        console.error('Address inputs not found:', { pickup: pickupInput, dropoff: dropoffInput });
-        return;
-    }
-
-    const pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, options);
-    const dropoffAutocomplete = new google.maps.places.Autocomplete(dropoffInput, options);
-
-    // Add validation listeners
-    pickupAutocomplete.addListener('place_changed', () => validateAddress(pickupAutocomplete, 'pickup'));
-    dropoffAutocomplete.addListener('place_changed', () => validateAddress(dropoffAutocomplete, 'dropoff'));
+    
+    const cityBounds = bounds[city.toLowerCase()];
+    return new google.maps.LatLngBounds(
+        new google.maps.LatLng(cityBounds.south, cityBounds.west),
+        new google.maps.LatLng(cityBounds.north, cityBounds.east)
+    );
 }
 
 function validateAddress(autocomplete, type) {

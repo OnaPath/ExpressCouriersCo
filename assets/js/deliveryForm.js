@@ -31,46 +31,35 @@ class DeliveryFormHandler {
     }
 
     async handleSubmit() {
-        let retryCount = 0;
-        
-        while (retryCount <= this.maxRetries) {
-            try {
-                this.showLoading(true);
-                this.clearMessages();
+        try {
+            this.showLoading(true);
+            const formData = this.collectFormData();
+            
+            // Update to match your server's endpoint
+            const response = await fetch('https://api.expresscouriers.co:3001/api/delivery-orders', {
+                method: 'POST',  // Note: GET request won't work here
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
 
-                const formData = this.collectFormData();
-                
-                // Validate form data
-                if (!this.validateFormData(formData)) {
-                    throw new Error('Please fill in all required fields');
-                }
-
-                // Send to dispatch service
-                const result = await this.dispatchService.createDelivery(formData);
-
-                // Handle success
-                this.showSuccess('Order received successfully!');
-                setTimeout(() => {
-                    window.location.href = '/delivery-success.html';
-                }, 2000);
-                
-                return;
-
-            } catch (error) {
-                retryCount++;
-                console.error('Delivery request attempt ${retryCount} failed:', error);
-
-                if (retryCount <= this.maxRetries) {
-                    // Show retry message
-                    this.showError(`Connection issue. Retrying... (Attempt ${retryCount}/${this.maxRetries})`);
-                    await this.delay(2000); // Wait 2 seconds before retrying
-                } else {
-                    // Show final error message
-                    this.showError('Unable to process your request. Please try again later or contact support.');
-                }
-            } finally {
-                this.showLoading(false);
+            if (!response.ok) {
+                throw new Error('Server error processing order');
             }
+
+            // Handle success
+            this.showSuccess('Order received successfully!');
+            setTimeout(() => {
+                window.location.href = '/delivery-success.html';
+            }, 2000);
+            
+            return;
+        } catch (error) {
+            console.error('Delivery request failed:', error);
+            this.showError('Unable to process your request. Please try again later or contact support.');
+        } finally {
+            this.showLoading(false);
         }
     }
 
