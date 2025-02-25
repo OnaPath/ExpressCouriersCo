@@ -50,6 +50,12 @@ if (!window.DeliveryFormHandler) {
   
       collectFormData() {
         if (!this.form) throw new Error('Form not found');
+        
+        // Get values from hidden inputs
+        const deliveryFee = parseFloat(this.form.querySelector('input[name="delivery_fee"]').value) || 0;
+        const gst = parseFloat(this.form.querySelector('input[name="gst"]').value) || 0;
+        const city = this.form.querySelector('input[name="city"]').value;
+        
         return {
           senderName: this.form.querySelector('#sender-name')?.value?.trim() || '',
           senderPhone: this.form.querySelector('#sender-phone')?.value?.trim() || '',
@@ -59,9 +65,9 @@ if (!window.DeliveryFormHandler) {
           dropoffAddress: this.form.querySelector('#dropoff-address')?.value?.trim() || '',
           deliveryNotes: this.form.querySelector('#delivery-notes')?.value?.trim() || '',
           weight: this.form.querySelector('#weight')?.value?.trim() || '',
-          city: 'Airdrie', // Hardcoded for AirdrieDelivery.html
-          subtotal: DELIVERY_FEE,
-          gst: GST,
+          city: city,
+          subtotal: deliveryFee,
+          gst: gst,
           tip: parseFloat(document.getElementById('tip-display')?.textContent || '0'),
           total: parseFloat(document.getElementById('total-display')?.textContent || '0')
         };
