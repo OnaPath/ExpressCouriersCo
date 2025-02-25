@@ -16,7 +16,7 @@
 			"@type": "LocalBusiness",
 			"name": "Express Couriers & Co - Airdrie Delivery",
 			"image": "https://www.expresscouriers.co/images/airdrie-delivery.png",
-			"description": "Professional same-day delivery service in Airdrie- $20 flat rate, real-time tracking, immediate pickup available. Serving all Airdrie neighborhoods.",
+			"description": "Professional same-day delivery service in Airdrie. $20 flat rate, real-time tracking, immediate pickup available. Serving all Airdrie neighborhoods.",
 			"address": {
 				"@type": "PostalAddress",
 				"addressLocality": "Airdrie",
@@ -138,26 +138,18 @@
 				color: #ffffff !important;
 			}
 		</style>
+		<script defer src="/assets/js/deliveryForm.js"></script>
 		<script>
-			// Fetch the API key from your server
 			fetch('https://api.expresscouriers.co/config/maps-api-key')
 				.then(response => response.json())
 				.then(data => {
-					// Dynamically create and append the Google Maps script
 					const script = document.createElement('script');
-					script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places`;
+					script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places&callback=initAutocomplete`;
 					script.async = true;
 					script.defer = true;
-					
-					script.addEventListener('load', () => {
-						initAutocomplete();
-					});
-					
 					document.head.appendChild(script);
 				})
-				.catch(error => {
-					console.error('Error loading Google Maps API key:', error);
-				});
+				.catch(error => console.error('Error loading Google Maps API key:', error));
 		</script>
 		<script defer src="/assets/js/addressValidation.js"></script>
 	</head>
@@ -184,8 +176,7 @@
 							<h1 class="major">Airdrie Delivery Services</h1>
 							
 							<h2>Fast, Reliable Delivery in Airdrie</h2>
-							<form id="delivery-form" class="delivery-form">
-							<p>Need something delivered across Airdrie? Our professional couriers provide rapid hotshot delivery services throughout Airdrie and surrounding areas.</p>
+							<p>Need something delivered across Airdrie? Our professional couriers provide rapid delivery services throughout Airdrie and surrounding areas.</p>
 
 							<h2>Why Choose Our Airdrie Delivery Service</h2>
 							<ul>
@@ -197,63 +188,66 @@
 								<li>Available 7 days a week</li>
 								<li>Orders made before 9:30pm will be delivered same day, orders after may be processed for next day delivery</li>
 							</ul>
-							
-							<h2>Sender Details</h2>
-							<div class="row gtr-uniform">
-								<div class="col-12">
-									<h3>Sender's Information</h3>
-								</div>
-								<div class="col-6 col-12-xsmall">
-									<input type="text" name="sender-name" id="sender-name" placeholder="Sender's Name" required />
-								</div>
-								<div class="col-6 col-12-xsmall">
-									<input type="tel" name="sender-phone" id="sender-phone" placeholder="Sender's Phone" required />
-								</div>
-								<div class="col-12 col-12-xsmall">
-									<input type="email" name="sender-email" id="sender-email" placeholder="Sender's Email" required />
-								</div>
-								<div class="col-12">
-									<div class="address-wrapper">
-										<!-- Dummy fields to trick browser autofill -->
-										<input type="text" style="display:none">
-										<input type="password" style="display:none">
-										<input type="text" 
-											  name="pickup-address" 
-											  data-google-places="true"
-											  placeholder="Pickup Address" 
-											  autocomplete="off"
-											  required />
-									</div>
-								</div>
-							</div>
 
-							<h2>Receiver Details</h2>
-							<div class="row gtr-uniform">
-								<div class="col-12">
-									<h3>Receiver's Information</h3>
-								</div>
-								<div class="col-6 col-12-xsmall">
-									<input type="text" name="receiver-name" id="receiver-name" placeholder="Receiver's Name" required />
-								</div>
-								<div class="col-6 col-12-xsmall">
-									<input type="tel" name="receiver-phone" placeholder="Receiver's Phone" required />
-								</div>
-								<div class="col-12 col-12-xsmall">
-									<input type="email" name="receiver-email" id="receiver-email" placeholder="Receiver's Email (Optional)" />
-								</div>
-								<div class="col-12">
-									<div class="address-wrapper">
-										<!-- Dummy fields to trick browser autofill -->
-										<input type="text" style="display:none">
-										<input type="password" style="display:none">
-										<input type="text" 
-											  name="dropoff-address" 
-											  data-google-places="true"
-											  placeholder="Delivery Address" 
-											  autocomplete="off"
-											  required />
+							<form id="delivery-form" class="delivery-form">
+							<div class="form-sections">
+								<!-- Sender section -->
+								<section class="form-section">
+									<h2>Sender Details</h2>
+									<div class="row gtr-uniform">
+										<div class="col-12">
+											<h3>Sender's Information</h3>
+										</div>
+										<div class="col-6 col-12-xsmall">
+											<input type="text" name="sender-name" id="sender-name" placeholder="Sender's Name" required />
+										</div>
+										<div class="col-6 col-12-xsmall">
+											<input type="tel" name="sender-phone" id="sender-phone" placeholder="Sender's Phone" required />
+										</div>
+										<div class="col-12 col-12-xsmall">
+											<input type="email" name="sender-email" id="sender-email" placeholder="Sender's Email" required />
+										</div>
+										<div class="col-12">
+											<div class="address-wrapper">
+												<input type="text" 
+													  name="pickup-address" 
+													  data-city="airdrie"
+													  placeholder="Pickup Address" 
+													  autocomplete="off"
+													  required />
+											</div>
+										</div>
 									</div>
-								</div>
+								</section>
+
+								<!-- Receiver section -->
+								<section class="form-section">
+									<h2>Receiver Details</h2>
+									<div class="row gtr-uniform">
+										<div class="col-12">
+											<h3>Receiver's Information</h3>
+										</div>
+										<div class="col-6 col-12-xsmall">
+											<input type="text" name="receiver-name" id="receiver-name" placeholder="Receiver's Name" required />
+										</div>
+										<div class="col-6 col-12-xsmall">
+											<input type="tel" name="receiver-phone" placeholder="Receiver's Phone" required />
+										</div>
+										<div class="col-12 col-12-xsmall">
+											<input type="email" name="receiver-email" id="receiver-email" placeholder="Receiver's Email (Optional)" />
+										</div>
+										<div class="col-12">
+											<div class="address-wrapper">
+												<input type="text" 
+													  name="dropoff-address" 
+													  data-city="airdrie"
+													  placeholder="Delivery Address" 
+													  autocomplete="off"
+													  required />
+											</div>
+										</div>
+									</div>
+								</section>
 							</div>
 
 							<h3>Package Specifications</h3>
@@ -375,65 +369,7 @@
 		<script src="assets/js/main.js"></script>
 
 		<!-- Add the payment calculation script -->
-		<script>
-		// Constants
-		const DELIVERY_FEE = 20.00;
-		const GST = 1.00;
-		const BASE_TOTAL = DELIVERY_FEE + GST;  // $21.00
-
-		// Update displays
-		function updateAmounts(tipAmount) {
-			const tip = Number(tipAmount) || 0;
-			const total = BASE_TOTAL + tip;
-			
-			const tipDisplay = document.getElementById('tip-display');
-			const totalDisplay = document.getElementById('total-display');
-			const orderTotal = document.getElementById('order_total');
-			
-			if (tipDisplay) tipDisplay.textContent = tip.toFixed(2);
-			if (totalDisplay) totalDisplay.textContent = total.toFixed(2);
-			if (orderTotal) orderTotal.value = total.toFixed(2);
-		}
-
-		// Wait for DOM to be ready
-		document.addEventListener('DOMContentLoaded', function() {
-			// Initialize tip buttons
-			const tipButtons = document.querySelectorAll('.tip-button');
-			const customTip = document.getElementById('custom-tip');
-			
-			if (tipButtons) {
-				tipButtons.forEach(button => {
-					button.addEventListener('click', function() {
-						// Clear selections
-						tipButtons.forEach(btn => btn.classList.remove('selected'));
-						this.classList.add('selected');
-						if (customTip) customTip.value = '';
-						
-						// Calculate tip
-						const percentage = parseInt(this.dataset.percentage);
-						const tipAmount = DELIVERY_FEE * (percentage / 100);
-						
-						updateAmounts(tipAmount);
-					});
-				});
-			}
-
-			// Handle custom tip
-			if (customTip) {
-				customTip.addEventListener('input', function() {
-					// Clear selections
-					tipButtons.forEach(btn => btn.classList.remove('selected'));
-					updateAmounts(this.value);
-				});
-			}
-
-			// Initialize amounts
-			updateAmounts(0);
-			
-			// Initialize delivery form
-			const deliveryForm = new DeliveryFormHandler('delivery-form');
-		});
-		</script>
+		<script defer src="/assets/js/paymentCalculator.js"></script>
 
 		<!-- Replace the existing address validation script -->
 		<script>
@@ -493,7 +429,6 @@
 		<!-- Add this script just before the closing </body> tag -->
 		<script>
 			async function submitForm(event) {
-				// Only proceed if the button clicked was "Proceed to payment"
 				if (event.submitter && event.submitter.getAttribute('name') === 'proceed-to-payment') {
 					event.preventDefault();
 
@@ -511,35 +446,37 @@
 						subtotal: parseFloat(document.querySelector('input[name="delivery_fee"]').value),
 						gst: parseFloat(document.querySelector('input[name="gst"]').value),
 						tip: parseFloat(document.querySelector('input[name="tip"]').value),
-						total: parseFloat(document.querySelector('input[name="order_total"]').value)
+						total: parseFloat(document.querySelector('input[name="order_total"]').value),
+						city: 'airdrie'
 					};
 
 					try {
-						const response = await fetch('https://endpoint.puffski.com/express/courier/order', {
+						const response = await fetch('https://api.expresscouriers.co:3001/api/delivery-orders', {
 							method: 'POST',
 							headers: {
-								'Content-Type': 'application/json'
+								'Content-Type': 'application/json',
+								'Accept': 'application/json'
 							},
 							body: JSON.stringify(formData)
 						});
 
+						const responseData = await response.json();
+						console.log('Server response:', responseData);
+
 						if (response.ok) {
-							console.log('Dispatch request sent successfully!');
-							// After successful webhook, submit the form to Moneris
-							event.target.submit();
+							console.log('Order submitted successfully!');
+							// For testing, just log success
+							alert('Order submitted successfully!');
 						} else {
-							console.error('Failed to send dispatch request. Status: ' + response.status);
-							// Optionally prevent form submission if webhook fails
-							alert('There was an error processing your request. Please try again.');
+							throw new Error('Failed to submit order');
 						}
 					} catch (error) {
-						console.error('Error sending dispatch request:', error);
+						console.error('Submission error:', error);
 						alert('There was an error processing your request. Please try again.');
 					}
 				}
 			}
 
-			// Add event listener to the form
 			document.getElementById('delivery-form').addEventListener('submit', submitForm);
 		</script>
 

@@ -80,7 +80,6 @@
 		</script>
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-		<script defer src="/assets/js/dispatchService.js"></script>
 		<script defer src="/assets/js/deliveryForm.js"></script>
 		<script>
 			// Fetch the API key from your server
@@ -97,6 +96,7 @@
 				.catch(error => console.error('Error loading Google Maps API key:', error));
 		</script>
 		<script defer src="/assets/js/addressValidation.js"></script>
+		<script defer src="/assets/js/paymentCalculator.js"></script>
 	</head>
 	<body class="is-preload">
 
@@ -282,59 +282,14 @@
 			<script src="assets/js/main.js"></script>
 
 		<script>
-		// Constants
-		const DELIVERY_FEE = 20.00;
-		const GST = 1.00;
-		const BASE_TOTAL = DELIVERY_FEE + GST;  // $21.00
-
-		// Update displays
-		function updateAmounts(tipAmount) {
-			// Convert tip to number
-			const tip = Number(tipAmount) || 0;
-			
-			// Calculate total
-			const total = BASE_TOTAL + tip;
-			
-			// Update displays
-			const tipDisplay = document.getElementById('tip-display');
-			const totalDisplay = document.getElementById('total-display');
-			const orderTotal = document.getElementById('order_total');
-			
-			if (tipDisplay) tipDisplay.textContent = tip.toFixed(2);
-			if (totalDisplay) totalDisplay.textContent = total.toFixed(2);
-			if (orderTotal) orderTotal.value = total.toFixed(2);
-		}
-
-		// Handle tip buttons
-		document.querySelectorAll('.tip-button').forEach(button => {
-			button.addEventListener('click', function() {
-				// Clear selections
-				document.querySelectorAll('.tip-button').forEach(btn => 
-					btn.classList.remove('selected'));
-				this.classList.add('selected');
-				document.getElementById('custom-tip').value = '';
-				
-				// Calculate tip
-				const percentage = parseInt(this.dataset.percentage);
-				const tipAmount = DELIVERY_FEE * (percentage / 100);
-				
-				updateAmounts(tipAmount);
-			});
-		});
-
-		// Handle custom tip
-		document.getElementById('custom-tip').addEventListener('input', function() {
-			// Clear selections
-			document.querySelectorAll('.tip-button').forEach(btn => 
-				btn.classList.remove('selected'));
-			
-			updateAmounts(this.value);
-		});
-
-		// Initialize
 		document.addEventListener('DOMContentLoaded', function() {
-			updateAmounts(0);
 			const deliveryForm = new DeliveryFormHandler('delivery-form');
+			const calculator = new PaymentCalculator({
+				city: 'lethbridge',
+				deliveryFee: 20.00,
+				distanceSurcharge: 0,    // No distance surcharge for Lethbridge
+				rushHourFee: 0          // No rush hour fee for Lethbridge
+			});
 		});
 		</script>
 

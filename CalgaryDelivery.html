@@ -99,7 +99,6 @@
 		</script>
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-		<script defer src="/assets/js/dispatchService.js"></script>
 		<script defer src="/assets/js/deliveryForm.js"></script>
 		<script>
 			// Fetch the API key from your server
@@ -116,6 +115,7 @@
 				.catch(error => console.error('Error loading Google Maps API key:', error));
 		</script>
 		<script defer src="/assets/js/addressValidation.js"></script>
+		<script defer src="/assets/js/paymentCalculator.js"></script>
 	</head>
 	<body class="is-preload">
 
@@ -182,31 +182,33 @@
 								</div>
 							</div>
 
-							<h2>Receiver Details</h2>
-							<div class="row gtr-uniform">
-								<h3>Receiver's Information</h3>
-								<div class="col-6 col-12-xsmall">
-									<input type="text" name="receiver-name" id="receiver-name" placeholder="Receiver's Name" required />
-								</div>
-								<div class="col-6 col-12-xsmall">
-									<input type="tel" name="receiver-phone" id="receiver-phone" placeholder="Receiver's Phone" required />
-								</div>
-								<div class="col-12 col-12-xsmall">
-									<input type="email" name="receiver-email" id="receiver-email" placeholder="Receiver's Email" required />
-								</div>
-								<div class="col-12">
-									<div class="address-wrapper">
-										<!-- Dummy fields to trick browser autofill -->
-										<input type="text" style="display:none">
-										<input type="password" style="display:none">
-										<input type="text" 
-											  name="dropoff-address" 
-											  placeholder="Delivery Address" 
-											  autocomplete="off"
-											  required />
+							<section class="form-section">
+								<h2>Receiver Details</h2>
+								<div class="row gtr-uniform">
+									<div class="col-12">
+										<h3>Receiver's Information</h3>
+									</div>
+									<div class="col-6 col-12-xsmall">
+										<input type="text" name="receiver-name" id="receiver-name" placeholder="Receiver's Name" required />
+									</div>
+									<div class="col-6 col-12-xsmall">
+										<input type="tel" name="receiver-phone" placeholder="Receiver's Phone" required />
+									</div>
+									<div class="col-12 col-12-xsmall">
+										<input type="email" name="receiver-email" id="receiver-email" placeholder="Receiver's Email (Optional)" />
+									</div>
+									<div class="col-12">
+										<div class="address-wrapper">
+											<input type="text" 
+												  name="dropoff-address" 
+												  data-city="calgary"
+												  placeholder="Delivery Address" 
+												  autocomplete="off"
+												  required />
+										</div>
 									</div>
 								</div>
-							</div>
+							</section>
 
 							<h2>Package Details</h2>
 							<div class="row gtr-uniform">
@@ -308,60 +310,17 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
-			<script>
-			// Constants
-			const DELIVERY_FEE = 20.00;
-			const GST = 1.00;
-			const BASE_TOTAL = DELIVERY_FEE + GST;  // $21.00
-
-			// Update displays
-			function updateAmounts(tipAmount) {
-				const tip = Number(tipAmount) || 0;
-				const total = BASE_TOTAL + tip;
-				
-				document.getElementById('tip-display').textContent = tip.toFixed(2);
-				document.getElementById('total-display').textContent = total.toFixed(2);
-				
-				// Update hidden field for form submission
-				document.getElementById('order_total').value = total.toFixed(2);
-			}
-
-			// Handle tip buttons
-			document.querySelectorAll('.tip-button').forEach(button => {
-				button.addEventListener('click', function() {
-					// Clear selections
-					document.querySelectorAll('.tip-button').forEach(btn => 
-						btn.classList.remove('selected'));
-					this.classList.add('selected');
-					document.getElementById('custom-tip').value = '';
-					
-					// Calculate tip
-					const percentage = parseInt(this.dataset.percentage);
-					const tipAmount = DELIVERY_FEE * (percentage / 100);
-					
-					updateAmounts(tipAmount);
-				});
-			});
-
-			// Handle custom tip
-			document.getElementById('custom-tip').addEventListener('input', function() {
-				// Clear selections
-				document.querySelectorAll('.tip-button').forEach(btn => 
-					btn.classList.remove('selected'));
-				
-				updateAmounts(this.value);
-			});
-
-			// Initialize
-			document.addEventListener('DOMContentLoaded', function() {
-				updateAmounts(0);
-			});
-			</script>
 
 		<!-- Initialize form handler -->
 		<script>
 			document.addEventListener('DOMContentLoaded', function() {
 				const deliveryForm = new DeliveryFormHandler('delivery-form');
+				const calculator = new PaymentCalculator({
+					city: 'calgary',
+					deliveryFee: 20.00,
+					distanceSurcharge: 5.00,  // For deliveries beyond city center
+					rushHourFee: 2.50        // For peak hours
+				});
 			});
 		</script>
 
