@@ -19,3 +19,6 @@ jobs:
       - name: Deploy to Lightsail
         run: |
           ssh bitnami@99.79.69.87 "cd /home/bitnami/express-couriers-api && git pull origin main && pm2 restart server"
+          scp -r *.html bitnami@99.79.69.87:/opt/bitnami/apache/htdocs/
+          scp -r assets/js/*.js bitnami@99.79.69.87:/opt/bitnami/apache/htdocs/assets/js/
+          ssh bitnami@99.79.69.87 "sudo /opt/bitnami/ctlscript.sh restart apache"
