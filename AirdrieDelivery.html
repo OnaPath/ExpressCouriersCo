@@ -368,23 +368,28 @@
 		<script src="assets/js/util.js"></script>
 		<script src="assets/js/main.js"></script>
 
-		<!-- Load the class definition first -->
-		<script defer src="/assets/js/deliveryForm.js"></script>
+		<!-- Service dependencies first -->
+		<script defer src="/assets/js/dispatchService.js"></script>
 
-		<!-- Then other dependencies -->
+		<!-- Then core functionality -->
+		<script defer src="/assets/js/deliveryForm.js"></script>
 		<script defer src="/assets/js/paymentCalculator.js"></script>
+
+		<!-- Address validation after form is ready -->
 		<script defer src="/assets/js/addressValidation.js"></script>
 
-		<!-- Finally the initialization -->
+		<!-- Google Maps API -->
 		<script>
-			document.addEventListener('DOMContentLoaded', function() {
-				const calculator = new PaymentCalculator({
-					city: 'airdrie',
-					deliveryFee: 20.00,
-					distanceSurcharge: 5.00,
-					rushHourFee: 2.50
-				});
-			});
+			fetch('https://api.expresscouriers.co/config/maps-api-key')
+				.then(response => response.json())
+				.then(data => {
+					const script = document.createElement('script');
+					script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places&callback=initAutocomplete&loading=async`;
+					script.async = true;
+					script.defer = true;
+					document.head.appendChild(script);
+				})
+				.catch(error => console.error('Error loading Google Maps API key:', error));
 		</script>
 
 	</body>

@@ -100,20 +100,6 @@
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 		<script defer src="/assets/js/deliveryForm.js"></script>
-		<script>
-			// Fetch the API key from your server
-			fetch('https://api.expresscouriers.co/config/maps-api-key')
-				.then(response => response.json())
-				.then(data => {
-					// Dynamically create and append the Google Maps script
-					const script = document.createElement('script');
-					script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places&callback=initAutocomplete`;
-					script.async = true;
-					script.defer = true;
-					document.head.appendChild(script);
-				})
-				.catch(error => console.error('Error loading Google Maps API key:', error));
-		</script>
 		<script defer src="/assets/js/addressValidation.js"></script>
 		<script defer src="/assets/js/paymentCalculator.js"></script>
 		<!-- Add the address wrapper styles -->
@@ -202,7 +188,6 @@
 										<input type="text" 
 											  name="pickup-address" 
 											  data-city="calgary"
-											  data-google-places="true"
 											  placeholder="Pickup Address" 
 											  autocomplete="off"
 											  required />
@@ -230,7 +215,6 @@
 											<input type="text" 
 												  name="dropoff-address" 
 												  data-city="calgary"
-												  data-google-places="true"
 												  placeholder="Delivery Address" 
 												  autocomplete="off"
 												  required />
@@ -341,14 +325,28 @@
 			<script src="assets/js/main.js"></script>
 
 		<!-- Service dependencies first -->
-		<script src="/assets/js/dispatchService.js"></script>
+		<script defer src="/assets/js/dispatchService.js"></script>
 
 		<!-- Then core functionality -->
-		<script src="/assets/js/deliveryForm.js"></script>
-		<script src="/assets/js/paymentCalculator.js"></script>
+		<script defer src="/assets/js/deliveryForm.js"></script>
+		<script defer src="/assets/js/paymentCalculator.js"></script>
 
 		<!-- Address validation after form is ready -->
 		<script defer src="/assets/js/addressValidation.js"></script>
+
+		<!-- Google Maps API -->
+		<script>
+			fetch('https://api.expresscouriers.co/config/maps-api-key')
+				.then(response => response.json())
+				.then(data => {
+					const script = document.createElement('script');
+					script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places&callback=initAutocomplete&loading=async`;
+					script.async = true;
+					script.defer = true;
+					document.head.appendChild(script);
+				})
+				.catch(error => console.error('Error loading Google Maps API key:', error));
+		</script>
 
 		<!-- Finally initialization -->
 		<script>
@@ -361,12 +359,6 @@
 				});
 			});
 		</script>
-
-		<!-- Update hidden inputs -->
-		<input type="hidden" name="order_total" id="order_total" value="">
-		<input type="hidden" name="delivery_fee" value="20.00">
-		<input type="hidden" name="gst" value="1.00">
-		<input type="hidden" name="city" value="calgary">
 
 	</body>
 </html>
