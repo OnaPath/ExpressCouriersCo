@@ -5,7 +5,7 @@ const fs = require('fs');
 const app = express();
 const port = 3001;
 
-console.log("GitHub deploy test -Feb 26");
+console.log("GitHub deploy test - Feb 26"); // Lightsail tweak - kept!
 
 // Middleware
 app.use(express.json());
@@ -21,7 +21,6 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   const allowed = ['https://expresscouriers.co', 'https://www.expresscouriers.co'];
-  
   if (allowed.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     console.log(`CORS allowed for: ${origin}`);
@@ -29,14 +28,11 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', 'https://expresscouriers.co');
     console.log(`CORS defaulted to: https://expresscouriers.co (origin: ${origin})`);
   }
-  
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
-  
   next();
 });
 
