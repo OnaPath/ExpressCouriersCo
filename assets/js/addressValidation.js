@@ -1,33 +1,26 @@
-// City boundaries
-const CITY_BOUNDS = {
-    airdrie: {
-        center: { lat: 51.2927, lng: -114.0134 },
-        bounds: {
-            north: 51.3227,
-            south: 51.2627,
-            east: -113.9834,
-            west: -114.0434
+// Prevent redefinition
+if (!window.CITY_BOUNDS) {
+    window.CITY_BOUNDS = {
+        'calgary': {
+            north: 51.2,
+            south: 50.8,
+            east: -113.9,
+            west: -114.3
+        },
+        'airdrie': {
+            north: 51.3,
+            south: 51.2,
+            east: -113.9,
+            west: -114.1
+        },
+        'lethbridge': {
+            north: 49.7,
+            south: 49.6,
+            east: -112.7,
+            west: -112.9
         }
-    },
-    calgary: {
-        center: { lat: 51.0447, lng: -114.0719 },
-        bounds: {
-            north: 51.2000,
-            south: 50.8500,
-            east: -113.8500,
-            west: -114.2900
-        }
-    },
-    lethbridge: {
-        center: { lat: 49.6956, lng: -112.8451 },
-        bounds: {
-            north: 49.7500,
-            south: 49.6500,
-            east: -112.7500,
-            west: -112.9500
-        }
-    }
-};
+    };
+}
 
 function initAutocomplete() {
     const addressInputs = document.querySelectorAll('input[name="pickup-address"], input[name="dropoff-address"]');

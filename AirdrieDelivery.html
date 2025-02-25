@@ -138,13 +138,12 @@
 				color: #ffffff !important;
 			}
 		</style>
-		<script defer src="/assets/js/deliveryForm.js"></script>
 		<script>
 			fetch('https://api.expresscouriers.co/config/maps-api-key')
 				.then(response => response.json())
 				.then(data => {
 					const script = document.createElement('script');
-					script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places&callback=initAutocomplete`;
+					script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places&callback=initAutocomplete&loading=async`;
 					script.async = true;
 					script.defer = true;
 					document.head.appendChild(script);
@@ -212,6 +211,7 @@
 												<input type="text" 
 													  name="pickup-address" 
 													  data-city="airdrie"
+													  data-google-places="true"
 													  placeholder="Pickup Address" 
 													  autocomplete="off"
 													  required />
