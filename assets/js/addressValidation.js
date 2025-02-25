@@ -30,37 +30,41 @@ const CITY_BOUNDS = {
 };
 
 function initAutocomplete() {
-    const addressInputs = document.querySelectorAll('input[name$="-address"]');
+    const addressInputs = document.querySelectorAll('input[name="pickup-address"], input[name="dropoff-address"]');
     
     addressInputs.forEach(input => {
-        const city = input.dataset.city || 'airdrie';
-        const options = {
-            bounds: getCityBounds(city),
+        const city = input.dataset.city;
+        const autocomplete = new google.maps.places.Autocomplete(input, {
             componentRestrictions: { country: 'ca' },
-            fields: ['address_components', 'geometry', 'formatted_address'],
+            bounds: getCityBounds(city),
             strictBounds: true
-        };
+        });
         
-        const autocomplete = new google.maps.places.Autocomplete(input, options);
         autocomplete.addListener('place_changed', () => validateAddress(autocomplete, input));
     });
 }
 
 function getCityBounds(city) {
     const bounds = {
+        'calgary': {
+            north: 51.2,
+            south: 50.8,
+            east: -113.9,
+            west: -114.3
+        },
         'airdrie': {
-            north: 51.3227,
-            south: 51.2627,
-            east: -113.9834,
-            west: -114.0434
+            north: 51.3,
+            south: 51.2,
+            east: -113.9,
+            west: -114.1
         }
-        // Add other cities as needed
+        // ... other cities
     };
     
     const cityBounds = bounds[city.toLowerCase()];
     return new google.maps.LatLngBounds(
-        new google.maps.LatLng(cityBounds.south, cityBounds.west),
-        new google.maps.LatLng(cityBounds.north, cityBounds.east)
+        { lat: cityBounds.south, lng: cityBounds.west },
+        { lat: cityBounds.north, lng: cityBounds.east }
     );
 }
 
