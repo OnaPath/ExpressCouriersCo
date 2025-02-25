@@ -149,11 +149,15 @@
 									<input type="email" name="sender-email" id="sender-email" placeholder="Sender's Email" required />
 								</div>
 								<div class="col-12">
-									<input type="text" 
-										  name="pickup-address" 
-										  placeholder="Pickup Address" 
-										  autocomplete="off"
-										  required />
+									<div class="address-wrapper">
+										<input type="text" 
+											  name="pickup-address" 
+											  data-city="lethbridge"
+											  data-google-places="true"
+											  placeholder="Pickup Address" 
+											  autocomplete="off"
+											  required />
+									</div>
 								</div>
 							</div>
 
@@ -172,11 +176,15 @@
 									<input type="email" name="receiver-email" id="receiver-email" placeholder="Receiver's Email (Optional)" />
 								</div>
 								<div class="col-12">
-									<input type="text" 
-										  name="dropoff-address" 
-										  placeholder="Delivery Address" 
-										  autocomplete="off"
-										  required />
+									<div class="address-wrapper">
+										<input type="text" 
+											  name="dropoff-address" 
+											  data-city="lethbridge"
+											  data-google-places="true"
+											  placeholder="Delivery Address" 
+											  autocomplete="off"
+											  required />
+									</div>
 								</div>
 							</div>
 
