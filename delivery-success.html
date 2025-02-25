@@ -13,6 +13,12 @@
                         <p>Your delivery request has been received and payment processed successfully.</p>
                         <p>Order Number: <span id="order-number"></span></p>
                         <p>A confirmation email has been sent with your delivery details.</p>
+                        <div class="order-details">
+                            <h3>Order Details</h3>
+                            <p>Pickup: <span id="pickup-address"></span></p>
+                            <p>Dropoff: <span id="dropoff-address"></span></p>
+                            <p>Total: $<span id="order-total"></span></p>
+                        </div>
                         <div class="actions">
                             <a href="index.html" class="button">Return to Home</a>
                         </div>
@@ -20,5 +26,16 @@
                 </div>
             </section>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Get order details from URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                document.getElementById('order-number').textContent = urlParams.get('orderNumber') || 'N/A';
+                document.getElementById('pickup-address').textContent = urlParams.get('pickup') || 'N/A';
+                document.getElementById('dropoff-address').textContent = urlParams.get('dropoff') || 'N/A';
+                document.getElementById('order-total').textContent = urlParams.get('total') || 'N/A';
+            });
+        </script>
     </body>
 </html> 

@@ -22,7 +22,12 @@ if (!window.DispatchService) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
 
-                    return await response.json();
+                    const result = await response.json();
+                    
+                    // Redirect with order details
+                    window.location.href = `/delivery-success.html?orderNumber=${result.orderNumber}&pickup=${encodeURIComponent(orderData.pickupAddress)}&dropoff=${encodeURIComponent(orderData.dropoffAddress)}&total=${orderData.total}`;
+                    
+                    return result;
                 } catch (error) {
                     attempts++;
                     if (attempts === this.maxRetries) {

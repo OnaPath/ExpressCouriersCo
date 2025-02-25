@@ -35,17 +35,7 @@ if (!window.DeliveryFormHandler) {
                 this.showLoading(true);
                 const formData = this.collectFormData();
 
-                const response = await fetch('https://api.expresscouriers.co/api/delivery-orders', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                if (!response.ok) {
-                    throw new Error('Server error processing order');
-                }
+                const response = await this.dispatchService.dispatchOrder(formData);
 
                 this.showSuccess('Order received successfully!');
                 setTimeout(() => {
@@ -74,7 +64,7 @@ if (!window.DeliveryFormHandler) {
                 gst: GST,
                 tip: parseFloat(document.getElementById('tip-display')?.textContent || '0'),
                 total: parseFloat(document.getElementById('total-display')?.textContent || '0'),
-                city: 'Airdrie'
+                city: this.form.querySelector('input[name="city"]')?.value || '',
             };
         }
 
