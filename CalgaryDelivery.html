@@ -187,7 +187,9 @@
 										<input type="password" style="display:none">
 										<input type="text" 
 											  name="pickup-address" 
+											  id="pickup-address"
 											  data-city="calgary"
+											  data-google-places="true"
 											  placeholder="Pickup Address" 
 											  autocomplete="off"
 											  required />
@@ -205,7 +207,11 @@
 										<input type="text" name="receiver-name" id="receiver-name" placeholder="Receiver's Name" required />
 									</div>
 									<div class="col-6 col-12-xsmall">
-										<input type="tel" name="receiver-phone" placeholder="Receiver's Phone" required />
+										<input type="tel" 
+											   name="receiver-phone" 
+											   id="receiver-phone" 
+											   placeholder="Receiver's Phone" 
+											   required />
 									</div>
 									<div class="col-12 col-12-xsmall">
 										<input type="email" name="receiver-email" id="receiver-email" placeholder="Receiver's Email (Optional)" />
@@ -214,7 +220,9 @@
 										<div class="address-wrapper">
 											<input type="text" 
 												  name="dropoff-address" 
+												  id="dropoff-address"
 												  data-city="calgary"
+												  data-google-places="true"
 												  placeholder="Delivery Address" 
 												  autocomplete="off"
 												  required />

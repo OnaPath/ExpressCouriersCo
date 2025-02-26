@@ -19,6 +19,15 @@ if (!window.DeliveryFormHandler) {
           e.preventDefault();
           await this.handleSubmit();
         });
+
+        // Clear validation messages when user starts typing
+        const inputs = this.form.querySelectorAll('input[required]');
+        inputs.forEach(input => {
+          input.addEventListener('input', () => {
+            input.setCustomValidity('');
+            input.classList.remove('error');
+          });
+        });
       }
   
       setupLoadingUI() {
@@ -74,22 +83,74 @@ if (!window.DeliveryFormHandler) {
       }
   
       validateFormData(formData) {
+        let isValid = true;
         const requiredFields = [
-          'senderName', 'senderPhone', 'pickupAddress',
-          'receiverName', 'receiverPhone', 'dropoffAddress'
+          { id: 'sender-name', label: 'Sender Name' },
+          { id: 'sender-phone', label: 'Sender Phone' },
+          { id: 'pickup-address', label: 'Pickup Address' },
+          { id: 'receiver-name', label: 'Receiver Name' },
+          { id: 'receiver-phone', label: 'Receiver Phone' },
+          { id: 'dropoff-address', label: 'Dropoff Address' }
         ];
-        for (const field of requiredFields) {
-          if (!formData[field]) {
-            this.showError(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+
+        // Clear any existing error states
+        requiredFields.forEach(field => {
+          const input = this.form.querySelector(`#${field.id}`);
+          input.setCustomValidity('');
+          input.classList.remove('error');
+        });
+
+        // Check required checkboxes
+        const requiredCheckboxes = [
+          { id: 'terms', label: 'Terms of Service' },
+          { id: 'value-confirm', label: 'Value Confirmation' }
+        ];
+
+        for (const checkbox of requiredCheckboxes) {
+          const input = this.form.querySelector(`#${checkbox.id}`);
+          if (!input.checked) {
+            input.setCustomValidity(`Please accept the ${checkbox.label}`);
+            input.classList.add('error');
+            input.reportValidity();
             return false;
           }
         }
-        const phoneRegex = /^\+?[\d\s-()]{10,}$/;
-        if (!phoneRegex.test(formData.senderPhone) || !phoneRegex.test(formData.receiverPhone)) {
-          this.showError('Please enter valid phone numbers');
-          return false;
+
+        // Check each required field
+        for (const field of requiredFields) {
+          const input = this.form.querySelector(`#${field.id}`);
+          const value = formData[field.id.replace('-', '')];
+          
+          if (!value) {
+            input.setCustomValidity(`${field.label} is required`);
+            input.classList.add('error');
+            input.reportValidity();
+            isValid = false;
+            break; // Show one error at a time
+          }
         }
-        return true;
+
+        // Phone number validation
+        if (isValid) {
+          const phoneRegex = /^\+?[\d\s-()]{10,}$/;
+          const phones = [
+            { id: 'sender-phone', label: 'Sender Phone' },
+            { id: 'receiver-phone', label: 'Receiver Phone' }
+          ];
+
+          for (const phone of phones) {
+            const input = this.form.querySelector(`#${phone.id}`);
+            if (!phoneRegex.test(input.value)) {
+              input.setCustomValidity(`Please enter a valid ${phone.label} number`);
+              input.classList.add('error');
+              input.reportValidity();
+              isValid = false;
+              break;
+            }
+          }
+        }
+
+        return isValid;
       }
   
       showLoading(isLoading) {
