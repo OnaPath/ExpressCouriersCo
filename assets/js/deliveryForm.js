@@ -104,15 +104,33 @@ if (!window.DeliveryFormHandler) {
   
     setupAddressAutocomplete() {
       const addressInputs = this.form.querySelectorAll('input[data-google-places="true"]');
+      const city = this.city.toLowerCase();
+      
+      // Get bounds for the current city
+      const cityBounds = window.CITY_BOUNDS[city];
+      if (!cityBounds) {
+          console.error(`No bounds defined for city: ${city}`);
+          return;
+      }
+
+      // Create LatLngBounds object for the city
+      const bounds = new google.maps.LatLngBounds(
+          { lat: cityBounds.south, lng: cityBounds.west },
+          { lat: cityBounds.north, lng: cityBounds.east }
+      );
+
       addressInputs.forEach(input => {
-        const autocomplete = new google.maps.places.Autocomplete(input);
-        autocomplete.setComponentRestrictions({ country: ['ca'] });
-        
-        // Set bounds based on city
-        const city = input.dataset.city;
-        if (city && window.CITY_BOUNDS && window.CITY_BOUNDS[city]) {
-          autocomplete.setBounds(window.CITY_BOUNDS[city]);
-        }
+          const autocomplete = new google.maps.places.Autocomplete(input, {
+              componentRestrictions: { country: ['ca'] },
+              bounds: bounds,
+              strictBounds: true
+          });
+          
+          // Set the city data attribute for validation
+          input.dataset.city = city;
+          
+          // Bias results strongly to the bounds
+          autocomplete.setBounds(bounds);
       });
     }
   
