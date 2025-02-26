@@ -76,20 +76,15 @@ if (!window.DeliveryFormHandler) {
         
         return new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places&callback=initAutocomplete`;
             script.async = true;
-            document.head.appendChild(script);
+            script.defer = true;
             
-            script.onload = () => {
-                if (document.readyState === 'complete') {
-                    this.setupAddressAutocomplete();
-                    resolve();
-                } else {
-                    document.addEventListener('DOMContentLoaded', () => {
-                        this.setupAddressAutocomplete();
-                        resolve();
-                    });
-                }
+            // Define callback before loading script
+            window.initAutocomplete = () => {
+                console.log("Google Maps API loaded");
+                this.setupAddressAutocomplete();
+                resolve();
             };
             
             script.onerror = () => {
@@ -97,6 +92,8 @@ if (!window.DeliveryFormHandler) {
                 this.showError('Address lookup unavailable - please refresh the page');
                 reject(new Error('Maps script load failed'));
             };
+            
+            document.head.appendChild(script);
         });
       } catch (error) {
         console.error('Maps initialization failed:', error);

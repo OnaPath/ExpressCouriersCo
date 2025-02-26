@@ -61,24 +61,28 @@ function getCityBounds(city) {
     );
 }
 
-function validateAddress(autocomplete, type) {
-    console.log('validateAddress called:', { type });
+function validateAddress(autocomplete, input) {
+    console.log('validateAddress called:', { input });
     const place = autocomplete.getPlace();
     
     // Allow manual entry by removing the dropdown requirement
     if (!place.geometry) {
-        return true; // Allow any input
+        return true;
     }
 
-    // Keep the city bounds check but make it a warning instead of an error
     const lat = place.geometry.location.lat();
     const lng = place.geometry.location.lng();
-    const city = document.querySelector('input[name="city"]').value.toLowerCase();
-    const cityConfig = CITY_BOUNDS[city];
+    const city = input.dataset.city;
+    const cityBounds = CITY_BOUNDS[city.toLowerCase()];
 
-    if (lat < cityConfig.bounds.south || lat > cityConfig.bounds.north ||
-        lng < cityConfig.bounds.west || lng > cityConfig.bounds.east) {
-        console.warn(`Address outside ${city} bounds, but allowing it for testing`);
+    if (cityBounds) {
+        if (lat < cityBounds.south || lat > cityBounds.north ||
+            lng < cityBounds.west || lng > cityBounds.east) {
+            console.warn(`Address outside ${city} bounds: lat=${lat}, lng=${lng}`);
+            // Keep it permissive but warn for monitoring
+        }
+    } else {
+        console.warn(`No bounds defined for city: ${city}`);
     }
 
     return true;
