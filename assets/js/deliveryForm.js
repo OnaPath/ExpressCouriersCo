@@ -18,6 +18,38 @@ if (!window.DeliveryFormHandler) {
         this.monerisTicket = null;
         this.monerisMode = null;
   
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+          // Payment calculator properties
+          const cityInput = this.form.querySelector('input[name="city"]');
+          const city = cityInput ? cityInput.value : 'calgary';
+          this.config = cityConfigs[city] || {
+            city: city,
+            deliveryFee: 20.00,
+            distanceSurcharge: 0,
+            rushHourFee: 0,
+            gstRate: 0.05
+          };
+  
+          // Initialize payment elements after DOM is ready
+          this.elements = {
+            tipDisplay: document.getElementById('tip-display'),
+            totalDisplay: document.getElementById('total-display'),
+            orderTotal: document.getElementById('order_total'),
+            tipInput: document.getElementById('tip'),
+            customTip: document.getElementById('custom-tip'),
+            tipButtons: document.querySelectorAll('.tip-button')
+          };
+  
+          // Calculate initial GST and base total
+          this.GST = this.config.deliveryFee * this.config.gstRate;
+          this.BASE_TOTAL = this.config.deliveryFee + this.GST;
+  
+          // Initialize payment listeners and update initial amounts
+          this.initializePaymentListeners();
+          this.updateAmounts(0);
+        });
+  
         this.setupLoadingUI();
         this.messageContainer = document.createElement('div');
         this.messageContainer.className = 'message-container';
@@ -53,22 +85,30 @@ if (!window.DeliveryFormHandler) {
   
       async initializeGoogleMaps() {
         try {
-          const data = await this.fetchWithRetry('https://api.expresscouriers.co/config/maps-api-key');
-          return new Promise((resolve, reject) => {
+          if (window.google && window.google.maps) {
+            console.log('Maps already initialized');
+            this.setupAddressAutocomplete();
+            return;
+          }
+  
+          await new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places&callback=initAutocomplete`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${window.GOOGLE_MAPS_API_KEY}&libraries=places`;
             script.async = true;
             script.defer = true;
-            window.initAutocomplete = () => {
-              console.log('Google Maps API loaded');
+            script.crossOrigin = "anonymous";
+            
+            script.onload = () => {
+              console.log('Maps script loaded');
               this.setupAddressAutocomplete();
               resolve();
             };
-            script.onerror = () => {
-              console.error('Failed to load Google Maps');
-              this.showError('Address lookup unavailable—refresh page');
-              reject(new Error('Maps script load failed'));
+            
+            script.onerror = (error) => {
+              console.error('Maps script failed to load:', error);
+              reject(error);
             };
+            
             document.head.appendChild(script);
           });
         } catch (error) {
@@ -80,22 +120,37 @@ if (!window.DeliveryFormHandler) {
       setupAddressAutocomplete() {
         const addressInputs = this.form.querySelectorAll('input[data-google-places="true"]');
         const cityBounds = window.CITY_BOUNDS[this.city];
+        
         if (!cityBounds) {
           console.error(`No bounds defined for city: ${this.city}`);
           return;
         }
+  
         const bounds = new google.maps.LatLngBounds(
           { lat: cityBounds.south, lng: cityBounds.west },
           { lat: cityBounds.north, lng: cityBounds.east }
         );
+  
         addressInputs.forEach(input => {
           const autocomplete = new google.maps.places.Autocomplete(input, {
             componentRestrictions: { country: ['ca'] },
             bounds: bounds,
-            strictBounds: true
+            strictBounds: true,
+            fields: ['formatted_address', 'geometry']
           });
+  
           input.dataset.city = this.city;
           autocomplete.setBounds(bounds);
+  
+          autocomplete.addListener('place_changed', () => {
+            const place = autocomplete.getPlace();
+            if (!place.geometry) {
+              console.error('No geometry for selected place');
+              input.classList.add('error');
+              return;
+            }
+            input.classList.remove('error');
+          });
         });
       }
   
