@@ -49,8 +49,16 @@ if (!window.DeliveryFormHandler) {
           // Always proceed with dispatch
           const response = await this.dispatchService.dispatchOrder(formData);
           if (!response.success) throw new Error(response.message || 'Order submission failed');
+          
+          // Store order details in sessionStorage instead of URL
+          sessionStorage.setItem('orderDetails', JSON.stringify({
+            pickup: formData.pickupAddress,
+            dropoff: formData.dropoffAddress,
+            total: formData.total
+          }));
+          
           this.showSuccess('Order received successfully!');
-          window.location.href = `/delivery-success.html?pickup=${encodeURIComponent(formData.pickupAddress)}&dropoff=${encodeURIComponent(formData.dropoffAddress)}&total=${formData.total}`;
+          window.location.href = '/delivery-success.html';
           
         } catch (error) {
           console.error('Delivery request failed:', error);
@@ -71,6 +79,7 @@ if (!window.DeliveryFormHandler) {
         return {
           senderName: this.form.querySelector('#sender-name')?.value?.trim() || '',
           senderPhone: this.form.querySelector('#sender-phone')?.value?.trim() || '',
+          senderEmail: this.form.querySelector('#sender-email')?.value?.trim() || '',
           pickupAddress: this.form.querySelector('#pickup-address')?.value?.trim() || '',
           receiverName: this.form.querySelector('#receiver-name')?.value?.trim() || '',
           receiverPhone: this.form.querySelector('#receiver-phone')?.value?.trim() || '',

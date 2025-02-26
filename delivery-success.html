@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Order Confirmed | Express Couriers & Co</title>
+        <meta name="robots" content="noindex, nofollow" />
         <link rel="stylesheet" href="assets/css/main.css" />
     </head>
     <body class="is-preload">
@@ -29,12 +30,21 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // Get order details from URL parameters
-                const urlParams = new URLSearchParams(window.location.search);
-                document.getElementById('order-number').textContent = urlParams.get('orderNumber') || 'N/A';
-                document.getElementById('pickup-address').textContent = urlParams.get('pickup') || 'N/A';
-                document.getElementById('dropoff-address').textContent = urlParams.get('dropoff') || 'N/A';
-                document.getElementById('order-total').textContent = urlParams.get('total') || 'N/A';
+                // Get data from sessionStorage instead of URL
+                const orderDetails = JSON.parse(sessionStorage.getItem('orderDetails') || '{}');
+                
+                // Update the DOM
+                document.getElementById('pickup-address').textContent = orderDetails.pickup || 'N/A';
+                document.getElementById('dropoff-address').textContent = orderDetails.dropoff || 'N/A';
+                document.getElementById('order-total').textContent = orderDetails.total || '0.00';
+                
+                // Clear the session storage
+                sessionStorage.removeItem('orderDetails');
+                
+                // Redirect to home if no order details (prevents direct access)
+                if (!orderDetails.pickup) {
+                    window.location.href = '/';
+                }
             });
         </script>
     </body>
