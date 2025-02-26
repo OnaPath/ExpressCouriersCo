@@ -413,9 +413,21 @@ if (!window.DeliveryFormHandler) {
         }
 
         // Validate required fields
+        const fieldMap = {
+            'sender-name': 'senderName',
+            'sender-phone': 'senderPhone',
+            'sender-email': 'senderEmail',
+            'pickup-address': 'pickupAddress',
+            'receiver-name': 'receiverName',
+            'receiver-phone': 'receiverPhone',
+            'dropoff-address': 'dropoffAddress'
+        };
+
         for (const field of requiredFields) {
             const input = this.form.querySelector(`#${field.id}`);
-            const value = formData[field.id.replace('-', '')];
+            const formDataKey = fieldMap[field.id];
+            const value = formData[formDataKey];
+            
             if (!value) {
                 input.setCustomValidity(`${field.label} is required`);
                 input.classList.add('error');
