@@ -138,37 +138,6 @@
 				color: #ffffff !important;
 			}
 		</style>
-		<script>
-			// Define initAutocomplete before loading Google Maps API
-			function initAutocomplete() {
-				console.log("Google Maps API loaded");
-				// Initialize address inputs with Google Places
-				const addressInputs = document.querySelectorAll('input[data-google-places="true"]');
-				addressInputs.forEach(input => {
-					const autocomplete = new google.maps.places.Autocomplete(input);
-					autocomplete.setComponentRestrictions({ country: ['ca'] });
-					
-					// Set bounds based on city
-					const city = input.dataset.city;
-					if (city && window.CITY_BOUNDS && window.CITY_BOUNDS[city]) {
-						autocomplete.setBounds(window.CITY_BOUNDS[city]);
-					}
-				});
-			}
-
-			// Load Google Maps API
-			fetch('https://api.expresscouriers.co/config/maps-api-key')
-				.then(response => response.json())
-				.then(data => {
-					const script = document.createElement('script');
-					script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places&callback=initAutocomplete`;
-					script.async = true;
-					script.defer = true;
-					document.head.appendChild(script);
-				})
-				.catch(error => console.error('Error loading Google Maps API key:', error));
-		</script>
-		<script defer src="/assets/js/addressValidation.js"></script>
 	</head>
 	<body class="is-preload">
 
@@ -389,10 +358,7 @@
 		<script src="assets/js/util.js"></script>
 		<script src="assets/js/main.js"></script>
 
-		<!-- Service dependencies first -->
-		<script defer src="/assets/js/dispatchService.js"></script>
-
-		<!-- Then core functionality -->
+		<!-- Core functionality -->
 		<script defer src="/assets/js/deliveryForm.js"></script>
 		<script defer src="/assets/js/paymentCalculator.js"></script>
 
