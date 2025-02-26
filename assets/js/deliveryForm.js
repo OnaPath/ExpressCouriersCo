@@ -1,9 +1,27 @@
 if (!window.DeliveryFormHandler) {
-    const cityConfigs = {
-      calgary: { city: 'calgary', deliveryFee: 21.00, distanceSurcharge: 5.00, rushHourFee: 2.50 },
-      airdrie: { city: 'airdrie', deliveryFee: 21.00, distanceSurcharge: 0, rushHourFee: 0 },
-      lethbridge: { city: 'lethbridge', deliveryFee: 20.00, distanceSurcharge: 0, rushHourFee: 0 }
-    };
+    // Define city boundaries once globally
+    if (!window.CITY_BOUNDS) {
+        window.CITY_BOUNDS = {
+            'calgary': {
+                north: 51.2,
+                south: 50.8,
+                east: -113.9,
+                west: -114.3
+            },
+            'airdrie': {
+                north: 51.3,
+                south: 51.2,
+                east: -113.9,
+                west: -114.1
+            },
+            'lethbridge': {
+                north: 49.7,
+                south: 49.6,
+                east: -112.7,
+                west: -112.9
+            }
+        };
+    }
   
     class DeliveryFormHandler {
       constructor(formId) {
@@ -13,59 +31,38 @@ if (!window.DeliveryFormHandler) {
           return;
         }
   
-        this.apiEndpoint = 'https://api.expresscouriers.co/api/delivery-orders';
-        this.city = this.form.querySelector('input[name="city"]')?.value?.toLowerCase() || 'airdrie';
-        this.monerisTicket = null;
-        this.monerisMode = null;
-  
-        // Wait for DOM to be fully loaded
-        document.addEventListener('DOMContentLoaded', () => {
-          // Payment calculator properties
-          const cityInput = this.form.querySelector('input[name="city"]');
-          const city = cityInput ? cityInput.value : 'calgary';
-          this.config = cityConfigs[city] || {
-            city: city,
-            deliveryFee: 20.00,
-            distanceSurcharge: 0,
-            rushHourFee: 0,
-            gstRate: 0.05
-          };
-  
-          // Initialize payment elements after DOM is ready
-          this.elements = {
-            tipDisplay: document.getElementById('tip-display'),
-            totalDisplay: document.getElementById('total-display'),
-            orderTotal: document.getElementById('order_total'),
-            tipInput: document.getElementById('tip'),
-            customTip: document.getElementById('custom-tip'),
-            tipButtons: document.querySelectorAll('.tip-button')
-          };
-  
-          // Calculate initial GST and base total
-          this.GST = this.config.deliveryFee * this.config.gstRate;
-          this.BASE_TOTAL = this.config.deliveryFee + this.GST;
-  
-          // Initialize payment listeners and update initial amounts
-          this.initializePaymentListeners();
-          this.updateAmounts(0);
-        });
-  
-        this.setupLoadingUI();
+        // Setup message container
         this.messageContainer = document.createElement('div');
         this.messageContainer.className = 'message-container';
         this.form.appendChild(this.messageContainer);
-        this.initializePayment();
   
-        this.initializeGoogleMaps()
-          .then(() => {
-            console.log('Google Maps initialized successfully');
+        // Initialize everything directly - no need for DOMContentLoaded
+        this.init().catch(error => {
+            console.error('Initialization failed:', error);
+            this.showError('Service initialization failed. Please refresh the page.');
+        });
+      }
+  
+      async init() {
+        try {
+            // First fetch the API key
+            const response = await fetch('/config/maps-api-key');
+            if (!response.ok) throw new Error('Failed to load Maps API key');
+            const { apiKey } = await response.json();
+            
+            // Store API key for Maps initialization
+            this.mapsApiKey = apiKey;
+            
+            // Initialize components in sequence
+            await this.initializeGoogleMaps();
+            this.setupLoadingUI();
             this.setupFormListener();
-          })
-          .catch(error => {
-            console.error('Maps initialization error:', error);
-            this.showError('Address lookup unavailable—try later');
-            this.setupFormListener();
-          });
+            this.initializePayment();
+            
+        } catch (error) {
+            console.error('Initialization failed:', error);
+            this.showError('Service initialization failed. Please refresh the page.');
+        }
       }
   
       async fetchWithRetry(url, options = {}, retries = 3, baseDelay = 1000) {
@@ -91,15 +88,19 @@ if (!window.DeliveryFormHandler) {
             return;
           }
   
+          if (!this.mapsApiKey) {
+            throw new Error('Maps API key not available');
+          }
+  
           await new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${window.GOOGLE_MAPS_API_KEY}&libraries=places`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${this.mapsApiKey}&libraries=places`;
             script.async = true;
             script.defer = true;
             script.crossOrigin = "anonymous";
             
             script.onload = () => {
-              console.log('Maps script loaded');
+              console.log('Maps script loaded successfully');
               this.setupAddressAutocomplete();
               resolve();
             };
@@ -113,6 +114,7 @@ if (!window.DeliveryFormHandler) {
           });
         } catch (error) {
           console.error('Maps initialization failed:', error);
+          this.showError('Address lookup unavailable. Please try refreshing the page.');
           throw error;
         }
       }
@@ -146,10 +148,27 @@ if (!window.DeliveryFormHandler) {
             const place = autocomplete.getPlace();
             if (!place.geometry) {
               console.error('No geometry for selected place');
-              input.classList.add('error');
-              return;
+              return true; // Allow manual entry
             }
+  
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            
+            if (lat < cityBounds.south || lat > cityBounds.north ||
+                lng < cityBounds.west || lng > cityBounds.east) {
+              console.warn(`Address outside ${this.city} bounds: lat=${lat}, lng=${lng}`);
+              // Keep it permissive but warn for monitoring
+            }
+            
             input.classList.remove('error');
+            input.dataset.selectedFromDropdown = 'true';
+            input.setCustomValidity('');
+          });
+  
+          // Add input event listener but keep it permissive
+          input.addEventListener('input', () => {
+            input.classList.remove('error');
+            input.setCustomValidity('');
           });
         });
       }
@@ -205,31 +224,68 @@ if (!window.DeliveryFormHandler) {
       }
   
       initializePayment() {
-        this.paymentConfig = cityConfigs[this.city] || {
-          city: this.city,
-          deliveryFee: 20.00,
-          distanceSurcharge: 0,
-          rushHourFee: 0,
-          gstRate: 0.05
+        // City-specific configurations
+        const cityConfigs = {
+            calgary: {
+                city: 'calgary',
+                deliveryFee: 21.00,
+                distanceSurcharge: 5.00,
+                rushHourFee: 2.50,
+                gstRate: 0.05
+            },
+            airdrie: {
+                city: 'airdrie',
+                deliveryFee: 21.00,
+                distanceSurcharge: 0,
+                rushHourFee: 0,
+                gstRate: 0.05
+            },
+            lethbridge: {
+                city: 'lethbridge',
+                deliveryFee: 20.00,
+                distanceSurcharge: 0,
+                rushHourFee: 0,
+                gstRate: 0.05
+            }
         };
+  
+        // Get city from form
+        const cityInput = this.form.querySelector('input[name="city"]');
+        this.city = cityInput ? cityInput.value : 'calgary';
+        
+        // Set payment configuration
+        this.paymentConfig = cityConfigs[this.city] || {
+            city: this.city,
+            deliveryFee: 20.00,
+            distanceSurcharge: 0,
+            rushHourFee: 0,
+            gstRate: 0.05
+        };
+  
+        // Calculate initial GST and base total
         this.GST = this.paymentConfig.deliveryFee * this.paymentConfig.gstRate;
         this.BASE_TOTAL = this.paymentConfig.deliveryFee + this.GST;
   
+        // Initialize payment elements
         this.elements = {
-          tipDisplay: document.getElementById('tip-display'),
-          totalDisplay: document.getElementById('total-display'),
-          orderTotal: document.getElementById('order_total'),
-          tipInput: document.getElementById('tip'),
-          customTip: document.getElementById('custom-tip'),
-          tipButtons: document.querySelectorAll('.tip-button')
+            tipDisplay: document.getElementById('tip-display'),
+            totalDisplay: document.getElementById('total-display'),
+            orderTotal: document.getElementById('order_total'),
+            tipInput: document.getElementById('tip'),
+            customTip: document.getElementById('custom-tip'),
+            tipButtons: document.querySelectorAll('.tip-button')
         };
   
+        // Set up payment event listeners
         this.elements.tipButtons.forEach(button => {
-          button.addEventListener('click', (e) => this.handleTipButton(e));
+            button.addEventListener('click', (e) => this.handleTipButton(e));
         });
+        
         if (this.elements.customTip) {
-          this.elements.customTip.addEventListener('input', (e) => this.handleCustomTip(e));
+            this.elements.customTip.addEventListener('input', (e) => this.handleCustomTip(e));
         }
+  
+        // Initialize starting amounts
         this.updateAmounts(0);
       }
   
