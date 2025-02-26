@@ -9,7 +9,7 @@ if (!window.DeliveryFormHandler) {
         this.apiEndpoint = 'https://api.expresscouriers.co/api/delivery-orders';
         this.city = this.form.querySelector('input[name="city"]')?.value || 'Airdrie';
         this.monerisCheckoutId = null;
-        this.monerisMode = 'qa';
+        this.monerisMode = 'prod';
         
         // Setup UI elements first (synchronous)
         this.setupLoadingUI();
@@ -63,7 +63,7 @@ if (!window.DeliveryFormHandler) {
         );
         
         this.monerisCheckoutId = config.checkoutId;
-        this.monerisMode = config.mode || 'qa';
+        this.monerisMode = config.mode || 'prod';
       } catch (error) {
         console.error('Moneris init failed:', error);
         this.showError('Payment system unavailable—try later.');
