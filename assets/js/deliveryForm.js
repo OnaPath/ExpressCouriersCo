@@ -429,9 +429,21 @@ if (!window.DeliveryFormHandler) {
         return isValid;
     }
   
-    showLoading(isLoading) { ... } // Unchanged
-    showError(message) { ... } // Unchanged
-    showSuccess(message) { ... } // Unchanged
+    showLoading(isLoading) {
+        this.loadingOverlay.style.display = isLoading ? 'block' : 'none';
+    }
+  
+    showError(message) {
+        this.messageContainer.innerHTML = message;
+        this.messageContainer.className = 'error-message';
+        this.messageContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+  
+    showSuccess(message) {
+        this.messageContainer.innerHTML = message;
+        this.messageContainer.className = 'success-message';
+        this.messageContainer.scrollIntoView({ behavior: 'smooth' });
+    }
   }
   window.DeliveryFormHandlerInstance = new DeliveryFormHandler('delivery-form');
 }
