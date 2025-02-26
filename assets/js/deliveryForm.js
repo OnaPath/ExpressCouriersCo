@@ -240,7 +240,7 @@ if (!window.DeliveryFormHandler) {
 
         // Load Moneris script with timeout
         const script = document.createElement('script');
-        script.src = 'https://gateway.moneris.com/chktv2/js/chkt_v2.00.js';
+        script.src = 'https://gateway.moneris.com/chktv2/request/request.php';
         script.async = true;
 
         // Cleanup function
