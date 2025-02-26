@@ -9,7 +9,7 @@ if (!window.DeliveryFormHandler) {
         this.apiEndpoint = 'https://api.expresscouriers.co/api/delivery-orders';
         this.city = this.form.querySelector('input[name="city"]')?.value || 'Airdrie';
         this.monerisCheckoutId = null;
-        this.monerisMode = 'prod';
+        this.monerisMode = null;
         
         // Setup UI elements first (synchronous)
         this.setupLoadingUI();
