@@ -93,9 +93,12 @@ if (!window.DeliveryFormHandler) {
           { id: 'dropoff-address', label: 'Dropoff Address' }
         ];
 
+        console.log('Form Data:', formData);
+
         // Clear any existing error states
         requiredFields.forEach(field => {
           const input = this.form.querySelector(`#${field.id}`);
+          console.log(`Checking field ${field.id}:`, input?.value);
           input.setCustomValidity('');
           input.classList.remove('error');
         });
@@ -108,6 +111,7 @@ if (!window.DeliveryFormHandler) {
 
         for (const checkbox of requiredCheckboxes) {
           const input = this.form.querySelector(`#${checkbox.id}`);
+          console.log(`Checking checkbox ${checkbox.id}:`, input?.checked);
           if (!input.checked) {
             input.setCustomValidity(`Please accept the ${checkbox.label}`);
             input.classList.add('error');
@@ -120,13 +124,15 @@ if (!window.DeliveryFormHandler) {
         for (const field of requiredFields) {
           const input = this.form.querySelector(`#${field.id}`);
           const value = formData[field.id.replace('-', '')];
+          console.log(`Validating ${field.id}:`, value);
           
           if (!value) {
+            console.log(`Field ${field.id} is empty`);
             input.setCustomValidity(`${field.label} is required`);
             input.classList.add('error');
             input.reportValidity();
             isValid = false;
-            break; // Show one error at a time
+            break;
           }
         }
 
@@ -140,6 +146,7 @@ if (!window.DeliveryFormHandler) {
 
           for (const phone of phones) {
             const input = this.form.querySelector(`#${phone.id}`);
+            console.log(`Validating phone ${phone.id}:`, input?.value);
             if (!phoneRegex.test(input.value)) {
               input.setCustomValidity(`Please enter a valid ${phone.label} number`);
               input.classList.add('error');
@@ -150,6 +157,7 @@ if (!window.DeliveryFormHandler) {
           }
         }
 
+        console.log('Final validation result:', isValid);
         return isValid;
       }
   
