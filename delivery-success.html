@@ -2,24 +2,51 @@
 <html>
     <head>
         <title>Order Confirmed | Express Couriers & Co</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
         <meta name="robots" content="noindex, nofollow" />
         <link rel="stylesheet" href="assets/css/main.css" />
+        <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+        <style>
+            .success-header {
+                text-align: center;
+                margin-bottom: 2em;
+            }
+            .success-message {
+                text-align: center;
+            }
+            .success-message p {
+                margin-bottom: 1em;
+            }
+            .order-details {
+                margin: 2em auto;
+                max-width: 600px;
+                text-align: left;
+            }
+            .actions {
+                margin-top: 2em;
+            }
+        </style>
     </head>
     <body class="is-preload">
         <div id="wrapper">
             <section class="wrapper style1 fade-up">
                 <div class="inner">
-                    <h1>Order Confirmed!</h1>
+                    <h1 class="success-header">Delivery Confirmed!</h1>
                     <div class="success-message">
                         <p>Your delivery request has been received and payment processed successfully.</p>
-                        <p>Order Number: <span id="order-number"></span></p>
                         <p>A confirmation email has been sent with your delivery details.</p>
-                        <div class="order-details">
-                            <h3>Order Details</h3>
-                            <p>Pickup: <span id="pickup-address"></span></p>
-                            <p>Dropoff: <span id="dropoff-address"></span></p>
-                            <p>Total: $<span id="order-total"></span></p>
+                        
+                        <!-- Only show order details if available -->
+                        <div id="order-details" style="display: none;">
+                            <div class="order-details">
+                                <h3>Order Details</h3>
+                                <p>Pickup: <span id="pickup-address"></span></p>
+                                <p>Dropoff: <span id="dropoff-address"></span></p>
+                                <p>Total: $<span id="order-total"></span></p>
+                            </div>
                         </div>
+
                         <div class="actions">
                             <a href="index.html" class="button">Return to Home</a>
                         </div>
@@ -28,23 +55,29 @@
             </section>
         </div>
 
+        <!-- Scripts -->
+        <script src="assets/js/jquery.min.js"></script>
+        <script src="assets/js/jquery.scrollex.min.js"></script>
+        <script src="assets/js/jquery.scrolly.min.js"></script>
+        <script src="assets/js/browser.min.js"></script>
+        <script src="assets/js/breakpoints.min.js"></script>
+        <script src="assets/js/util.js"></script>
+        <script src="assets/js/main.js"></script>
+
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // Get data from sessionStorage instead of URL
                 const orderDetails = JSON.parse(sessionStorage.getItem('orderDetails') || '{}');
                 
-                // Update the DOM
-                document.getElementById('pickup-address').textContent = orderDetails.pickup || 'N/A';
-                document.getElementById('dropoff-address').textContent = orderDetails.dropoff || 'N/A';
-                document.getElementById('order-total').textContent = orderDetails.total || '0.00';
+                // If we have order details, show them
+                if (orderDetails.pickup && orderDetails.dropoff && orderDetails.total) {
+                    document.getElementById('pickup-address').textContent = orderDetails.pickup;
+                    document.getElementById('dropoff-address').textContent = orderDetails.dropoff;
+                    document.getElementById('order-total').textContent = orderDetails.total;
+                    document.getElementById('order-details').style.display = 'block';
+                }
                 
                 // Clear the session storage
                 sessionStorage.removeItem('orderDetails');
-                
-                // Redirect to home if no order details (prevents direct access)
-                if (!orderDetails.pickup) {
-                    window.location.href = '/';
-                }
             });
         </script>
     </body>
