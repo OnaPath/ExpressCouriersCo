@@ -39,7 +39,7 @@ if (!window.DeliveryFormHandler) {
         this.paymentConfig = {
             airdrie: {
                 city: 'airdrie',
-                deliveryFee: 21.00,
+                deliveryFee: 1.00,
                 distanceSurcharge: 0,
                 rushHourFee: 0,
                 gstRate: 0.05
