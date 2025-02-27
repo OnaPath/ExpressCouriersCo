@@ -46,7 +46,7 @@ if (!window.DeliveryFormHandler) {
       async init() {
         try {
             // First fetch the API key
-            const response = await fetch('/config/maps-api-key');
+            const response = await fetch('https://api.expresscouriers.co/config/maps-api-key');
             if (!response.ok) throw new Error('Failed to load Maps API key');
             const { apiKey } = await response.json();
             
