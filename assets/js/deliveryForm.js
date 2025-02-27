@@ -53,7 +53,6 @@ if (!window.DeliveryFormHandler) {
             
             // Initialize components in sequence
             await this.initializeGoogleMaps();
-            await this.initializeMoneris();
             this.setupLoadingUI();
             this.setupFormListener();
             this.initializePayment();
@@ -177,36 +176,23 @@ if (!window.DeliveryFormHandler) {
       }
   
       async initializeMoneris() {
-        if (window.MonerisCheckout) {
-            console.log('Moneris already loaded');
-            return;
+        try {
+          const formData = this.collectFormData();
+          const config = await this.fetchWithRetry(
+            'https://api.expresscouriers.co/config/moneris',
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ total: formData.total })
+            },
+            3, 2000
+          );
+          this.monerisTicket = config.ticket;
+          this.monerisMode = config.mode || 'prod';
+        } catch (error) {
+          console.error('Moneris init failed:', error);
+          this.showError('Payment system unavailable—try later');
         }
-
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'https://gateway.moneris.com/chktv2/js/chkt_v2.00.js';
-            script.async = true;
-
-            script.onload = () => {
-                // Add a small delay to allow MonerisCheckout to initialize
-                setTimeout(() => {
-                    if (typeof window.MonerisCheckout !== 'undefined') {
-                        console.log('Moneris script loaded and initialized');
-                        resolve();
-                    } else {
-                        console.warn('Moneris script loaded but not initialized - continuing anyway');
-                        resolve(); // Continue anyway, MonerisCheckout might initialize later
-                    }
-                }, 500);
-            };
-
-            script.onerror = () => {
-                console.error('Failed to load Moneris script');
-                resolve(); // Continue with form initialization even if Moneris fails
-            };
-
-            document.head.appendChild(script);
-        });
       }
   
       setupFormListener() {
@@ -307,22 +293,18 @@ if (!window.DeliveryFormHandler) {
   
       async handleSubmit() {
         try {
-            this.showLoading(true);
-            const formData = this.collectFormData();
-            if (!this.validateFormData(formData)) return;
-            
-            // Check for MonerisCheckout here, before showing iframe
-            if (typeof window.MonerisCheckout === 'undefined') {
-                throw new Error('Payment system not initialized—try refreshing');
-            }
-            
-            sessionStorage.setItem('pendingOrder', JSON.stringify(formData));
-            this.showMonerisIframe();
+          this.showLoading(true);
+          const formData = this.collectFormData();
+          if (!this.validateFormData(formData)) return;
+          if (!this.monerisTicket) await this.initializeMoneris();
+          if (!this.monerisTicket) throw new Error('Payment system not initialized—try refreshing');
+          sessionStorage.setItem('pendingOrder', JSON.stringify(formData));
+          this.showMonerisIframe();
         } catch (error) {
-            console.error('Form submission failed:', error);
-            this.showError(error.message || 'Unable to process your request');
+          console.error('Form submission failed:', error);
+          this.showError(error.message || 'Unable to process your request');
         } finally {
-            this.showLoading(false);
+          this.showLoading(false);
         }
       }
   
@@ -355,52 +337,71 @@ if (!window.DeliveryFormHandler) {
         checkoutDiv.id = 'monerisCheckout';
         outerDiv.appendChild(checkoutDiv);
   
+        const script = document.createElement('script');
+        script.src = 'https://gateway.moneris.com/chktv2/js/chkt_v2.00.js';
+        script.async = true;
+  
         const cleanup = () => {
           if (document.body.contains(outerDiv)) document.body.removeChild(outerDiv);
           if (document.body.contains(overlay)) document.body.removeChild(overlay);
           this.showLoading(false);
         };
   
-        // Now we can safely use MonerisCheckout
-        const myCheckout = new MonerisCheckout();
-        myCheckout.setMode(this.monerisMode);
-        myCheckout.setCheckoutDiv('monerisCheckout');
-        myCheckout.setCallback('page_loaded', () => {
-          console.log('Moneris page loaded');
-          this.showLoading(false);
-        });
-        myCheckout.setCallback('cancel_transaction', () => {
-          console.log('Transaction cancelled');
-          this.showError('Payment cancelled');
-          cleanup();
-        });
-        myCheckout.setCallback('error_event', (error) => {
-          console.error('Payment error:', error);
+        const timeoutId = setTimeout(() => {
+          console.error('Moneris script load timeout');
           cleanup();
           this.handleMonerisFailure();
-        });
-        myCheckout.setCallback('payment_complete', async (response) => {
-          console.log('Payment successful:', response);
-          this.showLoading(true);
-          try {
-            const orderData = JSON.parse(sessionStorage.getItem('pendingOrder'));
-            await this.dispatchOrder(orderData);
-            sessionStorage.removeItem('pendingOrder');
-            const params = new URLSearchParams({
-              pickup: orderData.pickupAddress,
-              dropoff: orderData.dropoffAddress,
-              total: orderData.total
-            });
-            window.location.href = `/delivery-success.html?${params}`;
-          } catch (error) {
-            this.showError('Order dispatch failed—contact support');
-          } finally {
-            cleanup();
-          }
-        });
+        }, 10000);
   
-        this.showLoading(true);
-        myCheckout.startCheckout(this.monerisTicket);
+        script.onload = () => {
+          clearTimeout(timeoutId);
+          const myCheckout = new MonerisCheckout();
+          myCheckout.setMode(this.monerisMode);
+          myCheckout.setCheckoutDiv('monerisCheckout');
+          myCheckout.setCallback('page_loaded', () => {
+            console.log('Moneris page loaded');
+            this.showLoading(false);
+          });
+          myCheckout.setCallback('cancel_transaction', () => {
+            console.log('Transaction cancelled');
+            this.showError('Payment cancelled');
+            cleanup();
+          });
+          myCheckout.setCallback('error_event', (error) => {
+            console.error('Payment error:', error);
+            cleanup();
+            this.handleMonerisFailure();
+          });
+          myCheckout.setCallback('payment_complete', async (response) => {
+            console.log('Payment successful:', response);
+            this.showLoading(true);
+            try {
+              const orderData = JSON.parse(sessionStorage.getItem('pendingOrder'));
+              await this.dispatchOrder(orderData);
+              sessionStorage.removeItem('pendingOrder');
+              const params = new URLSearchParams({
+                pickup: orderData.pickupAddress,
+                dropoff: orderData.dropoffAddress,
+                total: orderData.total
+              });
+              window.location.href = `/delivery-success.html?${params}`;
+            } catch (error) {
+              this.showError('Order dispatch failed—contact support');
+            } finally {
+              cleanup();
+            }
+          });
+          this.showLoading(true);
+          myCheckout.startCheckout(this.monerisTicket);
+        };
+  
+        script.onerror = () => {
+          clearTimeout(timeoutId);
+          cleanup();
+          this.handleMonerisFailure();
+        };
+  
+        document.body.appendChild(script);
       }
   
       handleMonerisFailure() {
