@@ -173,6 +173,11 @@ if (!window.DeliveryFormHandler) {
                 input.setCustomValidity('');
             });
         });
+
+        // Debug logging
+        console.log('Address autocomplete setup complete');
+        console.log('Number of address inputs:', addressInputs.length);
+        console.log('City bounds:', cityBounds);
       }
   
       async initializeMoneris() {
