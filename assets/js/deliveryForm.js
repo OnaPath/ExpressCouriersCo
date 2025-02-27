@@ -35,6 +35,31 @@ if (!window.DeliveryFormHandler) {
         this.apiEndpoint = 'https://api.expresscouriers.co/api/delivery-orders';
         this.configEndpoint = 'https://api.expresscouriers.co/config/moneris';
   
+        // Initialize payment config
+        this.paymentConfig = {
+            airdrie: {
+                city: 'airdrie',
+                deliveryFee: 21.00,
+                distanceSurcharge: 0,
+                rushHourFee: 0,
+                gstRate: 0.05
+            },
+            calgary: {
+                city: 'calgary',
+                deliveryFee: 21.00,
+                distanceSurcharge: 5.00,
+                rushHourFee: 2.50,
+                gstRate: 0.05
+            },
+            lethbridge: {
+                city: 'lethbridge',
+                deliveryFee: 20.00,
+                distanceSurcharge: 0,
+                rushHourFee: 0,
+                gstRate: 0.05
+            }
+        };
+  
         // Setup message container
         this.messageContainer = document.createElement('div');
         this.messageContainer.className = 'message-container';
@@ -49,6 +74,21 @@ if (!window.DeliveryFormHandler) {
   
       async init() {
         try {
+            // Initialize elements object if not exists
+            this.elements = {
+                deliveryFeeDisplay: document.getElementById('delivery-fee-display'),
+                gstDisplay: document.getElementById('gst-display'),
+                tipDisplay: document.getElementById('tip-display'),
+                totalDisplay: document.getElementById('total-display'),
+                orderTotal: document.getElementById('order_total'),
+                tipInput: document.getElementById('tip'),
+                customTip: document.getElementById('custom-tip'),
+                tipButtons: document.querySelectorAll('.tip-button')
+            };
+            
+            // Update fee display
+            this.updateFeeDisplay();
+            
             // Fetch API key with correct response handling
             const response = await fetch('https://api.expresscouriers.co/config/maps-api-key');
             if (!response.ok) throw new Error('Failed to load Maps API key');
@@ -60,18 +100,6 @@ if (!window.DeliveryFormHandler) {
             this.setupLoadingUI();
             this.setupFormListener();
             this.initializePayment();
-            
-            // Initialize elements object if not exists
-            this.elements = this.elements || {};
-            
-            // Add fee display elements
-            this.elements.deliveryFeeDisplay = document.getElementById('delivery-fee-display');
-            this.elements.gstDisplay = document.getElementById('gst-display');
-            this.elements.tipDisplay = document.getElementById('tip-display');
-            this.elements.totalDisplay = document.getElementById('total-display');
-            
-            // Update fee display
-            this.updateFeeDisplay();
             
         } catch (error) {
             console.error('Initialization failed:', error);
@@ -242,37 +270,12 @@ if (!window.DeliveryFormHandler) {
       }
   
       initializePayment() {
-        // City-specific configurations
-        const cityConfigs = {
-            calgary: {
-                city: 'calgary',
-                deliveryFee: 21.00,
-                distanceSurcharge: 5.00,
-                rushHourFee: 2.50,
-                gstRate: 0.05
-            },
-            airdrie: {
-                city: 'airdrie',
-                deliveryFee: 1.00,
-                distanceSurcharge: 0,
-                rushHourFee: 0,
-                gstRate: 0.05
-            },
-            lethbridge: {
-                city: 'lethbridge',
-                deliveryFee: 20.00,
-                distanceSurcharge: 0,
-                rushHourFee: 0,
-                gstRate: 0.05
-            }
-        };
-  
         // Get city from form
         const cityInput = this.form.querySelector('input[name="city"]');
         this.city = cityInput ? cityInput.value : 'calgary';
         
         // Set payment configuration
-        this.paymentConfig = cityConfigs[this.city] || {
+        this.paymentConfig = this.paymentConfig[this.city] || {
             city: this.city,
             deliveryFee: 20.00,
             distanceSurcharge: 0,
@@ -631,6 +634,32 @@ if (!window.DeliveryFormHandler) {
         this.messageContainer.innerHTML = message;
         this.messageContainer.className = 'success-message';
         this.messageContainer.scrollIntoView({ behavior: 'smooth' });
+      }
+  
+      updateFeeDisplay() {
+        const city = this.form.querySelector('input[name="city"]')?.value?.trim() || 'calgary';
+        const config = this.paymentConfig[city];
+        
+        if (!config) {
+            console.error(`No payment config found for city: ${city}`);
+            return;
+        }
+
+        if (this.elements.deliveryFeeDisplay) {
+            this.elements.deliveryFeeDisplay.textContent = config.deliveryFee.toFixed(2);
+        }
+        
+        const gst = config.deliveryFee * config.gstRate;
+        if (this.elements.gstDisplay) {
+            this.elements.gstDisplay.textContent = gst.toFixed(2);
+        }
+        
+        // Update total with current tip
+        const tip = parseFloat(this.elements.tipDisplay?.textContent || '0');
+        const total = config.deliveryFee + gst + tip;
+        if (this.elements.totalDisplay) {
+            this.elements.totalDisplay.textContent = total.toFixed(2);
+        }
       }
     }
   
