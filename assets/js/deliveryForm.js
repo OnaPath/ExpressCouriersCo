@@ -1,5 +1,4 @@
 if (!window.DeliveryFormHandler) {
-    // Define city boundaries once globally
     if (!window.CITY_BOUNDS) {
         window.CITY_BOUNDS = {
             'calgary': { north: 51.2, south: 50.8, east: -113.9, west: -114.3 },
@@ -112,12 +111,16 @@ if (!window.DeliveryFormHandler) {
 
                     script.onload = () => {
                         console.log('Moneris script loaded successfully');
-                        if (typeof MonerisCheckout === 'undefined') {
-                            console.error('MonerisCheckout not defined after script load');
-                            reject(new Error('MonerisCheckout not available'));
-                        } else {
-                            resolve();
-                        }
+                        // Wait a tick to ensure MonerisCheckout is defined
+                        setTimeout(() => {
+                            if (typeof MonerisCheckout === 'undefined') {
+                                console.error('MonerisCheckout not defined after script load');
+                                reject(new Error('MonerisCheckout not available'));
+                            } else {
+                                console.log('MonerisCheckout confirmed available');
+                                resolve();
+                            }
+                        }, 500); // 500ms delay
                     };
 
                     script.onerror = (error) => {
@@ -129,7 +132,7 @@ if (!window.DeliveryFormHandler) {
                 });
             } catch (error) {
                 console.error('Moneris script initialization failed:', error);
-                this.showError('Payment system unavailable. Please refresh the page.');
+                this.showError('Payment system unavailable—refresh or contact support');
                 throw error;
             }
         }
@@ -547,7 +550,7 @@ if (!window.DeliveryFormHandler) {
         }
 
         isLongDistance() {
-            return false; // No distance surcharge implemented
+            return false;
         }
 
         showLoading(isLoading) {
