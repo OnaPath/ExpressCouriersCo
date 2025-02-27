@@ -337,6 +337,10 @@ if (!window.DeliveryFormHandler) {
         checkoutDiv.id = 'monerisCheckout';
         outerDiv.appendChild(checkoutDiv);
   
+        const script = document.createElement('script');
+        script.src = 'https://gateway.moneris.com/chktv2/js/chkt_v2.00.js';
+        script.async = true;
+  
         const cleanup = () => {
           if (document.body.contains(outerDiv)) document.body.removeChild(outerDiv);
           if (document.body.contains(overlay)) document.body.removeChild(overlay);
@@ -345,21 +349,24 @@ if (!window.DeliveryFormHandler) {
   
         console.log('Waiting for MonerisCheckout to initialize...');
         const checkMoneris = () => {
-            if (typeof window.MonerisCheckout === 'undefined') {
-                console.error('MonerisCheckout not available');
+            console.log('Checking MonerisCheckout variants');
+            let myCheckout;
+            
+            if (typeof window.monerisCheckout !== 'undefined') {
+                console.log('Using monerisCheckout (lowercase)');
+                myCheckout = new window.monerisCheckout();
+            } else if (typeof window.MonerisCheckout !== 'undefined') {
+                console.log('Using MonerisCheckout (uppercase)');
+                myCheckout = new window.MonerisCheckout();
+            } else {
+                console.error('Neither MonerisCheckout nor monerisCheckout defined');
                 cleanup();
                 this.handleMonerisFailure();
                 return false;
             }
-            return true;
-        };
-  
-        // Wait up to 5s for MonerisCheckout
-        const interval = setInterval(() => {
-            if (checkMoneris()) {
-                clearInterval(interval);
-                console.log('MonerisCheckout available, initializing checkout');
-                const myCheckout = new window.MonerisCheckout();
+
+            if (myCheckout) {
+                console.log('MonerisCheckout initialized, setting up checkout');
                 myCheckout.setMode(this.monerisMode);
                 myCheckout.setCheckoutDiv('monerisCheckout');
                 myCheckout.setCallback('page_loaded', () => {
@@ -397,12 +404,21 @@ if (!window.DeliveryFormHandler) {
                 });
                 this.showLoading(true);
                 myCheckout.startCheckout(this.monerisTicket);
+                return true;
+            }
+            return false;
+        };
+
+        // Wait up to 5s for MonerisCheckout
+        const interval = setInterval(() => {
+            if (checkMoneris()) {
+                clearInterval(interval);
             }
         }, 500); // Check every 500ms
-  
+
         setTimeout(() => {
             clearInterval(interval);
-            if (typeof window.MonerisCheckout === 'undefined') {
+            if (typeof window.MonerisCheckout === 'undefined' && typeof window.monerisCheckout === 'undefined') {
                 console.error('MonerisCheckout not available after 5s');
                 cleanup();
                 this.handleMonerisFailure();
