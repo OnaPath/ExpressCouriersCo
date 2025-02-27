@@ -318,12 +318,13 @@ if (!window.DeliveryFormHandler) {
         overlay.style.height = '100%';
         overlay.style.background = 'rgba(0, 0, 0, 0.5)';
         overlay.style.zIndex = '999';
+        overlay.style.cursor = 'pointer';
         document.body.appendChild(overlay);
   
         const outerDiv = document.createElement('div');
         outerDiv.id = 'outerDiv';
         outerDiv.style.width = '500px';
-        outerDiv.style.height = '700px';
+        outerDiv.style.height = '740px';
         outerDiv.style.position = 'fixed';
         outerDiv.style.top = '50%';
         outerDiv.style.left = '50%';
@@ -331,7 +332,24 @@ if (!window.DeliveryFormHandler) {
         outerDiv.style.background = '#fff';
         outerDiv.style.border = '1px solid #ccc';
         outerDiv.style.zIndex = '1000';
+        outerDiv.style.borderRadius = '8px';
         document.body.appendChild(outerDiv);
+  
+        const closeButton = document.createElement('button');
+        closeButton.innerHTML = '×';
+        closeButton.style.position = 'absolute';
+        closeButton.style.right = '10px';
+        closeButton.style.top = '10px';
+        closeButton.style.border = 'none';
+        closeButton.style.background = 'transparent';
+        closeButton.style.fontSize = '24px';
+        closeButton.style.cursor = 'pointer';
+        closeButton.style.color = '#666';
+        closeButton.style.zIndex = '1001';
+        closeButton.style.padding = '5px 10px';
+        closeButton.style.lineHeight = '1';
+        closeButton.title = 'Close';
+        outerDiv.appendChild(closeButton);
   
         const checkoutDiv = document.createElement('div');
         checkoutDiv.id = 'monerisCheckout';
@@ -346,6 +364,18 @@ if (!window.DeliveryFormHandler) {
           if (document.body.contains(overlay)) document.body.removeChild(overlay);
           this.showLoading(false);
         };
+  
+        closeButton.addEventListener('click', () => {
+          console.log('Payment cancelled via close button');
+          this.showError('Payment cancelled');
+          cleanup();
+        });
+  
+        overlay.addEventListener('click', () => {
+          console.log('Payment cancelled via overlay click');
+          this.showError('Payment cancelled');
+          cleanup();
+        });
   
         console.log('Waiting for MonerisCheckout to initialize...');
         const checkMoneris = () => {
@@ -409,12 +439,11 @@ if (!window.DeliveryFormHandler) {
             return false;
         };
 
-        // Wait up to 5s for MonerisCheckout
         const interval = setInterval(() => {
             if (checkMoneris()) {
                 clearInterval(interval);
             }
-        }, 500); // Check every 500ms
+        }, 500);
 
         setTimeout(() => {
             clearInterval(interval);
@@ -423,7 +452,7 @@ if (!window.DeliveryFormHandler) {
                 cleanup();
                 this.handleMonerisFailure();
             }
-        }, 5000); // 5s timeout
+        }, 5000);
       }
   
       handleMonerisFailure() {
@@ -506,122 +535,4 @@ if (!window.DeliveryFormHandler) {
         console.log('Form Data:', formData);
   
         requiredFields.forEach(field => {
-          const input = this.form.querySelector(`#${field.id}`);
-          input.setCustomValidity('');
-          input.classList.remove('error');
-        });
-  
-        for (const checkbox of requiredCheckboxes) {
-          const input = this.form.querySelector(`#${checkbox.id}`);
-          if (!input.checked) {
-            input.setCustomValidity(`Please accept ${checkbox.label}`);
-            input.classList.add('error');
-            input.reportValidity();
-            return false;
-          }
-        }
-  
-        const fieldMap = {
-          'sender-name': 'senderName',
-          'sender-phone': 'senderPhone',
-          'sender-email': 'senderEmail',
-          'pickup-address': 'pickupAddress',
-          'receiver-name': 'receiverName',
-          'receiver-phone': 'receiverPhone',
-          'dropoff-address': 'dropoffAddress'
-        };
-  
-        for (const field of requiredFields) {
-          const input = this.form.querySelector(`#${field.id}`);
-          const formDataKey = fieldMap[field.id];
-          const value = formData[formDataKey];
-          if (!value) {
-            input.setCustomValidity(`${field.label} required`);
-            input.classList.add('error');
-            input.reportValidity();
-            isValid = false;
-            break;
-          }
-        }
-  
-        if (isValid) {
-          const phoneRegex = /^\+?[\d\s-()]{10,}$/;
-          const phones = [
-            { id: 'sender-phone', label: 'Sender Phone' },
-            { id: 'receiver-phone', label: 'Receiver Phone' }
-          ];
-          for (const phone of phones) {
-            const input = this.form.querySelector(`#${phone.id}`);
-            if (!phoneRegex.test(input.value)) {
-              input.setCustomValidity(`Valid ${phone.label} required`);
-              input.classList.add('error');
-              input.reportValidity();
-              isValid = false;
-              break;
-            }
-          }
-        }
-  
-        return isValid;
-      }
-  
-      handleTipButton(event) {
-        this.elements.tipButtons.forEach(btn => btn.classList.remove('selected'));
-        event.target.classList.add('selected');
-        if (this.elements.customTip) this.elements.customTip.value = '';
-        const percentage = parseInt(event.target.dataset.percentage);
-        const tipAmount = this.paymentConfig.deliveryFee * (percentage / 100);
-        this.updateAmounts(tipAmount);
-      }
-  
-      handleCustomTip(event) {
-        this.elements.tipButtons.forEach(btn => btn.classList.remove('selected'));
-        this.updateAmounts(event.target.value);
-      }
-  
-      updateAmounts(tipAmount) {
-        const tip = Number(tipAmount) || 0;
-        const total = this.calculateTotal(tip);
-        if (this.elements.tipDisplay) this.elements.tipDisplay.textContent = tip.toFixed(2);
-        if (this.elements.totalDisplay) this.elements.totalDisplay.textContent = total.toFixed(2);
-        if (this.elements.orderTotal) this.elements.orderTotal.value = total.toFixed(2);
-        if (this.elements.tipInput) this.elements.tipInput.value = tip.toFixed(2);
-      }
-  
-      calculateTotal(tip = 0) {
-        let subtotal = this.paymentConfig.deliveryFee;
-        if (this.isRushHour()) subtotal += this.paymentConfig.rushHourFee;
-        const gst = subtotal * this.paymentConfig.gstRate;
-        return subtotal + gst + Number(tip);
-      }
-  
-      isRushHour() {
-        const now = new Date();
-        const hour = now.getHours();
-        const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
-        return isWeekday && hour >= 16 && hour < 18;
-      }
-  
-      isLongDistance() {
-        return false; // No distance surcharge implemented
-      }
-  
-      showLoading(isLoading) {
-        this.loadingOverlay.style.display = isLoading ? 'block' : 'none';
-      }
-  
-      showError(message) {
-        this.messageContainer.innerHTML = message;
-        this.messageContainer.className = 'error-message';
-        this.messageContainer.scrollIntoView({ behavior: 'smooth' });
-      }
-  
-      showSuccess(message) {
-        this.messageContainer.innerHTML = message;
-        this.messageContainer.className = 'success-message';
-        this.messageContainer.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  
-    window.DeliveryFormHandlerInstance = new DeliveryFormHandler('delivery-form');
-  }
+          const input = this.form.querySelector(`
