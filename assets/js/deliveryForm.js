@@ -187,11 +187,16 @@ if (!window.DeliveryFormHandler) {
             input.dataset.city = city;
             autocomplete.setBounds(bounds);
 
+            // Add flag to track if address was selected from dropdown
+            input.dataset.selectedFromDropdown = 'false';
+
             autocomplete.addListener('place_changed', () => {
                 const place = autocomplete.getPlace();
                 if (!place.geometry) {
-                    console.error('No geometry for selected place');
-                    return true; // Allow manual entry
+                    input.setCustomValidity('Please select an address from the dropdown');
+                    input.classList.add('error');
+                    input.dataset.selectedFromDropdown = 'false';
+                    return;
                 }
 
                 const lat = place.geometry.location.lat();
@@ -199,8 +204,10 @@ if (!window.DeliveryFormHandler) {
                 
                 if (lat < cityBounds.south || lat > cityBounds.north ||
                     lng < cityBounds.west || lng > cityBounds.east) {
-                    console.warn(`Address outside ${city} bounds: lat=${lat}, lng=${lng}`);
-                    // Keep it permissive but warn for monitoring
+                    input.setCustomValidity(`Please select an address within ${city}`);
+                    input.classList.add('error');
+                    input.dataset.selectedFromDropdown = 'false';
+                    return;
                 }
                 
                 input.classList.remove('error');
@@ -208,10 +215,19 @@ if (!window.DeliveryFormHandler) {
                 input.setCustomValidity('');
             });
 
-            // Add input event listener but keep it permissive
+            // Add input event listener to enforce dropdown selection
             input.addEventListener('input', () => {
-                input.classList.remove('error');
-                input.setCustomValidity('');
+                input.dataset.selectedFromDropdown = 'false';
+                input.setCustomValidity('Please select an address from the dropdown');
+                input.classList.add('error');
+            });
+
+            // Add blur event listener to check if address was selected
+            input.addEventListener('blur', () => {
+                if (input.dataset.selectedFromDropdown !== 'true') {
+                    input.setCustomValidity('Please select an address from the dropdown');
+                    input.classList.add('error');
+                }
             });
         });
       }
@@ -518,6 +534,17 @@ if (!window.DeliveryFormHandler) {
         ];
   
         console.log('Form Data:', formData);
+  
+        // Check address fields were selected from dropdown
+        const addressInputs = this.form.querySelectorAll('input[data-google-places="true"]');
+        for (const input of addressInputs) {
+            if (input.dataset.selectedFromDropdown !== 'true') {
+                input.setCustomValidity('Please select an address from the dropdown');
+                input.classList.add('error');
+                input.reportValidity();
+                return false;
+            }
+        }
   
         requiredFields.forEach(field => {
           const input = this.form.querySelector(`#${field.id}`);
