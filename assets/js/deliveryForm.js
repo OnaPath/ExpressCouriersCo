@@ -39,21 +39,21 @@ if (!window.DeliveryFormHandler) {
         this.paymentConfig = {
             airdrie: {
                 city: 'airdrie',
-                deliveryFee: 1.00,
+                deliveryFee: 18.00,
                 distanceSurcharge: 0,
                 rushHourFee: 0,
                 gstRate: 0.05
             },
             calgary: {
                 city: 'calgary',
-                deliveryFee: 21.00,
-                distanceSurcharge: 5.00,
+                deliveryFee: 20.00,
+                distanceSurcharge: 0.00,
                 rushHourFee: 2.50,
                 gstRate: 0.05
             },
             lethbridge: {
                 city: 'lethbridge',
-                deliveryFee: 20.00,
+                deliveryFee: 18.00,
                 distanceSurcharge: 0,
                 rushHourFee: 0,
                 gstRate: 0.05
