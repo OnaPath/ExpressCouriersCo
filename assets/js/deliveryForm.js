@@ -355,13 +355,6 @@ if (!window.DeliveryFormHandler) {
   
         script.onload = () => {
           clearTimeout(timeoutId);
-          console.log('Moneris script loaded');
-          if (typeof MonerisCheckout === 'undefined') {
-            console.error('MonerisCheckout not defined after script load');
-            cleanup();
-            this.handleMonerisFailure();
-            return;
-          }
           const myCheckout = new MonerisCheckout();
           myCheckout.setMode(this.monerisMode);
           myCheckout.setCheckoutDiv('monerisCheckout');
@@ -404,7 +397,6 @@ if (!window.DeliveryFormHandler) {
   
         script.onerror = () => {
           clearTimeout(timeoutId);
-          console.error('Moneris script failed to load');
           cleanup();
           this.handleMonerisFailure();
         };
