@@ -322,8 +322,8 @@ if (!window.DeliveryFormHandler) {
   
         const outerDiv = document.createElement('div');
         outerDiv.id = 'outerDiv';
-        outerDiv.style.width = '400px';
-        outerDiv.style.height = '300px';
+        outerDiv.style.width = '500px';
+        outerDiv.style.height = '700px';
         outerDiv.style.position = 'fixed';
         outerDiv.style.top = '50%';
         outerDiv.style.left = '50%';
