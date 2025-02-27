@@ -45,13 +45,11 @@ if (!window.DeliveryFormHandler) {
   
       async init() {
         try {
-            // First fetch the API key
+            // Fetch API key with correct response handling
             const response = await fetch('https://api.expresscouriers.co/config/maps-api-key');
             if (!response.ok) throw new Error('Failed to load Maps API key');
-            const { apiKey } = await response.json();
-            
-            // Store API key for Maps initialization
-            this.mapsApiKey = apiKey;
+            const data = await response.json();
+            this.mapsApiKey = data.key; // Match server's { key: "CORRECT" }
             
             // Initialize components in sequence
             await this.initializeGoogleMaps();
