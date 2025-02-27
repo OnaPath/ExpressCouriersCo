@@ -188,16 +188,21 @@ if (!window.DeliveryFormHandler) {
             script.async = true;
 
             script.onload = () => {
-                console.log('Moneris script loaded');
-                if (typeof MonerisCheckout === 'undefined') {
-                    reject(new Error('MonerisCheckout not defined after script load'));
-                    return;
-                }
-                resolve();
+                // Add a small delay to allow MonerisCheckout to initialize
+                setTimeout(() => {
+                    if (typeof window.MonerisCheckout !== 'undefined') {
+                        console.log('Moneris script loaded and initialized');
+                        resolve();
+                    } else {
+                        console.warn('Moneris script loaded but not initialized - continuing anyway');
+                        resolve(); // Continue anyway, MonerisCheckout might initialize later
+                    }
+                }, 500);
             };
 
             script.onerror = () => {
-                reject(new Error('Failed to load Moneris script'));
+                console.error('Failed to load Moneris script');
+                resolve(); // Continue with form initialization even if Moneris fails
             };
 
             document.head.appendChild(script);
@@ -302,18 +307,22 @@ if (!window.DeliveryFormHandler) {
   
       async handleSubmit() {
         try {
-          this.showLoading(true);
-          const formData = this.collectFormData();
-          if (!this.validateFormData(formData)) return;
-          if (!this.monerisTicket) await this.initializeMoneris();
-          if (!this.monerisTicket) throw new Error('Payment system not initialized—try refreshing');
-          sessionStorage.setItem('pendingOrder', JSON.stringify(formData));
-          this.showMonerisIframe();
+            this.showLoading(true);
+            const formData = this.collectFormData();
+            if (!this.validateFormData(formData)) return;
+            
+            // Check for MonerisCheckout here, before showing iframe
+            if (typeof window.MonerisCheckout === 'undefined') {
+                throw new Error('Payment system not initialized—try refreshing');
+            }
+            
+            sessionStorage.setItem('pendingOrder', JSON.stringify(formData));
+            this.showMonerisIframe();
         } catch (error) {
-          console.error('Form submission failed:', error);
-          this.showError(error.message || 'Unable to process your request');
+            console.error('Form submission failed:', error);
+            this.showError(error.message || 'Unable to process your request');
         } finally {
-          this.showLoading(false);
+            this.showLoading(false);
         }
       }
   
