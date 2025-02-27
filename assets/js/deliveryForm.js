@@ -173,11 +173,6 @@ if (!window.DeliveryFormHandler) {
                 input.setCustomValidity('');
             });
         });
-
-        // Debug logging
-        console.log('Address autocomplete setup complete');
-        console.log('Number of address inputs:', addressInputs.length);
-        console.log('City bounds:', cityBounds);
       }
   
       async initializeMoneris() {
@@ -314,16 +309,6 @@ if (!window.DeliveryFormHandler) {
       }
   
       showMonerisIframe() {
-        // Check for existing elements first
-        if (document.getElementById('monerisOverlay') || document.getElementById('outerDiv')) {
-            console.warn('Cleaning up existing Moneris elements');
-            const existing = document.getElementById('monerisOverlay');
-            const existingDiv = document.getElementById('outerDiv');
-            if (existing) document.body.removeChild(existing);
-            if (existingDiv) document.body.removeChild(existingDiv);
-        }
-
-        // Create UI elements first
         const overlay = document.createElement('div');
         overlay.id = 'monerisOverlay';
         overlay.style.position = 'fixed';
@@ -334,7 +319,7 @@ if (!window.DeliveryFormHandler) {
         overlay.style.background = 'rgba(0, 0, 0, 0.5)';
         overlay.style.zIndex = '999';
         document.body.appendChild(overlay);
-
+  
         const outerDiv = document.createElement('div');
         outerDiv.id = 'outerDiv';
         outerDiv.style.width = '400px';
@@ -347,119 +332,76 @@ if (!window.DeliveryFormHandler) {
         outerDiv.style.border = '1px solid #ccc';
         outerDiv.style.zIndex = '1000';
         document.body.appendChild(outerDiv);
-
+  
         const checkoutDiv = document.createElement('div');
         checkoutDiv.id = 'monerisCheckout';
         outerDiv.appendChild(checkoutDiv);
-
+  
+        const script = document.createElement('script');
+        script.src = 'https://gateway.moneris.com/chktv2/js/chkt_v2.00.js';
+        script.async = true;
+  
         const cleanup = () => {
-            if (document.body.contains(outerDiv)) document.body.removeChild(outerDiv);
-            if (document.body.contains(overlay)) document.body.removeChild(overlay);
+          if (document.body.contains(outerDiv)) document.body.removeChild(outerDiv);
+          if (document.body.contains(overlay)) document.body.removeChild(overlay);
+          this.showLoading(false);
+        };
+  
+        const timeoutId = setTimeout(() => {
+          console.error('Moneris script load timeout');
+          cleanup();
+          this.handleMonerisFailure();
+        }, 10000);
+  
+        script.onload = () => {
+          clearTimeout(timeoutId);
+          const myCheckout = new MonerisCheckout();
+          myCheckout.setMode(this.monerisMode);
+          myCheckout.setCheckoutDiv('monerisCheckout');
+          myCheckout.setCallback('page_loaded', () => {
+            console.log('Moneris page loaded');
             this.showLoading(false);
-        };
-
-        // Try to load script with retries
-        const loadMonerisScript = async (retries = 3) => {
-            for (let i = 0; i < retries; i++) {
-                try {
-                    await new Promise((resolve, reject) => {
-                        if (window.MonerisCheckout) {
-                            console.log('MonerisCheckout already available');
-                            resolve();
-                            return;
-                        }
-
-                        const script = document.createElement('script');
-                        script.src = 'https://gateway.moneris.com/chktv2/js/chkt_v2.00.js';
-                        script.async = true;
-
-                        script.onload = () => {
-                            console.log('Moneris script loaded, attempt', i + 1);
-                            // Check for MonerisCheckout with increasing delays
-                            const checkInterval = setInterval(() => {
-                                if (window.MonerisCheckout) {
-                                    console.log('MonerisCheckout available after script load');
-                                    clearInterval(checkInterval);
-                                    resolve();
-                                }
-                            }, 100); // Check every 100ms
-
-                            // Timeout after 5 seconds
-                            setTimeout(() => {
-                                clearInterval(checkInterval);
-                                reject(new Error('MonerisCheckout not available after timeout'));
-                            }, 5000);
-                        };
-
-                        script.onerror = () => reject(new Error('Script load failed'));
-                        document.body.appendChild(script);
-                    });
-
-                    // If we get here, script loaded successfully
-                    return true;
-
-                } catch (error) {
-                    console.warn(`Attempt ${i + 1} failed:`, error);
-                    if (i === retries - 1) throw error;
-                    await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // Exponential backoff
-                }
+          });
+          myCheckout.setCallback('cancel_transaction', () => {
+            console.log('Transaction cancelled');
+            this.showError('Payment cancelled');
+            cleanup();
+          });
+          myCheckout.setCallback('error_event', (error) => {
+            console.error('Payment error:', error);
+            cleanup();
+            this.handleMonerisFailure();
+          });
+          myCheckout.setCallback('payment_complete', async (response) => {
+            console.log('Payment successful:', response);
+            this.showLoading(true);
+            try {
+              const orderData = JSON.parse(sessionStorage.getItem('pendingOrder'));
+              await this.dispatchOrder(orderData);
+              sessionStorage.removeItem('pendingOrder');
+              const params = new URLSearchParams({
+                pickup: orderData.pickupAddress,
+                dropoff: orderData.dropoffAddress,
+                total: orderData.total
+              });
+              window.location.href = `/delivery-success.html?${params}`;
+            } catch (error) {
+              this.showError('Order dispatch failed—contact support');
+            } finally {
+              cleanup();
             }
+          });
+          this.showLoading(true);
+          myCheckout.startCheckout(this.monerisTicket);
         };
-
-        // Main initialization flow
-        loadMonerisScript()
-            .then(() => {
-                console.log('Creating checkout with mode:', this.monerisMode);
-                const myCheckout = new window.MonerisCheckout();
-                myCheckout.setMode(this.monerisMode);
-                myCheckout.setCheckoutDiv('monerisCheckout');
-                
-                myCheckout.setCallback('page_loaded', () => {
-                    console.log('Moneris page loaded');
-                    this.showLoading(false);
-                });
-                
-                myCheckout.setCallback('cancel_transaction', () => {
-                    console.log('Transaction cancelled');
-                    this.showError('Payment cancelled');
-                    cleanup();
-                });
-                
-                myCheckout.setCallback('error_event', (error) => {
-                    console.error('Payment error:', error);
-                    cleanup();
-                    this.handleMonerisFailure();
-                });
-                
-                myCheckout.setCallback('payment_complete', async (response) => {
-                    console.log('Payment successful:', response);
-                    this.showLoading(true);
-                    try {
-                        const orderData = JSON.parse(sessionStorage.getItem('pendingOrder'));
-                        await this.dispatchOrder(orderData);
-                        sessionStorage.removeItem('pendingOrder');
-                        const params = new URLSearchParams({
-                            pickup: orderData.pickupAddress,
-                            dropoff: orderData.dropoffAddress,
-                            total: orderData.total
-                        });
-                        window.location.href = `/delivery-success.html?${params}`;
-                    } catch (error) {
-                        this.showError('Order dispatch failed—contact support');
-                    } finally {
-                        cleanup();
-                    }
-                });
-
-                console.log('Starting checkout with ticket:', this.monerisTicket);
-                this.showLoading(true);
-                myCheckout.startCheckout(this.monerisTicket);
-            })
-            .catch(error => {
-                console.error('Failed to initialize Moneris:', error);
-                cleanup();
-                this.handleMonerisFailure();
-            });
+  
+        script.onerror = () => {
+          clearTimeout(timeoutId);
+          cleanup();
+          this.handleMonerisFailure();
+        };
+  
+        document.body.appendChild(script);
       }
   
       handleMonerisFailure() {
@@ -527,39 +469,137 @@ if (!window.DeliveryFormHandler) {
       validateFormData(formData) {
         let isValid = true;
         const requiredFields = [
-            { id: 'sender-name', label: 'Sender Name' },
-            { id: 'sender-phone', label: 'Sender Phone' },
-            { id: 'pickup-address', label: 'Pickup Address' },
-            { id: 'receiver-name', label: 'Receiver Name' },
-            { id: 'receiver-phone', label: 'Receiver Phone' },
-            { id: 'dropoff-address', label: 'Dropoff Address' }
+          { id: 'sender-name', label: 'Sender Name' },
+          { id: 'sender-phone', label: 'Sender Phone' },
+          { id: 'pickup-address', label: 'Pickup Address' },
+          { id: 'receiver-name', label: 'Receiver Name' },
+          { id: 'receiver-phone', label: 'Receiver Phone' },
+          { id: 'dropoff-address', label: 'Dropoff Address' }
         ];
         const requiredCheckboxes = [
-            { id: 'terms', label: 'Terms of Service' },
-            { id: 'value-confirm', label: 'Value Confirmation' }
+          { id: 'terms', label: 'Terms of Service' },
+          { id: 'value-confirm', label: 'Value Confirmation' }
         ];
-
+  
         console.log('Form Data:', formData);
-
+  
         requiredFields.forEach(field => {
-            const input = this.form.querySelector(`#${field.id}`);
-            if (!input || !input.value.trim()) {
-                this.showError(`${field.label} is required`);
-                if (input) input.classList.add('error');
-                isValid = false;
-            }
+          const input = this.form.querySelector(`#${field.id}`);
+          input.setCustomValidity('');
+          input.classList.remove('error');
         });
-
-        requiredCheckboxes.forEach(checkbox => {
-            const input = this.form.querySelector(`#${checkbox.id}`);
-            if (!input || !input.checked) {
-                this.showError(`${checkbox.label} must be accepted`);
-                if (input) input.classList.add('error');
-                isValid = false;
+  
+        for (const checkbox of requiredCheckboxes) {
+          const input = this.form.querySelector(`#${checkbox.id}`);
+          if (!input.checked) {
+            input.setCustomValidity(`Please accept ${checkbox.label}`);
+            input.classList.add('error');
+            input.reportValidity();
+            return false;
+          }
+        }
+  
+        const fieldMap = {
+          'sender-name': 'senderName',
+          'sender-phone': 'senderPhone',
+          'sender-email': 'senderEmail',
+          'pickup-address': 'pickupAddress',
+          'receiver-name': 'receiverName',
+          'receiver-phone': 'receiverPhone',
+          'dropoff-address': 'dropoffAddress'
+        };
+  
+        for (const field of requiredFields) {
+          const input = this.form.querySelector(`#${field.id}`);
+          const formDataKey = fieldMap[field.id];
+          const value = formData[formDataKey];
+          if (!value) {
+            input.setCustomValidity(`${field.label} required`);
+            input.classList.add('error');
+            input.reportValidity();
+            isValid = false;
+            break;
+          }
+        }
+  
+        if (isValid) {
+          const phoneRegex = /^\+?[\d\s-()]{10,}$/;
+          const phones = [
+            { id: 'sender-phone', label: 'Sender Phone' },
+            { id: 'receiver-phone', label: 'Receiver Phone' }
+          ];
+          for (const phone of phones) {
+            const input = this.form.querySelector(`#${phone.id}`);
+            if (!phoneRegex.test(input.value)) {
+              input.setCustomValidity(`Valid ${phone.label} required`);
+              input.classList.add('error');
+              input.reportValidity();
+              isValid = false;
+              break;
             }
-        });
-
+          }
+        }
+  
         return isValid;
       }
+  
+      handleTipButton(event) {
+        this.elements.tipButtons.forEach(btn => btn.classList.remove('selected'));
+        event.target.classList.add('selected');
+        if (this.elements.customTip) this.elements.customTip.value = '';
+        const percentage = parseInt(event.target.dataset.percentage);
+        const tipAmount = this.paymentConfig.deliveryFee * (percentage / 100);
+        this.updateAmounts(tipAmount);
+      }
+  
+      handleCustomTip(event) {
+        this.elements.tipButtons.forEach(btn => btn.classList.remove('selected'));
+        this.updateAmounts(event.target.value);
+      }
+  
+      updateAmounts(tipAmount) {
+        const tip = Number(tipAmount) || 0;
+        const total = this.calculateTotal(tip);
+        if (this.elements.tipDisplay) this.elements.tipDisplay.textContent = tip.toFixed(2);
+        if (this.elements.totalDisplay) this.elements.totalDisplay.textContent = total.toFixed(2);
+        if (this.elements.orderTotal) this.elements.orderTotal.value = total.toFixed(2);
+        if (this.elements.tipInput) this.elements.tipInput.value = tip.toFixed(2);
+      }
+  
+      calculateTotal(tip = 0) {
+        let subtotal = this.paymentConfig.deliveryFee;
+        if (this.isRushHour()) subtotal += this.paymentConfig.rushHourFee;
+        const gst = subtotal * this.paymentConfig.gstRate;
+        return subtotal + gst + Number(tip);
+      }
+  
+      isRushHour() {
+        const now = new Date();
+        const hour = now.getHours();
+        const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
+        return isWeekday && hour >= 16 && hour < 18;
+      }
+  
+      isLongDistance() {
+        return false; // No distance surcharge implemented
+      }
+  
+      showLoading(isLoading) {
+        this.loadingOverlay.style.display = isLoading ? 'block' : 'none';
+      }
+  
+      showError(message) {
+        this.messageContainer.innerHTML = message;
+        this.messageContainer.className = 'error-message';
+        this.messageContainer.scrollIntoView({ behavior: 'smooth' });
+      }
+  
+      showSuccess(message) {
+        this.messageContainer.innerHTML = message;
+        this.messageContainer.className = 'success-message';
+        this.messageContainer.scrollIntoView({ behavior: 'smooth' });
+      }
     }
-}
+  
+    window.DeliveryFormHandlerInstance = new DeliveryFormHandler('delivery-form');
+  }
