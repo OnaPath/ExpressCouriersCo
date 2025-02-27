@@ -119,55 +119,59 @@ if (!window.DeliveryFormHandler) {
   
       setupAddressAutocomplete() {
         const addressInputs = this.form.querySelectorAll('input[data-google-places="true"]');
-        const cityBounds = window.CITY_BOUNDS[this.city];
+        
+        // Get city from form input
+        const cityInput = this.form.querySelector('input[name="city"]');
+        const city = cityInput ? cityInput.value.toLowerCase() : 'calgary';
+        const cityBounds = window.CITY_BOUNDS[city];
         
         if (!cityBounds) {
-          console.error(`No bounds defined for city: ${this.city}`);
-          return;
+            console.error(`No bounds defined for city: ${city}`);
+            return;
         }
-  
+
         const bounds = new google.maps.LatLngBounds(
-          { lat: cityBounds.south, lng: cityBounds.west },
-          { lat: cityBounds.north, lng: cityBounds.east }
+            { lat: cityBounds.south, lng: cityBounds.west },
+            { lat: cityBounds.north, lng: cityBounds.east }
         );
-  
+
         addressInputs.forEach(input => {
-          const autocomplete = new google.maps.places.Autocomplete(input, {
-            componentRestrictions: { country: ['ca'] },
-            bounds: bounds,
-            strictBounds: true,
-            fields: ['formatted_address', 'geometry']
-          });
-  
-          input.dataset.city = this.city;
-          autocomplete.setBounds(bounds);
-  
-          autocomplete.addListener('place_changed', () => {
-            const place = autocomplete.getPlace();
-            if (!place.geometry) {
-              console.error('No geometry for selected place');
-              return true; // Allow manual entry
-            }
-  
-            const lat = place.geometry.location.lat();
-            const lng = place.geometry.location.lng();
-            
-            if (lat < cityBounds.south || lat > cityBounds.north ||
-                lng < cityBounds.west || lng > cityBounds.east) {
-              console.warn(`Address outside ${this.city} bounds: lat=${lat}, lng=${lng}`);
-              // Keep it permissive but warn for monitoring
-            }
-            
-            input.classList.remove('error');
-            input.dataset.selectedFromDropdown = 'true';
-            input.setCustomValidity('');
-          });
-  
-          // Add input event listener but keep it permissive
-          input.addEventListener('input', () => {
-            input.classList.remove('error');
-            input.setCustomValidity('');
-          });
+            const autocomplete = new google.maps.places.Autocomplete(input, {
+                componentRestrictions: { country: ['ca'] },
+                bounds: bounds,
+                strictBounds: true,
+                fields: ['formatted_address', 'geometry']
+            });
+
+            input.dataset.city = city;
+            autocomplete.setBounds(bounds);
+
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+                if (!place.geometry) {
+                    console.error('No geometry for selected place');
+                    return true; // Allow manual entry
+                }
+
+                const lat = place.geometry.location.lat();
+                const lng = place.geometry.location.lng();
+                
+                if (lat < cityBounds.south || lat > cityBounds.north ||
+                    lng < cityBounds.west || lng > cityBounds.east) {
+                    console.warn(`Address outside ${city} bounds: lat=${lat}, lng=${lng}`);
+                    // Keep it permissive but warn for monitoring
+                }
+                
+                input.classList.remove('error');
+                input.dataset.selectedFromDropdown = 'true';
+                input.setCustomValidity('');
+            });
+
+            // Add input event listener but keep it permissive
+            input.addEventListener('input', () => {
+                input.classList.remove('error');
+                input.setCustomValidity('');
+            });
         });
       }
   
