@@ -1,10 +1,10 @@
 <!DOCTYPE HTML>
 <html lang="en-CA">
 	<head>
-		<title>Airdrie On-Demand Delivery Service | Express Couriers & Co | $20 Flat Rate</title>
+		<title>Airdrie On-Demand Delivery Service | Express Couriers & Co</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<meta name="description" content="Professional same-day delivery service in Airdrie. $20 flat rate, real-time tracking, immediate pickup. Serving all Airdrie neighborhoods including Kings Heights, Bayside & Cooper's Crossing." />
+		<meta name="description" content="Professional same-day delivery service in Airdrie. Real-time tracking, immediate pickup. Serving all Airdrie neighborhoods including Kings Heights, Bayside & Cooper's Crossing." />
 		<meta name="keywords" content="Airdrie delivery, courier service in Airdrie, same day delivery, local delivery, Kings Heights delivery, express delivery, hotshot delivery Airdrie" />
 		<meta name="robots" content="index, follow" />
 		<meta http-equiv="Content-Security-Policy" content="script-src 'self' https://gateway.moneris.com https://maps.googleapis.com 'unsafe-inline'">
@@ -257,11 +257,11 @@
 								<div class="fee-display">
 									<div class="subtotal">
 										<span>Delivery Fee:</span>
-										<span class="price">$20.00</span>
+										<span class="price">$<span id="delivery-fee-display">0.00</span></span>
 									</div>
 									<div class="gst">
 										<span>GST (5%):</span>
-										<span class="price">$1.00</span>
+										<span class="price">$<span id="gst-display">0.00</span></span>
 									</div>
 									<div class="tip">
 										<span>Tip:</span>
@@ -269,7 +269,7 @@
 									</div>
 									<div class="total">
 										<span>Total:</span>
-										<span class="price">$<span id="total-display">21.00</span></span>
+										<span class="price">$<span id="total-display">0.00</span></span>
 									</div>
 								</div>
 							</div>
@@ -298,8 +298,8 @@
 							</div>
 
 							<input type="hidden" name="order_total" id="order_total" value="">
-							<input type="hidden" name="delivery_fee" value="20.00">
-							<input type="hidden" name="gst" value="1.00">
+							<input type="hidden" name="delivery_fee" id="delivery_fee" value="">
+							<input type="hidden" name="gst" id="gst" value="">
 							<input type="hidden" name="city" value="airdrie">
 							<div class="col-12 payment-note">
 								You will be redirected to Moneris for secure online payment
