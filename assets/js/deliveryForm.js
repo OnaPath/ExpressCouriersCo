@@ -41,21 +41,18 @@ if (!window.DeliveryFormHandler) {
                 city: 'airdrie',
                 deliveryFee: 1.00,
                 distanceSurcharge: 0,
-                rushHourFee: 0,
                 gstRate: 0.05
             },
             calgary: {
                 city: 'calgary',
-                deliveryFee: 20.00,
-                distanceSurcharge: 0.00,
-                rushHourFee: 2.50,
+                deliveryFee: 21.00,
+                distanceSurcharge: 5.00,
                 gstRate: 0.05
             },
             lethbridge: {
                 city: 'lethbridge',
-                deliveryFee: 18.00,
+                deliveryFee: 20.00,
                 distanceSurcharge: 0,
-                rushHourFee: 0,
                 gstRate: 0.05
             }
         };
@@ -272,21 +269,20 @@ if (!window.DeliveryFormHandler) {
       initializePayment() {
         // Get city from form
         const cityInput = this.form.querySelector('input[name="city"]');
-        this.city = cityInput ? cityInput.value : 'calgary';
+        this.city = cityInput ? cityInput.value.toLowerCase() : 'calgary';
         
         // Set payment configuration
-        this.paymentConfig = this.paymentConfig[this.city] || {
-            city: this.city,
-            deliveryFee: 20.00,
-            distanceSurcharge: 0,
-            rushHourFee: 0,
-            gstRate: 0.05
-        };
-  
+        this.paymentConfig = this.paymentConfig[this.city];
+        
+        if (!this.paymentConfig) {
+            console.error(`Invalid city configuration for: ${this.city}`);
+            return;
+        }
+
         // Calculate initial GST and base total
         this.GST = this.paymentConfig.deliveryFee * this.paymentConfig.gstRate;
         this.BASE_TOTAL = this.paymentConfig.deliveryFee + this.GST;
-  
+
         // Initialize payment elements
         this.elements = {
             tipDisplay: document.getElementById('tip-display'),
@@ -296,7 +292,7 @@ if (!window.DeliveryFormHandler) {
             customTip: document.getElementById('custom-tip'),
             tipButtons: document.querySelectorAll('.tip-button')
         };
-  
+
         // Set up payment event listeners
         this.elements.tipButtons.forEach(button => {
             button.addEventListener('click', (e) => this.handleTipButton(e));
@@ -305,7 +301,7 @@ if (!window.DeliveryFormHandler) {
         if (this.elements.customTip) {
             this.elements.customTip.addEventListener('input', (e) => this.handleCustomTip(e));
         }
-  
+
         // Initialize starting amounts
         this.updateAmounts(0);
       }
@@ -360,12 +356,12 @@ if (!window.DeliveryFormHandler) {
         const closeButton = document.createElement('button');
         closeButton.textContent = '✕';
         closeButton.style.position = 'absolute';
-        closeButton.style.top = '10px';
+        closeButton.style.top = '11px';
         closeButton.style.right = '10px';
         closeButton.style.width = '30px';
         closeButton.style.height = '30px';
         closeButton.style.background = '#5E42A6';
-        closeButton.style.color = '#ffffff';
+        closeButton.style.color = '#5E42A6';
         closeButton.style.border = 'none';
         closeButton.style.borderRadius = '50%';
         closeButton.style.cursor = 'pointer';
@@ -608,16 +604,8 @@ if (!window.DeliveryFormHandler) {
   
       calculateTotal(tip = 0) {
         let subtotal = this.paymentConfig.deliveryFee;
-        if (this.isRushHour()) subtotal += this.paymentConfig.rushHourFee;
         const gst = subtotal * this.paymentConfig.gstRate;
         return subtotal + gst + Number(tip);
-      }
-  
-      isRushHour() {
-        const now = new Date();
-        const hour = now.getHours();
-        const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
-        return isWeekday && hour >= 16 && hour < 18;
       }
   
       isLongDistance() {
