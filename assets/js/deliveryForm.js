@@ -355,6 +355,13 @@ if (!window.DeliveryFormHandler) {
   
         script.onload = () => {
           clearTimeout(timeoutId);
+          console.log('Moneris script loaded');
+          if (typeof MonerisCheckout === 'undefined') {
+            console.error('MonerisCheckout not defined after script load');
+            cleanup();
+            this.handleMonerisFailure();
+            return;
+          }
           const myCheckout = new MonerisCheckout();
           myCheckout.setMode(this.monerisMode);
           myCheckout.setCheckoutDiv('monerisCheckout');
@@ -397,6 +404,7 @@ if (!window.DeliveryFormHandler) {
   
         script.onerror = () => {
           clearTimeout(timeoutId);
+          console.error('Moneris script failed to load');
           cleanup();
           this.handleMonerisFailure();
         };
@@ -568,7 +576,6 @@ if (!window.DeliveryFormHandler) {
   
       calculateTotal(tip = 0) {
         let subtotal = this.paymentConfig.deliveryFee;
-        if (this.isLongDistance()) subtotal += this.paymentConfig.distanceSurcharge;
         if (this.isRushHour()) subtotal += this.paymentConfig.rushHourFee;
         const gst = subtotal * this.paymentConfig.gstRate;
         return subtotal + gst + Number(tip);
@@ -582,7 +589,7 @@ if (!window.DeliveryFormHandler) {
       }
   
       isLongDistance() {
-        return false; // Placeholder—implement with Maps API if needed
+        return false; // No distance surcharge implemented
       }
   
       showLoading(isLoading) {
