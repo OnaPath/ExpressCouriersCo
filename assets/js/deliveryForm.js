@@ -31,6 +31,10 @@ if (!window.DeliveryFormHandler) {
           return;
         }
   
+        // Set API endpoints
+        this.apiEndpoint = 'https://api.expresscouriers.co/api/delivery-orders';
+        this.configEndpoint = 'https://api.expresscouriers.co/config/moneris';
+  
         // Setup message container
         this.messageContainer = document.createElement('div');
         this.messageContainer.className = 'message-container';
@@ -56,6 +60,18 @@ if (!window.DeliveryFormHandler) {
             this.setupLoadingUI();
             this.setupFormListener();
             this.initializePayment();
+            
+            // Initialize elements object if not exists
+            this.elements = this.elements || {};
+            
+            // Add fee display elements
+            this.elements.deliveryFeeDisplay = document.getElementById('delivery-fee-display');
+            this.elements.gstDisplay = document.getElementById('gst-display');
+            this.elements.tipDisplay = document.getElementById('tip-display');
+            this.elements.totalDisplay = document.getElementById('total-display');
+            
+            // Update fee display
+            this.updateFeeDisplay();
             
         } catch (error) {
             console.error('Initialization failed:', error);
@@ -177,21 +193,21 @@ if (!window.DeliveryFormHandler) {
   
       async initializeMoneris() {
         try {
-          const formData = this.collectFormData();
-          const config = await this.fetchWithRetry(
-            'https://api.expresscouriers.co/config/moneris',
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ total: formData.total })
-            },
-            3, 2000
-          );
-          this.monerisTicket = config.ticket;
-          this.monerisMode = config.mode || 'prod';
+            const formData = this.collectFormData();
+            const config = await this.fetchWithRetry(
+                this.configEndpoint,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ total: formData.total })
+                },
+                3, 2000
+            );
+            this.monerisTicket = config.ticket;
+            this.monerisMode = config.mode || 'prod';
         } catch (error) {
-          console.error('Moneris init failed:', error);
-          this.showError('Payment system unavailable—try later');
+            console.error('Moneris init failed:', error);
+            this.showError('Payment system unavailable—try later');
         }
       }
   
@@ -318,6 +334,7 @@ if (!window.DeliveryFormHandler) {
         overlay.style.height = '100%';
         overlay.style.background = 'rgba(0, 0, 0, 0.5)';
         overlay.style.zIndex = '999';
+        overlay.style.cursor = 'pointer';
         document.body.appendChild(overlay);
   
         const outerDiv = document.createElement('div');
@@ -337,9 +354,21 @@ if (!window.DeliveryFormHandler) {
         checkoutDiv.id = 'monerisCheckout';
         outerDiv.appendChild(checkoutDiv);
   
-        const script = document.createElement('script');
-        script.src = 'https://gateway.moneris.com/chktv2/js/chkt_v2.00.js';
-        script.async = true;
+        const closeButton = document.createElement('button');
+        closeButton.textContent = 'X';
+        closeButton.style.position = 'absolute';
+        closeButton.style.top = '10px';
+        closeButton.style.right = '10px';
+        closeButton.style.width = '30px';
+        closeButton.style.height = '30px';
+        closeButton.style.background = '#ff0000';
+        closeButton.style.color = '#fff';
+        closeButton.style.border = 'none';
+        closeButton.style.borderRadius = '50%';
+        closeButton.style.cursor = 'pointer';
+        closeButton.style.fontSize = '16px';
+        closeButton.style.zIndex = '1001';
+        outerDiv.appendChild(closeButton);
   
         const cleanup = () => {
           if (document.body.contains(outerDiv)) document.body.removeChild(outerDiv);
@@ -347,83 +376,64 @@ if (!window.DeliveryFormHandler) {
           this.showLoading(false);
         };
   
-        console.log('Waiting for MonerisCheckout to initialize...');
-        const checkMoneris = () => {
-            console.log('Checking MonerisCheckout variants');
-            let myCheckout;
-            
-            if (typeof window.monerisCheckout !== 'undefined') {
-                console.log('Using monerisCheckout (lowercase)');
-                myCheckout = new window.monerisCheckout();
-            } else if (typeof window.MonerisCheckout !== 'undefined') {
-                console.log('Using MonerisCheckout (uppercase)');
-                myCheckout = new window.MonerisCheckout();
-            } else {
-                console.error('Neither MonerisCheckout nor monerisCheckout defined');
-                cleanup();
-                this.handleMonerisFailure();
-                return false;
-            }
-
-            if (myCheckout) {
-                console.log('MonerisCheckout initialized, setting up checkout');
-                myCheckout.setMode(this.monerisMode);
-                myCheckout.setCheckoutDiv('monerisCheckout');
-                myCheckout.setCallback('page_loaded', () => {
-                    console.log('Moneris page loaded');
-                    this.showLoading(false);
-                });
-                myCheckout.setCallback('cancel_transaction', () => {
-                    console.log('Transaction cancelled');
-                    this.showError('Payment cancelled');
-                    cleanup();
-                });
-                myCheckout.setCallback('error_event', (error) => {
-                    console.error('Payment error:', error);
-                    cleanup();
-                    this.handleMonerisFailure();
-                });
-                myCheckout.setCallback('payment_complete', async (response) => {
-                    console.log('Payment successful:', response);
-                    this.showLoading(true);
-                    try {
-                        const orderData = JSON.parse(sessionStorage.getItem('pendingOrder'));
-                        await this.dispatchOrder(orderData);
-                        sessionStorage.removeItem('pendingOrder');
-                        const params = new URLSearchParams({
-                            pickup: orderData.pickupAddress,
-                            dropoff: orderData.dropoffAddress,
-                            total: orderData.total
-                        });
-                        window.location.href = `/delivery-success.html?${params}`;
-                    } catch (error) {
-                        this.showError('Order dispatch failed—contact support');
-                    } finally {
-                        cleanup();
-                    }
-                });
-                this.showLoading(true);
-                myCheckout.startCheckout(this.monerisTicket);
-                return true;
-            }
-            return false;
-        };
-
-        // Wait up to 5s for MonerisCheckout
-        const interval = setInterval(() => {
-            if (checkMoneris()) {
-                clearInterval(interval);
-            }
-        }, 500); // Check every 500ms
-
-        setTimeout(() => {
-            clearInterval(interval);
-            if (typeof window.MonerisCheckout === 'undefined' && typeof window.monerisCheckout === 'undefined') {
-                console.error('MonerisCheckout not available after 5s');
-                cleanup();
-                this.handleMonerisFailure();
-            }
-        }, 5000); // 5s timeout
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) {
+            console.log('Overlay clicked—closing Moneris');
+            cleanup();
+          }
+        });
+  
+        closeButton.addEventListener('click', () => {
+          console.log('Close button clicked—closing Moneris');
+          cleanup();
+        });
+  
+        console.log('Checking MonerisCheckout');
+        if (typeof window.monerisCheckout === 'undefined') {
+          console.error('monerisCheckout not available—script not loaded');
+          cleanup();
+          this.handleMonerisFailure();
+          return;
+        }
+  
+        const myCheckout = new window.monerisCheckout();
+        myCheckout.setMode(this.monerisMode);
+        myCheckout.setCheckoutDiv('monerisCheckout');
+        myCheckout.setCallback('page_loaded', () => {
+          console.log('Moneris page loaded');
+          this.showLoading(false);
+        });
+        myCheckout.setCallback('cancel_transaction', () => {
+          console.log('Transaction cancelled');
+          this.showError('Payment cancelled');
+          cleanup();
+        });
+        myCheckout.setCallback('error_event', (error) => {
+          console.error('Payment error:', error);
+          cleanup();
+          this.handleMonerisFailure();
+        });
+        myCheckout.setCallback('payment_complete', async (response) => {
+          console.log('Payment successful:', response);
+          this.showLoading(true);
+          try {
+            const orderData = JSON.parse(sessionStorage.getItem('pendingOrder'));
+            await this.dispatchOrder(orderData);
+            sessionStorage.removeItem('pendingOrder');
+            const params = new URLSearchParams({
+              pickup: orderData.pickupAddress,
+              dropoff: orderData.dropoffAddress,
+              total: orderData.total
+            });
+            window.location.href = `/delivery-success.html?${params}`;
+          } catch (error) {
+            this.showError('Order dispatch failed—contact support');
+          } finally {
+            cleanup();
+          }
+        });
+        this.showLoading(true);
+        myCheckout.startCheckout(this.monerisTicket);
       }
   
       handleMonerisFailure() {
@@ -453,18 +463,18 @@ if (!window.DeliveryFormHandler) {
   
       async dispatchOrder(orderData) {
         try {
-          const response = await fetch(this.apiEndpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(orderData)
-          });
-          if (!response.ok) throw new Error(`Dispatch error! status: ${response.status}`);
-          const result = await response.json();
-          if (!result.success) throw new Error(result.message || 'Order dispatch failed');
-          return result;
+            const response = await fetch(this.apiEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
+            if (!response.ok) throw new Error(`Dispatch error! status: ${response.status}`);
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message || 'Order dispatch failed');
+            return result;
         } catch (error) {
-          console.error('Dispatch failed:', error);
-          throw error;
+            console.error('Dispatch failed:', error);
+            throw error;
         }
       }
   
@@ -477,10 +487,11 @@ if (!window.DeliveryFormHandler) {
           pickupAddress: this.form.querySelector('#pickup-address')?.value?.trim() || '',
           receiverName: this.form.querySelector('#receiver-name')?.value?.trim() || '',
           receiverPhone: this.form.querySelector('#receiver-phone')?.value?.trim() || '',
+          receiverEmail: this.form.querySelector('#receiver-email')?.value?.trim() || '',
           dropoffAddress: this.form.querySelector('#dropoff-address')?.value?.trim() || '',
           deliveryNotes: this.form.querySelector('#delivery-notes')?.value?.trim() || '',
           weight: this.form.querySelector('#weight')?.value?.trim() || '',
-          city: this.form.querySelector('input[name="city"]')?.value?.trim() || 'Airdrie',
+          city: this.form.querySelector('input[name="city"]')?.value?.trim() || 'calgary',
           subtotal: parseFloat(this.form.querySelector('input[name="delivery_fee"]')?.value || this.paymentConfig.deliveryFee),
           gst: parseFloat(this.form.querySelector('input[name="gst"]')?.value || this.GST),
           tip: parseFloat(this.form.querySelector('input[name="tip"]')?.value || this.elements.tipDisplay?.textContent || '0'),
@@ -623,5 +634,8 @@ if (!window.DeliveryFormHandler) {
       }
     }
   
-    window.DeliveryFormHandlerInstance = new DeliveryFormHandler('delivery-form');
-  }
+    // Initialize the handler
+    if (!window.DeliveryFormHandlerInstance) {
+        window.DeliveryFormHandlerInstance = new DeliveryFormHandler('delivery-form');
+    }
+}
