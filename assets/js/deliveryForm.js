@@ -39,7 +39,7 @@ if (!window.DeliveryFormHandler) {
         this.paymentConfig = {
             airdrie: {
                 city: 'airdrie',
-                deliveryFee: 18.00,
+                deliveryFee: 1.00,
                 distanceSurcharge: 0,
                 rushHourFee: 0,
                 gstRate: 0.05
@@ -358,19 +358,23 @@ if (!window.DeliveryFormHandler) {
         outerDiv.appendChild(checkoutDiv);
   
         const closeButton = document.createElement('button');
-        closeButton.textContent = 'X';
+        closeButton.textContent = '✕';
         closeButton.style.position = 'absolute';
         closeButton.style.top = '10px';
         closeButton.style.right = '10px';
         closeButton.style.width = '30px';
         closeButton.style.height = '30px';
-        closeButton.style.background = '#ff0000';
-        closeButton.style.color = '#fff';
+        closeButton.style.background = '#5E42A6';
+        closeButton.style.color = '#ffffff';
         closeButton.style.border = 'none';
         closeButton.style.borderRadius = '50%';
         closeButton.style.cursor = 'pointer';
-        closeButton.style.fontSize = '16px';
+        closeButton.style.fontSize = '18px';
+        closeButton.style.lineHeight = '30px';
+        closeButton.style.textAlign = 'center';
+        closeButton.style.fontFamily = 'Arial, sans-serif';
         closeButton.style.zIndex = '1001';
+        closeButton.style.fontWeight = 'bold';
         outerDiv.appendChild(closeButton);
   
         const cleanup = () => {
