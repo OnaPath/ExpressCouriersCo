@@ -522,19 +522,39 @@ if (!window.DeliveryFormHandler) {
       validateFormData(formData) {
         let isValid = true;
         const requiredFields = [
-          { id: 'sender-name', label: 'Sender Name' },
-          { id: 'sender-phone', label: 'Sender Phone' },
-          { id: 'pickup-address', label: 'Pickup Address' },
-          { id: 'receiver-name', label: 'Receiver Name' },
-          { id: 'receiver-phone', label: 'Receiver Phone' },
-          { id: 'dropoff-address', label: 'Dropoff Address' }
+            { id: 'sender-name', label: 'Sender Name' },
+            { id: 'sender-phone', label: 'Sender Phone' },
+            { id: 'pickup-address', label: 'Pickup Address' },
+            { id: 'receiver-name', label: 'Receiver Name' },
+            { id: 'receiver-phone', label: 'Receiver Phone' },
+            { id: 'dropoff-address', label: 'Dropoff Address' }
         ];
         const requiredCheckboxes = [
-          { id: 'terms', label: 'Terms of Service' },
-          { id: 'value-confirm', label: 'Value Confirmation' }
+            { id: 'terms', label: 'Terms of Service' },
+            { id: 'value-confirm', label: 'Value Confirmation' }
         ];
-  
+
         console.log('Form Data:', formData);
-  
+
         requiredFields.forEach(field => {
-          const input = this.form.querySelector(`
+            const input = this.form.querySelector(`#${field.id}`);
+            if (!input || !input.value.trim()) {
+                this.showError(`${field.label} is required`);
+                if (input) input.classList.add('error');
+                isValid = false;
+            }
+        });
+
+        requiredCheckboxes.forEach(checkbox => {
+            const input = this.form.querySelector(`#${checkbox.id}`);
+            if (!input || !input.checked) {
+                this.showError(`${checkbox.label} must be accepted`);
+                if (input) input.classList.add('error');
+                isValid = false;
+            }
+        });
+
+        return isValid;
+      }
+    }
+}
