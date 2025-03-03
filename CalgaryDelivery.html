@@ -62,7 +62,7 @@
 			},
 			"telephone": "587-434-4794",
 			"url": "https://www.expresscouriers.co/CalgaryDelivery.html",
-			"priceRange": "$20",
+			"priceRange": "$24.75",
 			"openingHours": "Mo-Su 09:00-21:30",
 			"areaServed": [
 				"Downtown Calgary",
@@ -91,7 +91,7 @@
 						},
 						"priceSpecification": {
 							"@type": "PriceSpecification",
-							"price": "20.00",
+							"price": "24.75",
 							"priceCurrency": "CAD"
 						}
 					}
@@ -247,11 +247,11 @@
 								<div class="fee-display">
 									<div class="subtotal">
 										<span>Delivery Fee:</span>
-										<span class="price">$20.00</span>
+										<span class="price">$<span id="delivery-fee-display">24.75</span></span>
 									</div>
 									<div class="gst">
 										<span>GST (5%):</span>
-										<span class="price">$1.00</span>
+										<span class="price">$<span id="gst-display">1.24</span></span>
 									</div>
 									<div class="tip">
 										<span>Tip:</span>
@@ -259,13 +259,13 @@
 									</div>
 									<div class="total">
 										<span>Total:</span>
-										<span class="price">$<span id="total-display">21.00</span></span>
+										<span class="price">$<span id="total-display">25.99</span></span>
 									</div>
 								</div>
 								<div class="tip-options">
-									<button type="button" class="tip-button" data-percentage="15">15% ($3.00)</button>
-									<button type="button" class="tip-button" data-percentage="20">20% ($4.00)</button>
-									<button type="button" class="tip-button" data-percentage="25">25% ($5.00)</button>
+									<button type="button" class="tip-button" data-percentage="15">15% ($3.71)</button>
+									<button type="button" class="tip-button" data-percentage="20">20% ($4.95)</button>
+									<button type="button" class="tip-button" data-percentage="25">25% ($6.19)</button>
 								</div>
 								<div class="custom-tip">
 									<input type="number" name="custom-tip" id="custom-tip" placeholder="Enter Custom Amount" min="0" step="0.50" />
@@ -282,8 +282,8 @@
 								<label for="value-confirm">I confirm that the value of my parcel does not exceed $500 CAD</label>
 							</div>
 							<input type="hidden" name="order_total" id="order_total" value="">
-							<input type="hidden" name="delivery_fee" value="20.00">
-							<input type="hidden" name="gst" value="1.00">
+							<input type="hidden" name="delivery_fee" value="24.75">
+							<input type="hidden" name="gst" value="1.24">
 							<input type="hidden" name="city" value="calgary">
 							<div class="col-12 payment-note">
 								You will be redirected to Moneris for secure online payment
