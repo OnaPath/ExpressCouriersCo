@@ -34,6 +34,16 @@ if (!window.DeliveryFormHandler) {
         // Set API endpoints
         this.apiEndpoint = 'https://api.expresscouriers.co/api/delivery-orders';
         this.configEndpoint = 'https://api.expresscouriers.co/config/moneris';
+        
+        // Add new properties for distance calculation
+        this.pickupAddress = null;
+        this.dropoffAddress = null;
+        this.distanceKm = 0;
+        this.baseFees = {
+            'calgary': 20.00,
+            'airdrie': 20.00,
+            'lethbridge': 20.00
+        };
   
         // Initialize payment config
         this.paymentConfig = {
@@ -213,6 +223,18 @@ if (!window.DeliveryFormHandler) {
                 input.classList.remove('error');
                 input.dataset.selectedFromDropdown = 'true';
                 input.setCustomValidity('');
+
+                // Store the full address
+                if (input.id === 'pickup-address') {
+                    this.pickupAddress = place.formatted_address;
+                } else if (input.id === 'dropoff-address') {
+                    this.dropoffAddress = place.formatted_address;
+                }
+
+                // If both addresses are set, calculate distance
+                if (this.pickupAddress && this.dropoffAddress) {
+                    this.calculateDistance();
+                }
             });
 
             // Add input event listener to enforce dropdown selection
@@ -283,21 +305,19 @@ if (!window.DeliveryFormHandler) {
       }
   
       initializePayment() {
-        // Get city from form
         const cityInput = this.form.querySelector('input[name="city"]');
         this.city = cityInput ? cityInput.value.toLowerCase() : 'calgary';
         
-        // Set payment configuration
-        this.paymentConfig = this.paymentConfig[this.city];
-        
-        if (!this.paymentConfig) {
-            console.error(`Invalid city configuration for: ${this.city}`);
-            return;
+        // Set payment configuration (use base fee initially)
+        if (!this.paymentConfig[this.city]) {
+            this.paymentConfig[this.city] = {
+                city: this.city,
+                deliveryFee: this.baseFees[this.city] || 20.00,
+                distanceSurcharge: 0,
+                gstRate: 0.05
+            };
         }
-
-        // Calculate initial GST and base total
-        this.GST = this.paymentConfig.deliveryFee * this.paymentConfig.gstRate;
-        this.BASE_TOTAL = this.paymentConfig.deliveryFee + this.GST;
+        this.paymentConfig = this.paymentConfig[this.city];
 
         // Initialize payment elements
         this.elements = {
@@ -318,7 +338,8 @@ if (!window.DeliveryFormHandler) {
             this.elements.customTip.addEventListener('input', (e) => this.handleCustomTip(e));
         }
 
-        // Initialize starting amounts
+        // Initialize with base fee, will update when distance is calculated
+        this.updateDynamicFee(); // Set initial fee and totals
         this.updateAmounts(0);
       }
   
@@ -679,6 +700,62 @@ if (!window.DeliveryFormHandler) {
         if (this.elements.totalDisplay) {
             this.elements.totalDisplay.textContent = total.toFixed(2);
         }
+      }
+
+      // New method to fetch distance from server
+      async calculateDistance() {
+        if (!this.pickupAddress || !this.dropoffAddress) return;
+
+        this.showLoading(true); // Show loading spinner
+        try {
+            const response = await fetch('https://api.expresscouriers.co/api/calculate-distance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    pickupAddress: this.pickupAddress,
+                    dropoffAddress: this.dropoffAddress
+                })
+            });
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+
+            if (data.distance) {
+                this.distanceKm = data.distance;
+                console.log(`Distance from server: ${this.distanceKm} km`);
+                this.updateDynamicFee();
+            } else {
+                throw new Error('No distance returned');
+            }
+        } catch (error) {
+            console.error('Distance fetch failed:', error.message);
+            this.showError('Unable to calculate distance. Please try again.');
+            this.distanceKm = 0; // Fallback to base fee
+            this.updateDynamicFee();
+        } finally {
+            this.showLoading(false); // Hide loading spinner
+        }
+      }
+
+      // Update fee based on distance
+      updateDynamicFee() {
+        const city = this.form.querySelector('input[name="city"]')?.value?.toLowerCase() || 'calgary';
+        const baseFee = this.baseFees[city] || 20.00;
+        const distanceCost = this.distanceKm * 0.40; // $0.40/km
+        const deliveryFee = baseFee + distanceCost;
+
+        // Update payment config
+        if (!this.paymentConfig[city]) {
+            this.paymentConfig[city] = { city, deliveryFee, distanceSurcharge: 0, gstRate: 0.05 };
+        } else {
+            this.paymentConfig[city].deliveryFee = deliveryFee;
+        }
+
+        // Recalculate GST and base total
+        this.GST = deliveryFee * this.paymentConfig[city].gstRate;
+        this.BASE_TOTAL = deliveryFee + this.GST;
+
+        this.updateFeeDisplay();
       }
     }
   
