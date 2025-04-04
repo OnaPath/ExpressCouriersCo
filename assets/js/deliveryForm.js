@@ -233,6 +233,7 @@ if (!window.DeliveryFormHandler) {
 
                 // If both addresses are set, calculate distance
                 if (this.pickupAddress && this.dropoffAddress) {
+                    console.log('Both addresses set, calculating distance:', this.pickupAddress, this.dropoffAddress);
                     this.calculateDistance();
                 }
             });
