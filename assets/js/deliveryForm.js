@@ -31,11 +31,9 @@ if (!window.DeliveryFormHandler) {
           return;
         }
   
-        // Set API endpoints
         this.apiEndpoint = 'https://api.expresscouriers.co/api/delivery-orders';
         this.configEndpoint = 'https://api.expresscouriers.co/config/moneris';
-        
-        // Add new properties for distance calculation
+  
         this.pickupAddress = null;
         this.dropoffAddress = null;
         this.distanceKm = 0;
@@ -45,34 +43,13 @@ if (!window.DeliveryFormHandler) {
             'lethbridge': 20.00
         };
   
-        // Initialize payment config
-        this.paymentConfig = {
-            airdrie: {
-                city: 'airdrie',
-                deliveryFee: 24.75,
-                distanceSurcharge: 0,
-                gstRate: 0.05
-            },
-            calgary: {
-                city: 'calgary',
-                deliveryFee: 26.75,
-                distanceSurcharge: 5.00,
-                gstRate: 0.05
-            },
-            lethbridge: {
-                city: 'lethbridge',
-                deliveryFee: 24.75,
-                distanceSurcharge: 0,
-                gstRate: 0.05
-            }
-        };
+        // Initialize payment config as an empty object
+        this.paymentConfig = {};
   
-        // Setup message container
         this.messageContainer = document.createElement('div');
         this.messageContainer.className = 'message-container';
         this.form.appendChild(this.messageContainer);
   
-        // Initialize everything directly - no need for DOMContentLoaded
         this.init().catch(error => {
             console.error('Initialization failed:', error);
             this.showError('Service initialization failed. Please refresh the page.');
@@ -308,8 +285,8 @@ if (!window.DeliveryFormHandler) {
       initializePayment() {
         const cityInput = this.form.querySelector('input[name="city"]');
         this.city = cityInput ? cityInput.value.toLowerCase() : 'calgary';
-        
-        // Set payment configuration (use base fee initially)
+
+        // Ensure city config exists
         if (!this.paymentConfig[this.city]) {
             this.paymentConfig[this.city] = {
                 city: this.city,
@@ -318,7 +295,6 @@ if (!window.DeliveryFormHandler) {
                 gstRate: 0.05
             };
         }
-        this.paymentConfig = this.paymentConfig[this.city];
 
         // Initialize payment elements
         this.elements = {
@@ -330,17 +306,15 @@ if (!window.DeliveryFormHandler) {
             tipButtons: document.querySelectorAll('.tip-button')
         };
 
-        // Set up payment event listeners
         this.elements.tipButtons.forEach(button => {
             button.addEventListener('click', (e) => this.handleTipButton(e));
         });
-        
+
         if (this.elements.customTip) {
             this.elements.customTip.addEventListener('input', (e) => this.handleCustomTip(e));
         }
 
-        // Initialize with base fee, will update when distance is calculated
-        this.updateDynamicFee(); // Set initial fee and totals
+        this.updateDynamicFee();
         this.updateAmounts(0);
       }
   
@@ -533,7 +507,7 @@ if (!window.DeliveryFormHandler) {
           deliveryNotes: this.form.querySelector('#delivery-notes')?.value?.trim() || '',
           weight: this.form.querySelector('#weight')?.value?.trim() || '',
           city: this.form.querySelector('input[name="city"]')?.value?.trim() || 'calgary',
-          subtotal: parseFloat(this.form.querySelector('input[name="delivery_fee"]')?.value || this.paymentConfig.deliveryFee),
+          subtotal: parseFloat(this.form.querySelector('input[name="delivery_fee"]')?.value || this.paymentConfig[this.city].deliveryFee),
           gst: parseFloat(this.form.querySelector('input[name="gst"]')?.value || this.GST),
           tip: parseFloat(this.form.querySelector('input[name="tip"]')?.value || this.elements.tipDisplay?.textContent || '0'),
           total: parseFloat(this.elements.totalDisplay?.textContent || this.BASE_TOTAL)
@@ -633,7 +607,7 @@ if (!window.DeliveryFormHandler) {
         event.target.classList.add('selected');
         if (this.elements.customTip) this.elements.customTip.value = '';
         const percentage = parseInt(event.target.dataset.percentage);
-        const tipAmount = this.paymentConfig.deliveryFee * (percentage / 100);
+        const tipAmount = this.paymentConfig[this.city].deliveryFee * (percentage / 100);
         this.updateAmounts(tipAmount);
       }
   
@@ -652,8 +626,10 @@ if (!window.DeliveryFormHandler) {
       }
   
       calculateTotal(tip = 0) {
-        let subtotal = this.paymentConfig.deliveryFee;
-        const gst = subtotal * this.paymentConfig.gstRate;
+        const city = this.form.querySelector('input[name="city"]')?.value?.toLowerCase() || 'calgary';
+        const config = this.paymentConfig[city];
+        const subtotal = config.deliveryFee;
+        const gst = subtotal * config.gstRate;
         return subtotal + gst + Number(tip);
       }
   
@@ -680,7 +656,7 @@ if (!window.DeliveryFormHandler) {
       updateFeeDisplay() {
         const city = this.form.querySelector('input[name="city"]')?.value?.trim() || 'calgary';
         const config = this.paymentConfig[city];
-        
+
         if (!config) {
             console.error(`No payment config found for city: ${city}`);
             return;
@@ -689,13 +665,12 @@ if (!window.DeliveryFormHandler) {
         if (this.elements.deliveryFeeDisplay) {
             this.elements.deliveryFeeDisplay.textContent = config.deliveryFee.toFixed(2);
         }
-        
+
         const gst = config.deliveryFee * config.gstRate;
         if (this.elements.gstDisplay) {
             this.elements.gstDisplay.textContent = gst.toFixed(2);
         }
-        
-        // Update total with current tip
+
         const tip = parseFloat(this.elements.tipDisplay?.textContent || '0');
         const total = config.deliveryFee + gst + tip;
         if (this.elements.totalDisplay) {
@@ -706,8 +681,7 @@ if (!window.DeliveryFormHandler) {
       // New method to fetch distance from server
       async calculateDistance() {
         if (!this.pickupAddress || !this.dropoffAddress) return;
-
-        this.showLoading(true); // Show loading spinner
+        this.showLoading(true);
         try {
             const response = await fetch('https://api.expresscouriers.co/api/calculate-distance', {
                 method: 'POST',
@@ -717,24 +691,23 @@ if (!window.DeliveryFormHandler) {
                     dropoffAddress: this.dropoffAddress
                 })
             });
-
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
-
             if (data.distance) {
                 this.distanceKm = data.distance;
                 console.log(`Distance from server: ${this.distanceKm} km`);
                 this.updateDynamicFee();
+                this.updateAmounts(parseFloat(this.elements.tipDisplay?.textContent || '0')); // Force total update
             } else {
                 throw new Error('No distance returned');
             }
         } catch (error) {
             console.error('Distance fetch failed:', error.message);
             this.showError('Unable to calculate distance. Please try again.');
-            this.distanceKm = 0; // Fallback to base fee
+            this.distanceKm = 0;
             this.updateDynamicFee();
         } finally {
-            this.showLoading(false); // Hide loading spinner
+            this.showLoading(false);
         }
       }
 
@@ -742,17 +715,17 @@ if (!window.DeliveryFormHandler) {
       updateDynamicFee() {
         const city = this.form.querySelector('input[name="city"]')?.value?.toLowerCase() || 'calgary';
         const baseFee = this.baseFees[city] || 20.00;
-        const distanceCost = this.distanceKm * 0.40; // $0.40/km
+        const distanceCost = this.distanceKm * 0.40;
         const deliveryFee = baseFee + distanceCost;
 
-        // Update payment config
+        console.log(`Updating fee: base=${baseFee}, distance=${this.distanceKm}, cost=${distanceCost}, total=${deliveryFee}`);
+
         if (!this.paymentConfig[city]) {
             this.paymentConfig[city] = { city, deliveryFee, distanceSurcharge: 0, gstRate: 0.05 };
         } else {
             this.paymentConfig[city].deliveryFee = deliveryFee;
         }
 
-        // Recalculate GST and base total
         this.GST = deliveryFee * this.paymentConfig[city].gstRate;
         this.BASE_TOTAL = deliveryFee + this.GST;
 
