@@ -655,26 +655,37 @@ if (!window.DeliveryFormHandler) {
   
       updateFeeDisplay() {
         const city = this.form.querySelector('input[name="city"]')?.value?.trim() || 'calgary';
-        const config = this.paymentConfig[city];
+        let config = this.paymentConfig[city];
 
         if (!config) {
-            console.error(`No payment config found for city: ${city}`);
-            return;
+            console.warn(`No payment config found for city: ${city}, using default`);
+            config = { city, deliveryFee: this.baseFees[city] || 20.00, gstRate: 0.05 };
+            this.paymentConfig[city] = config;
         }
+
+        const deliveryFee = config.deliveryFee.toFixed(2);
+        const gst = (config.deliveryFee * config.gstRate).toFixed(2);
+        const tip = parseFloat(this.elements.tipDisplay?.textContent || '0');
+        const total = (config.deliveryFee + config.deliveryFee * config.gstRate + tip).toFixed(2);
+
+        console.log('Updating display:', { deliveryFee, gst, total });
 
         if (this.elements.deliveryFeeDisplay) {
-            this.elements.deliveryFeeDisplay.textContent = config.deliveryFee.toFixed(2);
+            this.elements.deliveryFeeDisplay.textContent = deliveryFee;
+        } else {
+            console.error('deliveryFeeDisplay element not found');
         }
 
-        const gst = config.deliveryFee * config.gstRate;
         if (this.elements.gstDisplay) {
-            this.elements.gstDisplay.textContent = gst.toFixed(2);
+            this.elements.gstDisplay.textContent = gst;
+        } else {
+            console.error('gstDisplay element not found');
         }
 
-        const tip = parseFloat(this.elements.tipDisplay?.textContent || '0');
-        const total = config.deliveryFee + gst + tip;
         if (this.elements.totalDisplay) {
-            this.elements.totalDisplay.textContent = total.toFixed(2);
+            this.elements.totalDisplay.textContent = total;
+        } else {
+            console.error('totalDisplay element not found');
         }
       }
 
@@ -733,8 +744,10 @@ if (!window.DeliveryFormHandler) {
       }
     }
   
-    // Initialize the handler
-    if (!window.DeliveryFormHandlerInstance) {
-        window.DeliveryFormHandlerInstance = new DeliveryFormHandler('delivery-form');
-    }
+    // Initialize the handler after DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!window.DeliveryFormHandlerInstance) {
+            window.DeliveryFormHandlerInstance = new DeliveryFormHandler('delivery-form');
+        }
+    });
 }
