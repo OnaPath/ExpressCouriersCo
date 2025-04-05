@@ -37,8 +37,9 @@ if (!window.DeliveryFormHandler) {
         this.pickupAddress = null;
         this.dropoffAddress = null;
         this.distanceKm = 0;
+        this.hasCalculatedDistance = false;
         this.baseFees = {
-            'calgary': 20.00,
+            'calgary': 23.00,
             'airdrie': 20.00,
             'lethbridge': 20.00
         };
@@ -78,7 +79,6 @@ if (!window.DeliveryFormHandler) {
             this.setupLoadingUI();
             this.setupFormListener();
             this.initializePayment();
-            this.updateFeeDisplay();
         } catch (error) {
             console.error('Initialization failed:', error);
             this.showError('Service initialization failed. Please refresh the page.');
@@ -289,7 +289,6 @@ if (!window.DeliveryFormHandler) {
             };
         }
 
-        // Merge new elements into existing this.elements
         this.elements = {
             ...this.elements,
             deliveryFeeDisplay: document.getElementById('delivery-fee-display'),
@@ -310,7 +309,6 @@ if (!window.DeliveryFormHandler) {
             this.elements.customTip.addEventListener('input', (e) => this.handleCustomTip(e));
         }
 
-        this.updateDynamicFee();
         this.updateAmounts(0);
       }
   
@@ -615,10 +613,22 @@ if (!window.DeliveryFormHandler) {
       updateAmounts(tipAmount) {
         const tip = Number(tipAmount) || 0;
         const total = this.calculateTotal(tip);
-        if (this.elements.tipDisplay) this.elements.tipDisplay.textContent = tip.toFixed(2);
-        if (this.elements.totalDisplay) this.elements.totalDisplay.textContent = total.toFixed(2);
-        if (this.elements.orderTotal) this.elements.orderTotal.value = total.toFixed(2);
-        if (this.elements.tipInput) this.elements.tipInput.value = tip.toFixed(2);
+        if (this.elements.tipDisplay) {
+            this.elements.tipDisplay.textContent = tip.toFixed(2);
+        }
+        if (this.elements.totalDisplay) {
+            if (this.hasCalculatedDistance) {
+                this.elements.totalDisplay.textContent = total.toFixed(2);
+            } else {
+                this.elements.totalDisplay.textContent = 'TBD';
+            }
+        }
+        if (this.elements.orderTotal) {
+            this.elements.orderTotal.value = this.hasCalculatedDistance ? total.toFixed(2) : '0.00';
+        }
+        if (this.elements.tipInput) {
+            this.elements.tipInput.value = tip.toFixed(2);
+        }
       }
   
       calculateTotal(tip = 0) {
@@ -671,22 +681,36 @@ if (!window.DeliveryFormHandler) {
             totalDisplay: this.elements.totalDisplay
         });
 
-        if (this.elements.deliveryFeeDisplay) {
-            this.elements.deliveryFeeDisplay.textContent = deliveryFee;
-        } else {
-            console.error('deliveryFeeDisplay element not found');
-        }
+        // Only display fees if distance has been calculated
+        if (this.hasCalculatedDistance) {
+            if (this.elements.deliveryFeeDisplay) {
+                this.elements.deliveryFeeDisplay.textContent = deliveryFee;
+            } else {
+                console.error('deliveryFeeDisplay element not found');
+            }
 
-        if (this.elements.gstDisplay) {
-            this.elements.gstDisplay.textContent = gst;
-        } else {
-            console.error('gstDisplay element not found');
-        }
+            if (this.elements.gstDisplay) {
+                this.elements.gstDisplay.textContent = gst;
+            } else {
+                console.error('gstDisplay element not found');
+            }
 
-        if (this.elements.totalDisplay) {
-            this.elements.totalDisplay.textContent = total;
+            if (this.elements.totalDisplay) {
+                this.elements.totalDisplay.textContent = total;
+            } else {
+                console.error('totalDisplay element not found');
+            }
         } else {
-            console.error('totalDisplay element not found');
+            // Optionally, set placeholders or clear the fields
+            if (this.elements.deliveryFeeDisplay) {
+                this.elements.deliveryFeeDisplay.textContent = 'TBD';
+            }
+            if (this.elements.gstDisplay) {
+                this.elements.gstDisplay.textContent = 'TBD';
+            }
+            if (this.elements.totalDisplay) {
+                this.elements.totalDisplay.textContent = 'TBD';
+            }
         }
       }
 
@@ -708,8 +732,8 @@ if (!window.DeliveryFormHandler) {
             if (data.distance) {
                 this.distanceKm = data.distance;
                 console.log(`Distance from server: ${this.distanceKm} km`);
-                this.updateDynamicFee();
-                this.updateAmounts(parseFloat(this.elements.tipDisplay?.textContent || '0')); // Force total update
+                this.hasCalculatedDistance = true;
+                this.updateAmounts(parseFloat(this.elements.tipDisplay?.textContent || '0'));
             } else {
                 throw new Error('No distance returned');
             }
@@ -717,7 +741,7 @@ if (!window.DeliveryFormHandler) {
             console.error('Distance fetch failed:', error.message);
             this.showError('Unable to calculate distance. Please try again.');
             this.distanceKm = 0;
-            this.updateDynamicFee();
+            this.hasCalculatedDistance = true;
         } finally {
             this.showLoading(false);
         }
