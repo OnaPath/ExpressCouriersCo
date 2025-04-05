@@ -733,6 +733,7 @@ if (!window.DeliveryFormHandler) {
                 this.distanceKm = data.distance;
                 console.log(`Distance from server: ${this.distanceKm} km`);
                 this.hasCalculatedDistance = true;
+                this.updateDynamicFee();
                 this.updateAmounts(parseFloat(this.elements.tipDisplay?.textContent || '0'));
             } else {
                 throw new Error('No distance returned');
@@ -742,6 +743,7 @@ if (!window.DeliveryFormHandler) {
             this.showError('Unable to calculate distance. Please try again.');
             this.distanceKm = 0;
             this.hasCalculatedDistance = true;
+            this.updateDynamicFee();
         } finally {
             this.showLoading(false);
         }
