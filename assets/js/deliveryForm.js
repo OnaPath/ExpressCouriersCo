@@ -58,7 +58,6 @@ if (!window.DeliveryFormHandler) {
   
       async init() {
         try {
-            // Initialize elements object if not exists
             this.elements = {
                 deliveryFeeDisplay: document.getElementById('delivery-fee-display'),
                 gstDisplay: document.getElementById('gst-display'),
@@ -70,21 +69,16 @@ if (!window.DeliveryFormHandler) {
                 tipButtons: document.querySelectorAll('.tip-button')
             };
             
-            // Update fee display
-            this.updateFeeDisplay();
-            
-            // Fetch API key with correct response handling
             const response = await fetch('https://api.expresscouriers.co/config/maps-api-key');
             if (!response.ok) throw new Error('Failed to load Maps API key');
             const data = await response.json();
-            this.mapsApiKey = data.key; // Match server's { key: "CORRECT" }
+            this.mapsApiKey = data.key;
             
-            // Initialize components in sequence
             await this.initializeGoogleMaps();
             this.setupLoadingUI();
             this.setupFormListener();
             this.initializePayment();
-            
+            this.updateFeeDisplay();
         } catch (error) {
             console.error('Initialization failed:', error);
             this.showError('Service initialization failed. Please refresh the page.');
@@ -286,7 +280,6 @@ if (!window.DeliveryFormHandler) {
         const cityInput = this.form.querySelector('input[name="city"]');
         this.city = cityInput ? cityInput.value.toLowerCase() : 'calgary';
 
-        // Ensure city config exists
         if (!this.paymentConfig[this.city]) {
             this.paymentConfig[this.city] = {
                 city: this.city,
@@ -296,8 +289,11 @@ if (!window.DeliveryFormHandler) {
             };
         }
 
-        // Initialize payment elements
+        // Merge new elements into existing this.elements
         this.elements = {
+            ...this.elements,
+            deliveryFeeDisplay: document.getElementById('delivery-fee-display'),
+            gstDisplay: document.getElementById('gst-display'),
             tipDisplay: document.getElementById('tip-display'),
             totalDisplay: document.getElementById('total-display'),
             orderTotal: document.getElementById('order_total'),
@@ -669,6 +665,11 @@ if (!window.DeliveryFormHandler) {
         const total = (config.deliveryFee + config.deliveryFee * config.gstRate + tip).toFixed(2);
 
         console.log('Updating display:', { deliveryFee, gst, total });
+        console.log('Element references:', {
+            deliveryFeeDisplay: this.elements.deliveryFeeDisplay,
+            gstDisplay: this.elements.gstDisplay,
+            totalDisplay: this.elements.totalDisplay
+        });
 
         if (this.elements.deliveryFeeDisplay) {
             this.elements.deliveryFeeDisplay.textContent = deliveryFee;
